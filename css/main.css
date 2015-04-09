@@ -95,24 +95,44 @@ textarea {
    Author's custom styles
    ========================================================================== */
 
-#vertical {
-    height: 380px;
-    width: 700px;
-    margin: 0 auto;
+
+html,
+body
+{
+    height:100%;
+    margin:0;
+    padding:0;
+    overflow:hidden;
 }
 
-#middle-pane { background-color: rgba(60, 70, 80, 0.10); }
-#bottom-pane { background-color: rgba(60, 70, 80, 0.15); }
-#left-pane, #center-pane, #right-pane  { background-color: rgba(60, 70, 80, 0.05); }
+#vertical,
+#horizontal
+{
+    height:100%;
+}
+
+#vertical
+{
+    border-width: 0;
+}
+
+#view-pane {
+    /* When view-pane changes size, the WebGL view slightly exceeds it.
+    This normally causes scroll bars to appear, but this fix stops it */
+    overflow: hidden;
+}
+
+#menu-pane {
+    overflow: hidden;
+}
 
 .pane-content {
     padding: 0 10px;
 }
 
-
-
-
-
+/*#menu-pane, #properties-pane, #outliner-pane, #library-pane {
+    background-color: #aaa;
+}*/
 
 
 

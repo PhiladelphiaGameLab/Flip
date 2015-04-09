@@ -11,7 +11,7 @@
         <!-- Place favicon.ico in the root directory -->
 
         <link rel="stylesheet" href="css/kendo.common.min.css" />
-        <link rel="stylesheet" href="css/kendo.default.min.css" />
+        <link rel="stylesheet" href="css/kendo.black.min.css" />
         <link rel="stylesheet" href="css/normalize.css">
         <link rel="stylesheet" href="css/main.css">
         <script src="js/vendor/modernizr-2.8.3.min.js"></script>
@@ -24,41 +24,33 @@
         <!-- Add your site or application content here -->
         <!-- <p>Hello world! This is HTML5 Boilerplate.</p> -->
 
-        <div id="example">
-            <div id="vertical">
-                <div id="top-pane">
-                    <div id="horizontal" style="height: 100%; width: 100%;">
-                        <div id="left-pane">
-                            <div class="pane-content">
-                                <h3>Inner splitter / left pane</h3>
-                                <p>Resizable and collapsible.</p>
-                            </div>
+        <div id="vertical">
+            <div id="menu-pane">
+                <div class="pane-content">
+                    <h3>Menu</h3>
+                </div>
+            </div>
+            <div id="middle-pane">
+                <div id="horizontal" style="height: 100%; width: 100%;">
+                    <div id="outliner-pane">
+                        <div class="pane-content">
+                            <h3>Outliner</h3>
+                            <p>View of objects in the scene</p>
                         </div>
-                        <div id="center-pane">
-                            <div class="pane-content">
-                                <h3>Inner splitter / center pane</h3>
-                                <p>Resizable only.</p>
-                            </div>
-                        </div>
-                        <div id="right-pane">
-                            <div class="pane-content">
-                                <h3>Inner splitter / right pane</h3>
-                                <p>Resizable and collapsible.</p>
-                            </div>
+                    </div>
+                    <div id="view-pane"></div>
+                    <div id="properties-pane">
+                        <div class="pane-content">
+                            <h3>Properties</h3>
+                            <p>Info on the selected object</p>
                         </div>
                     </div>
                 </div>
-                <div id="middle-pane">
-                    <div class="pane-content">
-                        <h3>Outer splitter / middle pane</h3>
-                        <p>Resizable only.</p>
-                    </div>
-                </div>
-                <div id="bottom-pane">
-                    <div class="pane-content">
-                        <h3>Outer splitter / bottom pane</h3>
-                        <p>Non-resizable and non-collapsible.</p>
-                    </div>
+            </div>
+            <div id="library-pane">
+                <div class="pane-content">
+                    <h3>Library</h3>
+                    <p>Objects go here</p>
                 </div>
             </div>
         </div>
@@ -66,6 +58,10 @@
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.2.min.js"><\/script>')</script>
         <script src="js/vendor/kendo.ui.core.min.js"></script>
+        <script src="js/vendor/ammo.js"></script>
+        <script src="js/vendor/three.min.js"></script>
+        <script src="js/vendor/kendo.ui.core.min.js"></script>
+
         <script src="js/plugins.js"></script>
         <script src="js/main.js"></script>
 
