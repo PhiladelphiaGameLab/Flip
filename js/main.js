@@ -1,4 +1,4 @@
-var gameSpace;
+var gameSpace, inputHandler;
 
 var entities = [
     {name:"Character", icon:"img/cube.png", id:0},
@@ -70,7 +70,7 @@ $(document).ready(function() {
     // Add entities to library
     addEntitiesToLibrary(entities);
 
-
+    inputHandler = new InputHandler();
 });
 
 function addEntitiesToLibrary(entities) {
