@@ -127,7 +127,39 @@ body
 }
 
 .pane-content {
-    padding: 0 10px;
+    padding-left: 5px;
+    padding-top: 5px;
+}
+
+.library-item {
+    position: relative;
+    width:100px;
+    height:100px;
+    display: inline-block;
+    margin-right: 5px;
+    margin-bottom: 5px;
+}
+
+.library-item-name {
+    white-space: nowrap; 
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: center;
+    margin-top: 10px;
+    margin-left: 3px;
+    margin-right: 3px;
+}
+
+.library-item-image {
+    display: block;
+    margin: auto;
+    margin-top: 5px;
+    width: 60px;
+    height: 60px;
+}
+
+.library-item:hover { 
+    background-color: #444;
 }
 
 /*#menu-pane, #properties-pane, #outliner-pane, #library-pane {

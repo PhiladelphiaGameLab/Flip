@@ -23,6 +23,31 @@ $(document).ready(function() {
     splitter = $("#horizontal").data("kendoSplitter");
     splitter.bind("resize", onViewResize);
 
+    $("#toolbar").kendoToolBar({
+        items: [
+            { type: "button", text: "Menu" },
+            { type: "button", text: "Edit" },
+            { type: "separator" },
+            { type: "button", text: "Play" }
+
+        ]
+    });
+
+    $("#dropdown").kendoDropDownList({
+        optionLabel: "Paragraph",
+        dataTextField: "text",
+        dataValueField: "value",
+        dataSource: [
+            { text: "Heading 1", value: 1 },
+            { text: "Heading 2", value: 2 },
+            { text: "Heading 3", value: 3 },
+            { text: "Title", value: 4 },
+            { text: "Subtitle", value: 5 }
+        ]
+    });
+
+
+
     init();
     animate();
 });
