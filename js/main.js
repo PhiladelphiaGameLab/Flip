@@ -1,4 +1,4 @@
-var gameSpace;
+var gameSpace, inputHandler;
 
 $(document).ready(function() {
     $("#vertical").kendoSplitter({
@@ -51,4 +51,6 @@ $(document).ready(function() {
     splitter.bind("resize", gameSpace.onViewResize.bind(gameSpace));
     splitter = $("#horizontal").data("kendoSplitter");
     splitter.bind("resize", gameSpace.onViewResize.bind(gameSpace));
+    
+    inputHandler = new InputHandler();
 });
