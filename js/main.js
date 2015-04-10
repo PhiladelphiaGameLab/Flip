@@ -1,9 +1,6 @@
 var gameSpace;
 
 $(document).ready(function() {
-	var viewPane = $("#view-pane");
-    gameSpace = new GameSpace(viewPane);
-	
     $("#vertical").kendoSplitter({
         orientation: "vertical",
         panes: [
@@ -21,6 +18,9 @@ $(document).ready(function() {
         ]
     });
 
+	var viewPane = $("#view-pane");
+    gameSpace = new GameSpace(viewPane);
+	
     // Add resize events to splitters
     var splitter;
     splitter = $("#vertical").data("kendoSplitter");

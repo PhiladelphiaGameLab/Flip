@@ -2,7 +2,7 @@ function GameSpace(viewPort) {
 	var width = viewPort.width();
 	var height = viewPort.height();
 	
-	var camera = new THREE.PerspectiveCamera( 70, width / height, 1, 1000 );
+	var camera = new THREE.PerspectiveCamera(70, width / height, 1, 1000);
     camera.position.z = 400;
 	
 	var scene = new THREE.Scene();
