@@ -20,6 +20,8 @@ InputHandler.prototype.onKeyDown = function(event) {
         this.handleKeyEvent(event, gameSpace.zoom.bind(gameSpace, -10));
     } else if(keyCode == 173) {     // minus
         this.handleKeyEvent(event, gameSpace.zoom.bind(gameSpace, 10));
+    } else if(keyCode == 48) {      // zero
+        this.handleKeyEvent(event, gameSpace.resetCamera.bind(gameSpace));
     }
 };
 InputHandler.prototype.handleKeyEvent = function(event, response) {
