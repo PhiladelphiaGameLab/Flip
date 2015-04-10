@@ -23,8 +23,7 @@ function GameSpace(viewPort) {
 	var crateGeometry = new THREE.BoxGeometry(200, 200, 200);
 	var crateTexture = THREE.ImageUtils.loadTexture('data/textures/crate.gif');
 	crateTexture.anisotropy = renderer.getMaxAnisotropy();
-	var crateMaterial = new THREE.MeshBasicMaterial( { map: crateTexture } );
-
+	var crateMaterial = new THREE.MeshBasicMaterial({map: crateTexture});
     var crate = new THREE.Mesh(crateGeometry, crateMaterial);
     scene.add(crate);
 	
@@ -43,6 +42,18 @@ GameSpace.prototype.onViewResize = function() {
 	this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(width, height);
+};
+GameSpace.prototype.pan = function(offsetX, offsetY) {
+	this.camera.position.x += offsetX;
+	this.camera.position.y += offsetY;
+};
+GameSpace.prototype.zoom = function(offset) {
+	this.camera.position.z += offset;
+};
+GameSpace.prototype.resetCamera = function() {
+	this.camera.position.x = 0;
+	this.camera.position.y = 0;
+	this.camera.position.z = 400;
 };
 GameSpace.prototype.animate = function() {
     requestAnimationFrame(this.animate.bind(this));
