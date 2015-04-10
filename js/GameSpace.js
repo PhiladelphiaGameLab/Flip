@@ -67,3 +67,6 @@ GameSpace.prototype.add = function(obj) {
 GameSpace.prototype.remove = function(obj) {
     this.scene.remove(obj.mesh);
 };
+GameSpace.prototype.drop = function(obj) {
+    alert("dropped " + obj.name + " onto viewport");
+}

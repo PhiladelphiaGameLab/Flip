@@ -126,18 +126,12 @@ body
     overflow: hidden;
 }
 
-.pane-content {
-    padding-left: 5px;
-    padding-top: 5px;
-}
-
 .library-item {
     position: relative;
     width:100px;
     height:100px;
     display: inline-block;
-    margin-right: 5px;
-    margin-bottom: 5px;
+    margin: 2px;
 }
 
 .library-item-name {

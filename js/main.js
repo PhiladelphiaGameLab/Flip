@@ -1,5 +1,20 @@
 var gameSpace;
 
+var entities = [
+    {name:"Character", icon:"img/cube.png", id:0},
+    {name:"Crate", icon:"img/cube.png", id:1},
+    {name:"Tree", icon:"img/cube.png", id:2}
+];
+
+function getEntityById(id) {
+    for (var i = 0; i < entities.length; i++) {
+        if(entities[i].id == id) {
+            return entities[i];
+        }
+    }
+    return null;
+}
+
 $(document).ready(function() {
     $("#vertical").kendoSplitter({
         orientation: "vertical",
@@ -51,4 +66,38 @@ $(document).ready(function() {
     splitter.bind("resize", gameSpace.onViewResize.bind(gameSpace));
     splitter = $("#horizontal").data("kendoSplitter");
     splitter.bind("resize", gameSpace.onViewResize.bind(gameSpace));
+
+    // Add entities to library
+    addEntitiesToLibrary(entities);
+
+
 });
+
+function addEntitiesToLibrary(entities) {
+
+    var template = $("#library-item-template").html();
+
+    for(var i = 0; i < entities.length; i++) {
+        var entity = entities[i];
+        var item = $("#library").append(template).children().last();
+        item.find(".library-item-name").html(entity.name);
+        var image = item.find(".library-item-image");
+        image.attr("src", entity.icon);
+        image.attr("id", entity.id);
+    }
+}
+
+function allowDrop(ev) {
+    ev.preventDefault();
+}
+
+function drag(ev) {
+    ev.dataTransfer.setData("text", ev.target.id);
+}
+
+function drop(ev) {
+    ev.preventDefault();
+    var id = ev.dataTransfer.getData("text");
+    var entity = getEntityById(id);
+    gameSpace.drop(entity);
+}
