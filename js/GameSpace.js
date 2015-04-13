@@ -19,19 +19,13 @@ function GameSpace(viewPort) {
     pointLight.intensity = 1.0;
     pointLight.distance = 10000;
     scene.add(pointLight);
-    
-    var crateGeometry = new THREE.BoxGeometry(200, 200, 200);
-    var crateTexture = THREE.ImageUtils.loadTexture('data/textures/crate.gif');
-    crateTexture.anisotropy = renderer.getMaxAnisotropy();
-    var crateMaterial = new THREE.MeshBasicMaterial({map: crateTexture});
-    var crate = new THREE.Mesh(crateGeometry, crateMaterial);
-    scene.add(crate);
+    var ambientLight = new THREE.AmbientLight( 0x404040 );
+    scene.add(ambientLight);
     
     this.camera = camera;
     this.scene = scene;
     this.renderer = renderer;
     this.viewPort = viewPort;
-    this.crate = crate;
 }
 GameSpace.prototype.render = function() {
     this.renderer.render(this.scene, this.camera);
@@ -57,8 +51,6 @@ GameSpace.prototype.resetCamera = function() {
 };
 GameSpace.prototype.animate = function() {
     requestAnimationFrame(this.animate.bind(this));
-    this.crate.rotation.x += 0.005;
-    this.crate.rotation.y += 0.01;
     this.render();
 };
 GameSpace.prototype.add = function(obj) {
@@ -69,4 +61,4 @@ GameSpace.prototype.remove = function(obj) {
 };
 GameSpace.prototype.drop = function(obj) {
     alert("dropped " + obj.name + " onto viewport");
-}
+};
