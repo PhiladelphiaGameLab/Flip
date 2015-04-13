@@ -3,7 +3,6 @@ function GameSpace(viewPort) {
     var height = viewPort.height();
     
     var camera = new THREE.PerspectiveCamera(70, width / height, 1, 1000);
-    camera.position.z = 400;
     
     var scene = new THREE.Scene();
     scene.add(camera);
@@ -26,6 +25,8 @@ function GameSpace(viewPort) {
     this.scene = scene;
     this.renderer = renderer;
     this.viewPort = viewPort;
+    
+    this.resetCamera();
 }
 GameSpace.prototype.render = function() {
     this.renderer.render(this.scene, this.camera);
@@ -47,7 +48,7 @@ GameSpace.prototype.zoom = function(offset) {
 GameSpace.prototype.resetCamera = function() {
     this.camera.position.x = 0;
     this.camera.position.y = 0;
-    this.camera.position.z = 400;
+    this.camera.position.z = 20;
 };
 GameSpace.prototype.animate = function() {
     requestAnimationFrame(this.animate.bind(this));
@@ -59,6 +60,23 @@ GameSpace.prototype.add = function(obj) {
 GameSpace.prototype.remove = function(obj) {
     this.scene.remove(obj.mesh);
 };
+GameSpace.prototype.unprojectMousePosition = function(x, y) {
+    var camera = this.camera;
+    var vector = new THREE.Vector3();
+    vector.set(
+        (x / this.viewPort.width()) * 2 - 1,
+        - (y / this.viewPort.height()) * 2 + 1,
+        0.5 );
+    vector.unproject(camera);
+    var dir = vector.sub(camera.position).normalize();
+    var distance = - camera.position.z / dir.z;
+    var worldPosition = camera.position.clone().add(dir.multiplyScalar(distance));
+    return worldPosition;
+};
 GameSpace.prototype.drop = function(obj, x, y) {
-    alert("dropped " + obj.name + " onto viewport at position " + x + " " + y);
-}
+    var worldPosition = this.unprojectMousePosition(x, y);
+    var xLabel = Math.round(worldPosition.x);
+    var yLabel = Math.round(worldPosition.y);
+    var positionText = "(" + xLabel + ", " + yLabel + ")";
+    alert("dropped " + obj.name + " onto viewport at position " + positionText);
+};

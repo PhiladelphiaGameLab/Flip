@@ -26,7 +26,7 @@
 //              oo
 //--------------------
 function Ground(type) {
-    var radius = 30;
+    var radius = 1;
     var material = new THREE.MeshLambertMaterial({color: 0x665544});
     var geometry = new THREE.Geometry();
     switch(type) {
