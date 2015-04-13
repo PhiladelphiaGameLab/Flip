@@ -71,12 +71,13 @@ GameSpace.prototype.unprojectMousePosition = function(x, y) {
     var dir = vector.sub(camera.position).normalize();
     var distance = - camera.position.z / dir.z;
     var worldPosition = camera.position.clone().add(dir.multiplyScalar(distance));
+    worldPosition.y = -worldPosition.y;
     return worldPosition;
 };
 GameSpace.prototype.drop = function(obj, x, y) {
     var worldPosition = this.unprojectMousePosition(x, y);
-    var xLabel = Math.round(worldPosition.x);
-    var yLabel = Math.round(worldPosition.y);
-    var positionText = "(" + xLabel + ", " + yLabel + ")";
+    var worldX = Math.round(worldPosition.x);
+    var worldY = Math.round(worldPosition.y);
+    var positionText = "(" + worldX + ", " + worldY + ")";
     alert("dropped " + obj.name + " onto viewport at position " + positionText);
 };
