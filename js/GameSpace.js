@@ -1,6 +1,6 @@
-function GameSpace(viewPort) {
-    var width = viewPort.width();
-    var height = viewPort.height();
+function GameSpace(viewport) {
+    var width = viewport.width();
+    var height = viewport.height();
     
     var camera = new THREE.PerspectiveCamera(70, width / height, 1, 1000);
     
@@ -10,7 +10,7 @@ function GameSpace(viewPort) {
     var renderer = new THREE.WebGLRenderer();
     renderer.setSize(width, height);
     renderer.shadowMapEnabled = true;
-    viewPort.append(renderer.domElement);
+    viewport.append(renderer.domElement);
     
     var pointLight = new THREE.PointLight(0xFFFFFF);
     pointLight.position.y = 1000;
@@ -24,7 +24,7 @@ function GameSpace(viewPort) {
     this.camera = camera;
     this.scene = scene;
     this.renderer = renderer;
-    this.viewPort = viewPort;
+    this.viewport = viewport;
     
     this.resetCamera();
 }
@@ -32,8 +32,8 @@ GameSpace.prototype.render = function() {
     this.renderer.render(this.scene, this.camera);
 };
 GameSpace.prototype.onViewResize = function() {
-    var width = this.viewPort.width();
-    var height = this.viewPort.height();
+    var width = this.viewport.width();
+    var height = this.viewport.height();
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(width, height);
@@ -64,14 +64,14 @@ GameSpace.prototype.unprojectMousePosition = function(x, y) {
     var camera = this.camera;
     var vector = new THREE.Vector3();
     vector.set(
-        (x / this.viewPort.width()) * 2 - 1,
-        - (y / this.viewPort.height()) * 2 + 1,
+        (x / this.viewport.width()) * 2 - 1,
+        - (y / this.viewport.height()) * 2 + 1,
         0.5 );
     vector.unproject(camera);
     var dir = vector.sub(camera.position).normalize();
+    dir.y = -dir.y;
     var distance = - camera.position.z / dir.z;
     var worldPosition = camera.position.clone().add(dir.multiplyScalar(distance));
-    worldPosition.y = -worldPosition.y;
     return worldPosition;
 };
 GameSpace.prototype.drop = function(obj, x, y) {

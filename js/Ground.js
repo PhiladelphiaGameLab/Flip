@@ -150,6 +150,7 @@ function Ground(type) {
     }
     geometry.computeFaceNormals();
     this.mesh = new THREE.Mesh(geometry, material);
+    this.mesh.self = this;
 }
 Ground.prototype.getPosition = function() {
     return this.mesh.position;
