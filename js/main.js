@@ -87,6 +87,7 @@ function addEntitiesToLibrary(entities) {
     }
 }
 
+
 function allowDrop(ev) {
     ev.preventDefault();
 }
@@ -97,7 +98,10 @@ function drag(ev) {
 
 function drop(ev) {
     ev.preventDefault();
+    var x = ev.pageX - $('#view-pane').offset().left
+    var y = $('#view-pane').height() - (ev.pageY - $('#view-pane').offset().top);
+
     var id = ev.dataTransfer.getData("text");
     var entity = getEntityById(id);
-    gameSpace.drop(entity);
+    gameSpace.drop(entity, x, y);
 }
