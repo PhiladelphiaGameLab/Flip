@@ -58,7 +58,7 @@ $(document).ready(function() {
 
     var viewPane = $("#view-pane");
     gameSpace = new GameSpace(viewPane);
-    gameSpace.animate();
+    inputHandler = new InputHandler();
 
     // Add resize events to splitters
     var splitter;
@@ -69,8 +69,8 @@ $(document).ready(function() {
 
     // Add entities to library
     addEntitiesToLibrary(entities);
-
-    inputHandler = new InputHandler();
+    
+    gameSpace.animate();
 });
 
 function addEntitiesToLibrary(entities) {
@@ -98,9 +98,8 @@ function drag(ev) {
 
 function drop(ev) {
     ev.preventDefault();
-    var x = ev.pageX - $('#view-pane').offset().left
-    var y = $('#view-pane').height() - (ev.pageY - $('#view-pane').offset().top);
-
+    var x = ev.pageX - $('#view-pane').offset().left;
+    var y = ev.pageY - $('#view-pane').offset().top;
     var id = ev.dataTransfer.getData("text");
     var entity = getEntityById(id);
     gameSpace.drop(entity, x, y);

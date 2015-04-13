@@ -69,10 +69,19 @@ GameSpace.prototype.unprojectMousePosition = function(x, y) {
         0.5 );
     vector.unproject(camera);
     var dir = vector.sub(camera.position).normalize();
-    dir.y = -dir.y;
     var distance = - camera.position.z / dir.z;
     var worldPosition = camera.position.clone().add(dir.multiplyScalar(distance));
     return worldPosition;
+};
+GameSpace.prototype.handleClick = function(event) {
+    var offset = this.viewport.offset();
+    var x = event.pageX - offset.left;
+    var y = event.pageY - offset.top;
+    var worldPosition = this.unprojectMousePosition(x, y);
+    var worldX = Math.round(worldPosition.x);
+    var worldY = Math.round(worldPosition.y);
+    var positionText = "(" + worldX + ", " + worldY + ")";
+    alert("selected object at position " + positionText);
 };
 GameSpace.prototype.drop = function(obj, x, y) {
     var worldPosition = this.unprojectMousePosition(x, y);
