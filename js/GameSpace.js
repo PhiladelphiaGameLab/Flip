@@ -1,13 +1,8 @@
-function GameSpace(viewport) {
-    var width = viewport.width();
-    var height = viewport.height();
+function GameSpace(width, height) {
     
     var renderer = new THREE.WebGLRenderer();
     renderer.setSize(width, height);
-    viewport.append(renderer.domElement);
 
-    var camera = new THREE.PerspectiveCamera(70, width / height, 1, 1000);
-    
     var scene = new THREE.Scene();    
 
     var camera = new THREE.PerspectiveCamera(70, width / height, 1, 1000);
@@ -28,18 +23,16 @@ function GameSpace(viewport) {
     this.camera = camera;
     this.scene = scene;
     this.renderer = renderer;
-    this.viewport = viewport;
     this.jsonLoader = jsonLoader;
     this.resetCamera();
+    this.animate();
 }
 
 
 GameSpace.prototype.render = function() {
     this.renderer.render(this.scene, this.camera);
 };
-GameSpace.prototype.onViewResize = function() {
-    var width = this.viewport.width();
-    var height = this.viewport.height();
+GameSpace.prototype.viewResize = function(width, height) {
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(width, height);
@@ -70,20 +63,14 @@ GameSpace.prototype.remove = function(obj) {
 GameSpace.prototype.unprojectMousePosition = function(x, y) {
     var camera = this.camera;
     var vector = new THREE.Vector3();
-    vector.set(
-        (x / this.viewport.width()) * 2 - 1,
-        - (y / this.viewport.height()) * 2 + 1,
-        0.5 );
+    vector.set(x*2-1, y*2-1, 0.5); // NDC space
     vector.unproject(camera);
     var dir = vector.sub(camera.position).normalize();
     var distance = - camera.position.z / dir.z;
     var worldPosition = camera.position.clone().add(dir.multiplyScalar(distance));
     return worldPosition;
 };
-GameSpace.prototype.handleClick = function(event) {
-    var offset = this.viewport.offset();
-    var x = event.pageX - offset.left;
-    var y = event.pageY - offset.top;
+GameSpace.prototype.click = function(x, y) {
     var worldPosition = this.unprojectMousePosition(x, y);
     var worldX = Math.round(worldPosition.x);
     var worldY = Math.round(worldPosition.y);

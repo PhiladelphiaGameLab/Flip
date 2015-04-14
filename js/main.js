@@ -1,4 +1,4 @@
-var gameSpace, inputHandler;
+var gameSpace, inputHandler, viewport;
 
 var entities = [
     {name:"MultiMat", icon:"img/cube.png", id:0, mesh:"data/entities/multimat/multimat.json"},
@@ -56,21 +56,20 @@ $(document).ready(function() {
     });
 
 
-    var viewPane = $("#view-pane");
-    gameSpace = new GameSpace(viewPane);
+    viewport = $("#view-pane");
+    gameSpace = new GameSpace(viewport.innerWidth(), viewport.innerHeight());
+    viewport.append(gameSpace.renderer.domElement);
     inputHandler = new InputHandler();
 
     // Add resize events to splitters
     var splitter;
     splitter = $("#vertical").data("kendoSplitter");
-    splitter.bind("resize", gameSpace.onViewResize.bind(gameSpace));
+    splitter.bind("resize", onViewResize);
     splitter = $("#horizontal").data("kendoSplitter");
-    splitter.bind("resize", gameSpace.onViewResize.bind(gameSpace));
+    splitter.bind("resize", onViewResize);
 
     // Add entities to library
     addEntitiesToLibrary(entities);
-    
-    gameSpace.animate();
 });
 
 function addEntitiesToLibrary(entities) {
@@ -87,20 +86,35 @@ function addEntitiesToLibrary(entities) {
     }
 }
 
+// Return mouse position in [0,1] range relative to bottom-left of viewport (screen space)
+function getMousePos(ev) {
+    var x = (ev.pageX - viewport.offset().left)/viewport.innerWidth();
+    var y = -(ev.pageY - viewport.offset().top)/viewport.innerHeight() + 1.0;
+    return [x,y];
+}
 
 function allowDrop(ev) {
     ev.preventDefault();
 }
 
-function drag(ev) {
+function onDrag(ev) {
     ev.dataTransfer.setData("text", ev.target.id);
 }
 
-function drop(ev) {
+function onDrop(ev) {
     ev.preventDefault();
-    var x = ev.pageX - $('#view-pane').offset().left;
-    var y = ev.pageY - $('#view-pane').offset().top;
+
+    var mouse = getMousePos(ev);
     var id = ev.dataTransfer.getData("text");
     var entity = getEntityById(id);
-    gameSpace.drop(entity, x, y);
+    gameSpace.drop(entity, mouse[0], mouse[1]);
+}
+
+function onClick(ev) {
+    var mouse = getMousePos(ev);
+    gameSpace.click(mouse[0], mouse[1]);
+}
+
+function onViewResize() {
+    gameSpace.onViewResize(viewport.innerWidth(), viewport.innerHeight());
 }
