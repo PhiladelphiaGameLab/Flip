@@ -1,15 +1,16 @@
-function GameSpace(viewPort) {
-    var width = viewPort.width();
-    var height = viewPort.height();
+function GameSpace(viewport) {
+    var width = viewport.width();
+    var height = viewport.height();
     
     var renderer = new THREE.WebGLRenderer();
     renderer.setSize(width, height);
-    viewPort.append(renderer.domElement);
-    
-    var scene = new THREE.Scene();
+    viewport.append(renderer.domElement);
 
     var camera = new THREE.PerspectiveCamera(70, width / height, 1, 1000);
-    camera.position.z = 10;
+    
+    var scene = new THREE.Scene();    
+
+    var camera = new THREE.PerspectiveCamera(70, width / height, 1, 1000);
     var controls = new THREE.OrbitControls( camera, renderer.domElement );
     scene.add(camera);
 
@@ -27,8 +28,9 @@ function GameSpace(viewPort) {
     this.camera = camera;
     this.scene = scene;
     this.renderer = renderer;
-    this.viewPort = viewPort;
+    this.viewport = viewport;
     this.jsonLoader = jsonLoader;
+    this.resetCamera();
 }
 
 
@@ -36,8 +38,8 @@ GameSpace.prototype.render = function() {
     this.renderer.render(this.scene, this.camera);
 };
 GameSpace.prototype.onViewResize = function() {
-    var width = this.viewPort.width();
-    var height = this.viewPort.height();
+    var width = this.viewport.width();
+    var height = this.viewport.height();
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(width, height);
@@ -59,17 +61,47 @@ GameSpace.prototype.animate = function() {
     this.render();
 };
 GameSpace.prototype.add = function(obj) {
-    this.scene.add(obj.mesh);
+    this.scene.add(obj);
 };
 GameSpace.prototype.remove = function(obj) {
-    this.scene.remove(obj.mesh);
+    this.scene.remove(obj);
+};
+
+GameSpace.prototype.unprojectMousePosition = function(x, y) {
+    var camera = this.camera;
+    var vector = new THREE.Vector3();
+    vector.set(
+        (x / this.viewport.width()) * 2 - 1,
+        - (y / this.viewport.height()) * 2 + 1,
+        0.5 );
+    vector.unproject(camera);
+    var dir = vector.sub(camera.position).normalize();
+    var distance = - camera.position.z / dir.z;
+    var worldPosition = camera.position.clone().add(dir.multiplyScalar(distance));
+    return worldPosition;
+};
+GameSpace.prototype.handleClick = function(event) {
+    var offset = this.viewport.offset();
+    var x = event.pageX - offset.left;
+    var y = event.pageY - offset.top;
+    var worldPosition = this.unprojectMousePosition(x, y);
+    var worldX = Math.round(worldPosition.x);
+    var worldY = Math.round(worldPosition.y);
+    var positionText = "(" + worldX + ", " + worldY + ")";
+    //alert("selected object at position " + positionText);
 };
 GameSpace.prototype.drop = function(entity, x, y) {
-    var object = this.create(entity);
-}
+    var self = this;
+    this.create(entity, function(object){
+        var worldPosition = self.unprojectMousePosition(x, y);
+        var worldX = Math.round(worldPosition.x);
+        var worldY = Math.round(worldPosition.y);
+        var positionText = "(" + worldX + ", " + worldY + ")";
+        alert("dropped " + object.name + " onto viewport at position " + positionText);
+    });    
+};
 
-GameSpace.prototype.create = function(entity) {
-
+GameSpace.prototype.create = function(entity, callback) {
     var self = this;
 
     // Load mesh
@@ -77,7 +109,9 @@ GameSpace.prototype.create = function(entity) {
         self.jsonLoader.load(entity.mesh, function(geometry, materials) {
             var material = (materials.length == 1) ? materials[0] : new THREE.MeshFaceMaterial(materials);
             var mesh = new THREE.Mesh(geometry, material);
-            self.scene.add(mesh);
+            mesh.name = entity.name;
+            self.add(mesh);
+            callback(mesh);
         } );
     }
 

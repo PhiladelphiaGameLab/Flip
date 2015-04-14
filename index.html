@@ -38,7 +38,7 @@
                             <p>View of objects in the scene</p>
                         </div>
                     </div>
-                    <div id="view-pane" ondrop="drop(event)" ondragover="allowDrop(event)"></div>
+                    <div id="view-pane" ondrop="drop(event)" ondragover="allowDrop(event)" onmousedown="gameSpace.handleClick(event)"></div>
                     <div id="properties-pane">
                         <div class="pane-content">
                             <h3>Properties</h3>

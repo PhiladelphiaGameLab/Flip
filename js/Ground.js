@@ -26,12 +26,13 @@
 //              oo
 //--------------------
 function Ground(type) {
-    var radius = 30;
+    var radius = 1;
     var material = new THREE.MeshLambertMaterial({color: 0x665544});
     var geometry = new THREE.Geometry();
     switch(type) {
         case 1:
-            // full square
+            // box
+            this.name = "Box";
             geometry.vertices.push(new THREE.Vector3(-radius, -radius, radius));
             geometry.vertices.push(new THREE.Vector3(radius, -radius, radius));
             geometry.vertices.push(new THREE.Vector3(radius, radius, radius));
@@ -60,7 +61,8 @@ function Ground(type) {
             geometry.faces.push(new THREE.Face3(3, 7, 4));
             break;
         case 2:
-            // rightward slope
+            // right-slanting floor
+            this.name = "Right-Slanting Floor";
             geometry.vertices.push(new THREE.Vector3(-radius, -radius, radius));
             geometry.vertices.push(new THREE.Vector3(radius, -radius, radius));
             geometry.vertices.push(new THREE.Vector3(radius, radius, radius));
@@ -82,7 +84,8 @@ function Ground(type) {
             geometry.faces.push(new THREE.Face3(5, 2, 1));
             break;
         case 3:
-            // leftward slope
+            // left-slanting floor
+            this.name = "Left-Slanting Floor";
             geometry.vertices.push(new THREE.Vector3(-radius, -radius, radius));
             geometry.vertices.push(new THREE.Vector3(radius, -radius, radius));
             geometry.vertices.push(new THREE.Vector3(-radius, radius, radius));
@@ -104,7 +107,8 @@ function Ground(type) {
             geometry.faces.push(new THREE.Face3(5, 2, 1));
             break;
         case 4:
-            // inverted rightward slope
+            // right-slanting ceiling
+            this.name = "Right-Slanting Ceiling";
             geometry.vertices.push(new THREE.Vector3(-radius, -radius, radius));
             geometry.vertices.push(new THREE.Vector3(radius, radius, radius));
             geometry.vertices.push(new THREE.Vector3(-radius, radius, radius));
@@ -126,7 +130,8 @@ function Ground(type) {
             geometry.faces.push(new THREE.Face3(5, 2, 1));
             break;
         case 5:
-            // inverted leftward slope
+            // left-slanting ceiling
+            this.name = "Left-Slanting Ceiling";
             geometry.vertices.push(new THREE.Vector3(radius, -radius, radius));
             geometry.vertices.push(new THREE.Vector3(radius, radius, radius));
             geometry.vertices.push(new THREE.Vector3(-radius, radius, radius));
@@ -150,6 +155,7 @@ function Ground(type) {
     }
     geometry.computeFaceNormals();
     this.mesh = new THREE.Mesh(geometry, material);
+    this.mesh.self = this;
 }
 Ground.prototype.getPosition = function() {
     return this.mesh.position;

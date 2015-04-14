@@ -9,17 +9,17 @@ InputHandler.prototype.onKeyUp = function(event) {
 InputHandler.prototype.onKeyDown = function(event) {
     var keyCode = event.keyCode;
     if(keyCode == 37) {             // left arrow
-        this.handleKeyEvent(event, gameSpace.pan.bind(gameSpace, -10, 0));
+        this.handleKeyEvent(event, gameSpace.pan.bind(gameSpace, -1, 0));
     } else if(keyCode == 38) {      // up arrow
-        this.handleKeyEvent(event, gameSpace.pan.bind(gameSpace, 0, 10));
+        this.handleKeyEvent(event, gameSpace.pan.bind(gameSpace, 0, 1));
     } else if(keyCode == 39) {      // right arrow
-        this.handleKeyEvent(event, gameSpace.pan.bind(gameSpace, 10, 0));
+        this.handleKeyEvent(event, gameSpace.pan.bind(gameSpace, 1, 0));
     } else if(keyCode == 40) {      // down arrow
-        this.handleKeyEvent(event, gameSpace.pan.bind(gameSpace, 0, -10));
+        this.handleKeyEvent(event, gameSpace.pan.bind(gameSpace, 0, -1));
     } else if(keyCode == 61) {      // plus
-        this.handleKeyEvent(event, gameSpace.zoom.bind(gameSpace, -10));
+        this.handleKeyEvent(event, gameSpace.zoom.bind(gameSpace, -1));
     } else if(keyCode == 173) {     // minus
-        this.handleKeyEvent(event, gameSpace.zoom.bind(gameSpace, 10));
+        this.handleKeyEvent(event, gameSpace.zoom.bind(gameSpace, 1));
     } else if(keyCode == 48) {      // zero
         this.handleKeyEvent(event, gameSpace.resetCamera.bind(gameSpace));
     }
