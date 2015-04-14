@@ -1,8 +1,8 @@
 var gameSpace, inputHandler;
 
 var entities = [
-    {name:"Character", icon:"img/cube.png", id:0},
-    {name:"Crate", icon:"img/cube.png", id:1},
+    {name:"MultiMat", icon:"img/cube.png", id:0, mesh:"data/entities/multimat/multimat.json"},
+    {name:"Chair", icon:"img/cube.png", id:1, mesh:"data/entities/chair/chair.json"},
     {name:"Tree", icon:"img/cube.png", id:2}
 ];
 
