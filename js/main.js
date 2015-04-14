@@ -116,5 +116,5 @@ function onClick(ev) {
 }
 
 function onViewResize() {
-    gameSpace.onViewResize(viewport.innerWidth(), viewport.innerHeight());
+    gameSpace.viewResize(viewport.innerWidth(), viewport.innerHeight());
 }
