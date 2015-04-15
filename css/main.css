@@ -96,6 +96,93 @@ textarea {
    ========================================================================== */
 
 
+/* Kendo Core UI custom styles */
+.k-pane {
+    background-color:#3d3d3d;
+}
+
+.k-splitbar {
+    border-color:#000000;
+    background-color:#2F2F2F;
+}
+
+.k-icon {
+    background-image: url("Black/sprite.png");
+}
+
+.k-resize-handle {
+    display: none !important;
+}
+
+.k-collapse-next, .k-collapse-prev {
+    margin-top: 0 !important;
+}
+
+.k-ghost-splitbar.k-restricted-size-horizontal,
+.k-ghost-splitbar.k-restricted-size-vertical {
+    background-color: transparent;
+}
+
+/* Dat.GUI custom styles */
+.close-button {
+    display: none;
+}
+
+.cr {
+    background-color: transparent !important;
+    border: none !important;
+}
+
+.cr input {
+    color: inherit !important;
+}
+
+.c input {
+    background-color: #2a2a2a !important;
+}
+.c input:hover,
+.c input:focus {
+    background-color: #2a2a2a !important;
+} 
+
+.c select {
+    background-color: #2a2a2a;
+    color: inherit;
+    border: none;
+    padding: 2px 0px;
+    width: 100%;
+    float: right;
+}
+
+.slider {
+    background-color: #555 !important;
+}
+
+.slider-fg {
+    background-color: #777 !important;
+}
+
+
+.slider:hover {
+    background-color: #666 !important
+}
+
+
+.slider:hover .slider-fg {
+    background-color: #999 !important;
+}
+
+.title {
+    background-color: #444 !important;
+    border-bottom: 1px solid #555 !important;
+}
+
+.dg {
+    text-shadow: none !important;
+    color: inherit !important;
+}
+
+
 html,
 body
 {
@@ -103,6 +190,9 @@ body
     margin:0;
     padding:0;
     overflow:hidden;
+    font-size: 12px;
+    font-family: sans-serif;
+    color:#bbb;
 }
 
 #vertical,

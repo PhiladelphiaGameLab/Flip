@@ -1,4 +1,4 @@
-var gameSpace, inputHandler, viewport;
+var gameSpace, inputHandler, viewport, propertiesPane;
 
 var entities = [
     {name:"MultiMat", icon:"img/cube.png", id:0, mesh:"data/entities/multimat/multimat.json"},
@@ -33,33 +33,13 @@ $(document).ready(function() {
         ]
     });
 
-    $("#toolbar").kendoToolBar({
-        items: [
-            { type: "button", text: "Menu" },
-            { type: "button", text: "Edit" },
-            { type: "separator" },
-            { type: "button", text: "Play" }
-        ]
-    });
-
-    $("#dropdown").kendoDropDownList({
-        optionLabel: "Paragraph",
-        dataTextField: "text",
-        dataValueField: "value",
-        dataSource: [
-            { text: "Heading 1", value: 1 },
-            { text: "Heading 2", value: 2 },
-            { text: "Heading 3", value: 3 },
-            { text: "Title", value: 4 },
-            { text: "Subtitle", value: 5 }
-        ]
-    });
-
-
     viewport = $("#view-pane");
     gameSpace = new GameSpace(viewport.innerWidth(), viewport.innerHeight());
     viewport.append(gameSpace.renderer.domElement);
     inputHandler = new InputHandler();
+    propertiesPane = new PropertiesPane();
+    $("#properties-pane").append(propertiesPane.gui.domElement);
+
 
     // Add resize events to splitters
     var splitter;
@@ -117,4 +97,6 @@ function onClick(ev) {
 
 function onViewResize() {
     gameSpace.viewResize(viewport.innerWidth(), viewport.innerHeight());
+    propertiesPane.resize($("#properties-pane").innerWidth());
+
 }

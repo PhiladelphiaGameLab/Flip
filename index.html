@@ -11,7 +11,6 @@
         <!-- Place favicon.ico in the root directory -->
 
         <link rel="stylesheet" href="css/kendo.common.min.css" />
-        <link rel="stylesheet" href="css/kendo.black.min.css" />
         <link rel="stylesheet" href="css/normalize.css">
         <link rel="stylesheet" href="css/main.css">
         <script src="js/vendor/modernizr-2.8.3.min.js"></script>
@@ -26,9 +25,6 @@
 
         <div id="vertical">
             <div id="menu-pane">
-                <div class="demo-section k-header">
-                    <div id="toolbar"></div>
-                </div>
             </div>
             <div id="middle-pane">
                 <div id="horizontal" style="height: 100%; width: 100%;">
@@ -40,10 +36,6 @@
                     </div>
                     <div id="view-pane" ondrop="onDrop(event)" ondragover="allowDrop(event)" onclick="onClick(event)"></div>
                     <div id="properties-pane">
-                        <div class="pane-content">
-                            <h3>Properties</h3>
-                            <p>Info on the selected object</p>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -64,9 +56,11 @@
         <script src="js/vendor/kendo.ui.core.min.js"></script>
         <script src="js/vendor/ammo.js"></script>
         <script src="js/vendor/three.min.js"></script>
+        <script src="js/vendor/dat.gui.min.js"></script>
         <script src="js/plugins.js"></script>
         <script src="js/OrbitControls.js"></script>
         <script src="js/main.js"></script>
+        <script src="js/PropertiesPane.js"></script>
         <script src="js/GameSpace.js"></script>
         <script src="js/InputHandler.js"></script>
         <script src="js/Ground.js"></script>
