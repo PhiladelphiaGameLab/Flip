@@ -20,27 +20,20 @@
             <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
         <![endif]-->
 
-        <!-- Add your site or application content here -->
-        <!-- <p>Hello world! This is HTML5 Boilerplate.</p> -->
-
         <div id="vertical">
             <div id="menu-pane">
             </div>
             <div id="middle-pane">
-                <div id="horizontal" style="height: 100%; width: 100%;">
-                    <div id="outliner-pane">
-                        <div class="pane-content">
-                            <h3>Outliner</h3>
-                            <p>View of objects in the scene</p>
-                        </div>
+                <div id="horizontal">
+                    <div id="code-pane">
+                        <pre id="code-editor"></pre>
                     </div>
                     <div id="view-pane" ondrop="onDrop(event)" ondragover="allowDrop(event)" onclick="onClick(event)"></div>
-                    <div id="properties-pane">
-                    </div>
+                    <div id="properties-pane"></div>
                 </div>
             </div>
             <div id="library-pane">
-                <div id="library" class="pane-content">
+                <div id="library">
                     <script id="library-item-template" type="text/x-custom-template">
                     <div class="library-item">
                         <img class="library-item-image" src="img/cube.png" draggable="true" ondragstart="onDrag(event)"></img>
@@ -57,6 +50,7 @@
         <script src="js/vendor/ammo.js"></script>
         <script src="js/vendor/three.min.js"></script>
         <script src="js/vendor/dat.gui.min.js"></script>
+        <script src="js/vendor/ace.js"></script>
         <script src="js/plugins.js"></script>
         <script src="js/OrbitControls.js"></script>
         <script src="js/main.js"></script>

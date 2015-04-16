@@ -118,10 +118,12 @@ textarea {
     margin-top: 0 !important;
 }
 
-.k-ghost-splitbar.k-restricted-size-horizontal,
-.k-ghost-splitbar.k-restricted-size-vertical {
+.k-ghost-splitbar {
     background-color: transparent;
+    z-index: 10;
 }
+
+
 
 /* Dat.GUI custom styles */
 .close-button {
@@ -140,6 +142,8 @@ textarea {
 .c input {
     background-color: #2a2a2a !important;
 }
+
+
 .c input:hover,
 .c input:focus {
     background-color: #2a2a2a !important;
@@ -149,9 +153,12 @@ textarea {
     background-color: #2a2a2a;
     color: inherit;
     border: none;
-    padding: 2px 0px;
+    padding: 3px;
     width: 100%;
     float: right;
+}
+
+.c input[type="checkbox"] {
 }
 
 .slider {
@@ -183,6 +190,29 @@ textarea {
 }
 
 
+/* ACE custom styles */
+
+.ace_gutter {
+    background-color: #444 !important;
+}
+
+.ace_editor {
+    background-color: #3d3d3d !important;
+}
+
+.ace_active-line {
+    background-color: #444444 !important;
+}
+
+.ace_gutter-active-line {
+    background-color: #4f4f4f !important;
+}
+
+.ace_selection {
+    background-color: #545454 !important; 
+}
+
+
 html,
 body
 {
@@ -204,6 +234,15 @@ body
 #vertical
 {
     border-width: 0;
+}
+
+#code-editor {
+    margin: 0;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
 }
 
 #view-pane {
@@ -245,11 +284,6 @@ body
 .library-item:hover { 
     background-color: #444;
 }
-
-/*#menu-pane, #properties-pane, #outliner-pane, #library-pane {
-    background-color: #aaa;
-}*/
-
 
 
 /* ==========================================================================

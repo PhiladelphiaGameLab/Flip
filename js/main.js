@@ -1,4 +1,4 @@
-var gameSpace, inputHandler, viewport, propertiesPane;
+var gameSpace, inputHandler, viewport, propertiesPane, codeEditor;
 
 var entities = [
     {name:"MultiMat", icon:"img/cube.png", id:0, mesh:"data/entities/multimat/multimat.json"},
@@ -40,6 +40,11 @@ $(document).ready(function() {
     propertiesPane = new PropertiesPane();
     $("#properties-pane").append(propertiesPane.gui.domElement);
 
+    codeEditor = ace.edit("code-editor");
+    codeEditor.setTheme("ace/theme/monokai");
+    codeEditor.getSession().setMode("ace/mode/javascript");
+    codeEditor.setShowPrintMargin(false);
+    codeEditor.getSession().setValue("function test(){\n\talert(\"flip\");\n}");
 
     // Add resize events to splitters
     var splitter;
@@ -98,5 +103,5 @@ function onClick(ev) {
 function onViewResize() {
     gameSpace.viewResize(viewport.innerWidth(), viewport.innerHeight());
     propertiesPane.resize($("#properties-pane").innerWidth());
-
+    codeEditor.resize();
 }
