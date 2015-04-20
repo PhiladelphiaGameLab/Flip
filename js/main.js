@@ -1,4 +1,4 @@
-var gameSpace, inputHandler, viewport, propertiesPane, codeEditor;
+var gameSpace, viewport, propertiesPane, codeEditor;
 
 var entities = [
     {name:"MultiMat", icon:"img/cube.png", id:0, mesh:"data/entities/multimat/multimat.json"},
@@ -36,7 +36,6 @@ $(document).ready(function() {
     viewport = $("#view-pane");
     gameSpace = new GameSpace(viewport.innerWidth(), viewport.innerHeight());
     viewport.append(gameSpace.renderer.domElement);
-    inputHandler = new InputHandler();
     propertiesPane = new PropertiesPane();
     $("#properties-pane").append(propertiesPane.gui.domElement);
 
