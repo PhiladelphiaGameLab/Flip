@@ -22,13 +22,16 @@
 
         <div id="vertical">
             <div id="menu-pane">
+                <button type="button" onclick="editor.undoAction()">Undo</button>
+                <button type="button" onclick="editor.redoAction()">Redo</button>
+                <button type="button" onclick="editor.removeSelected()">Remove Selected</button>
             </div>
             <div id="middle-pane">
                 <div id="horizontal">
                     <div id="code-pane">
                         <pre id="code-editor"></pre>
                     </div>
-                    <div id="view-pane" ondrop="onDrop(event)" ondragover="allowDrop(event)" onclick="onClick(event)"></div>
+                    <div id="view-pane" ondrop="onDrop(event)" ondragover="allowDrop(event)" onclick="onClick(event)" onmousedown="onMouseDown(event)"></div>
                     <div id="properties-pane"></div>
                 </div>
             </div>
@@ -55,8 +58,8 @@
         <script src="js/OrbitControls.js"></script>
         <script src="js/main.js"></script>
         <script src="js/PropertiesPane.js"></script>
-        <script src="js/GameSpace.js"></script>
-        <script src="js/InputHandler.js"></script>
+        <script src="js/Editor.js"></script>
+        <script src="js/ObjectEdit.js"></script
         <script src="js/Ground.js"></script>
 
         <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
