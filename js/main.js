@@ -27,7 +27,8 @@ $(document).ready(function() {
     splitter.bind("resize", onViewResize);
 
     viewport = $("#view-pane");
-    editor = new Editor(viewport.innerWidth(), viewport.innerHeight());
+    editor = new Editor();
+    editor.init(viewport.innerWidth(), viewport.innerHeight());
     viewport.append(editor.renderer.domElement);
     propertiesPane = new PropertiesPane();
     $("#properties-pane").append(propertiesPane.gui.domElement);
@@ -176,3 +177,20 @@ UI.setUndoRedo = function(hasUndos, hasRedos) {
     }
 
 };
+
+UI.saveToLocalStorage = function(data) {
+    var json = JSON.stringify(data);
+    localStorage.setItem("editor", json);
+};
+
+UI.loadFromLocalStorage = function() {
+    var json = localStorage.getItem("editor");
+    if(json == null) return;
+
+    var data = JSON.parse(json);
+    editor.load(data);
+};
+
+UI.clearLocalStorage = function() {
+    localStorage.removeItem("editor");
+}

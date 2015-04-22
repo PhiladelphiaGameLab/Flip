@@ -1,4 +1,4 @@
-function Editor(width, height) {
+function Editor() {
     var self = this;
 
     // Undo/redo
@@ -13,9 +13,8 @@ function Editor(width, height) {
         {name:"Tree", icon:"img/cube.png", assetId:2}
     ];
 
-    // Objects in the scene
-    self.objects = [];
-    self.visuals = []; // ThreeJS objects
+    self.objects = []; // Objects in the scene
+    self.visuals = []; // ThreeJS objects. Need this array for doing raycasting.
 
     self.objectId = 0; // Used to assign id's to new objects
 
@@ -25,10 +24,8 @@ function Editor(width, height) {
     self.camera = null;
     self.raycaster = null;
     self.mouse = new THREE.Vector2();
-    self.selected = null;
+    self.selected = null; // The currently selected object
     self.transformMode = 0; // Translate = 0 | Rotate = 1 | Scale = 2
-
-    self.init(width, height);
 }
 
 Editor.prototype.init = function(width, height) {
@@ -55,12 +52,49 @@ Editor.prototype.init = function(width, height) {
     self.scene.add(pointLight);
     var ambientLight = new THREE.AmbientLight( 0x404040 );
     self.scene.add(ambientLight);
-    
+
     self.loader = new THREE.JSONLoader();
 
     UI.populateLibrary(self.assets);
+    UI.loadFromLocalStorage();
     self.animate();
+
 };
+
+Editor.prototype.load = function(data) {
+    // Assume that scene is empty when you load.
+
+    var self = this;
+    console.log("loading scene:", data.name);
+
+    for(var i = 0; i < data.objects.length; i++) {
+        var object = new ObjectEdit(data.objects[i]);
+        self.createObject(object);
+    }
+
+}
+
+Editor.prototype.save = function() {
+    
+    // TO-DO: it may be overkill to call getData() on every object like this when only 1 object is affected at a time
+    // An alternative is to keep a save-state variable and modify it when actions occur and for undo/redo
+    // Once we have saving to a server, this whole process may need to be rethought
+
+    var self = this;
+
+    console.log("saving scene");
+
+    var data = {
+        name : "scene",
+        objects : new Array(self.objects.length)
+    };
+
+    for(var i = 0; i < self.objects.length; i++) {
+        data.objects[i] = self.objects[i].getData();
+    }
+
+    UI.saveToLocalStorage(data);
+}
 
 Editor.prototype.animate = function() {
     var self = this;
@@ -113,18 +147,19 @@ Editor.prototype.undoAction = function() {
         var object = self.getObjectById(action.data.id);
         object.setData(action.data.oldData);
 
-    } else if(action.type == "create") {
+    } else if(action.type == "add") {
 
         var object = self.getObjectById(action.data.id);
         self.destroyObject(object);
 
-    } else if(action.type == "destroy") {
+    } else if(action.type == "remove") {
 
         var object = new ObjectEdit(action.data);
         self.createObject(object);
     }
 
     UI.setUndoRedo(self.hasUndos(), self.hasRedos());
+    self.save();
 
     console.log("Undo action: " + action.type);
 };
@@ -141,18 +176,19 @@ Editor.prototype.redoAction = function() {
         var object = self.getObjectById(action.data.id);
         object.setData(action.data.newData);
 
-    } else if(action.type == "create") {
+    } else if(action.type == "add") {
 
         var object = new ObjectEdit(action.data);
         self.createObject(object);
 
-    } else if(action.type == "destroy") {
+    } else if(action.type == "remove") {
 
         var object = self.getObjectById(action.data.id);
         self.destroyObject(object);
     }
 
     UI.setUndoRedo(self.hasUndos(), self.hasRedos());
+    self.save();
 
     console.log("Redo action: " + action.type);
 };
@@ -179,6 +215,7 @@ Editor.prototype.addAction = function(actionType, actionData) {
     }
 
     UI.setUndoRedo(true, false);
+    self.save();
 
     console.log("Add action: " + action.type);
     //console.log(action.data);
@@ -188,8 +225,13 @@ Editor.prototype.addAction = function(actionType, actionData) {
 };
 
 Editor.prototype.editObject = function(object) {
+    
+    // TO-DO: is it a good idea for the edit action to save the the entire state of the object,
+    // or should the edit action only contain the property name, old value, and current value
+
     var self = this;
 
+    // Save the old state of the object and the new state of the object
     var newData = object.getData();
     var oldData = object.data;
     self.addAction("edit", {id:object.id, newData:newData, oldData:oldData});
@@ -199,16 +241,16 @@ Editor.prototype.editObject = function(object) {
 Editor.prototype.addObject = function(object) {
     var self = this;
 
-    self.addAction("create", object.getData());
     self.createObject(object);
+    self.addAction("add", object.getData());
 };
 
 Editor.prototype.removeObject = function(object) {
     var self = this;
 
     self.select(null); // Deselect before removing
-    self.addAction("destroy", object.getData());
     self.destroyObject(object);
+    self.addAction("remove", object.getData());
 };
 
 // Do not call directly. Call addObject instead
@@ -217,6 +259,11 @@ Editor.prototype.createObject = function(object) {
 
     self.objects.push(object);
 
+    // Always set objectId to be higher than any object's id
+    // For example when you load a scene the objects already have id's, so objects created after should have higher id's.
+    self.objectId = Math.max(self.objectId, object.id+1);
+
+    // Load the ThreeJS mesh
     if(object.mesh !== undefined) {
         self.loader.load(object.mesh, function(geometry, materials) {
             var material = (materials.length == 1) ? materials[0] : new THREE.MeshFaceMaterial(materials);
@@ -251,7 +298,7 @@ Editor.prototype.duplicateObject = function(object) {
     var self = this;
 
     var data = object.getData();
-    data.id = self.getNewId();
+    data.id = self.objectId;
     data.position[0] = 0;
     data.position[1] = 0;
     data.position[2] = 0;
@@ -264,10 +311,10 @@ Editor.prototype.createAsset = function(assetId, x, y, z) {
 
     var asset = self.getAssetById(assetId);
     var data = ObjectEdit.createData(asset);
-    data.position[0] = x || 0;
+    data.position[0] = x || 0; // x,y,z params are optional
     data.position[1] = y || 0;
     data.position[2] = z || 0;
-    data.id = self.getNewId();
+    data.id = self.objectId;
     var object = new ObjectEdit(data);
     self.addObject(object);
 };
@@ -283,11 +330,6 @@ Editor.prototype.dropAsset = function(assetId, x, y) {
     self.createAsset(assetId, worldX, worldY, worldZ);
 };
 
-Editor.prototype.getNewId = function() {
-    var self = this;
-    return self.objectId++;
-}
-
 Editor.prototype.viewResize = function(width, height) {
     var self = this;
 
@@ -298,8 +340,6 @@ Editor.prototype.viewResize = function(width, height) {
 
 Editor.prototype.click = function(x, y) {
     var self = this;
-
-    if(self.objects.length == 0) return;
 
     var selected = null;
 
@@ -318,6 +358,7 @@ Editor.prototype.click = function(x, y) {
 }
 
 Editor.prototype.select = function(object) {
+
     // When object is null, it counts as a deselect
 
     var self = this;
@@ -338,6 +379,7 @@ Editor.prototype.select = function(object) {
         if(object.outline) {
             object.outline.visible = true;
         } else {
+            // Create outline if it didn't exist
             var outline = new THREE.BoxHelper( object.visual, 0x00ffff );
             object.outline = outline;
             self.scene.add(outline);
