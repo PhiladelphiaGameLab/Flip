@@ -48,6 +48,48 @@ $(document).ready(function() {
         }
     });
 
+
+    $("#undo-button").click(function() {
+        editor.undoAction();
+    });
+
+    $("#redo-button").click(function() {
+        editor.redoAction();
+    });
+
+    $("#remove-button").click(function() {
+        editor.removeSelected();
+    });
+
+    $("#translate-button").click(function() {
+        editor.setModeTranslate();
+        $("#translate-button").addClass("selected");
+        $("#rotate-button").removeClass("selected");
+        $("#scale-button").removeClass("selected");
+    });
+
+    $("#rotate-button").click(function() {
+        editor.setModeRotate();
+        $("#translate-button").removeClass("selected");
+        $("#rotate-button").addClass("selected");
+        $("#scale-button").removeClass("selected");
+    });
+
+    $("#scale-button").click(function() {
+        editor.setModeScale();
+        $("#translate-button").removeClass("selected");
+        $("#rotate-button").removeClass("selected");
+        $("#scale-button").addClass("selected");
+    });
+
+    $("#play-button").click(function() {
+        editor.play();
+    });
+
+    UI.setUndoRedo(false, false);
+    UI.selectObject(null);
+    $("#translate-button").addClass("selected");
+
 });
 
 // Return mouse position in [0,1] range relative to bottom-left of viewport (screen space)
@@ -111,5 +153,26 @@ UI.populateLibrary = function(assets) {
 };
 
 UI.selectObject = function(object) {
+    if(object === null) {
+        $("#remove-button").addClass("disabled");
+    } else {
+        $("#remove-button").removeClass("disabled");
+    }
+
     propertiesPane.selectObject(object);
+};
+
+UI.setUndoRedo = function(hasUndos, hasRedos) {
+    if(hasUndos) {
+        $("#undo-button").removeClass("disabled");
+    } else {
+        $("#undo-button").addClass("disabled");
+    }
+
+    if(hasRedos) {
+        $("#redo-button").removeClass("disabled");
+    } else {
+        $("#redo-button").addClass("disabled");
+    }
+
 };

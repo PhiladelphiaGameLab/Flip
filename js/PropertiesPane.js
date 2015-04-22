@@ -32,7 +32,7 @@ function PropertiesPane() {
     var basicFolder = gui.addFolder("Properties");
     basicFolder.add(controls, "name").onFinishChange(function(value){
         self.selectedObject.name = name;
-        Editor.editObject(self.selectedObject);
+        editor.editObject(self.selectedObject);
     });
 
 

@@ -26,6 +26,7 @@ function Editor(width, height) {
     self.raycaster = null;
     self.mouse = new THREE.Vector2();
     self.selected = null;
+    self.transformMode = 0; // Translate = 0 | Rotate = 1 | Scale = 2
 
     self.init(width, height);
 }
@@ -90,10 +91,20 @@ Editor.prototype.getAssetById = function(id) {
     return null;
 };
 
+Editor.prototype.hasUndos = function() {
+    var self = this;
+    return (self.actionStackPos != -1);
+};
+
+Editor.prototype.hasRedos = function() {
+    var self = this;
+    return (self.actionStackPos != self.actionStack.length - 1);
+};
+
 Editor.prototype.undoAction = function() {
     var self = this;
 
-    if (self.actionStackPos == -1) return;
+    if (!self.hasUndos()) return;
     var action = self.actionStack[self.actionStackPos];
     self.actionStackPos--;
     
@@ -113,13 +124,15 @@ Editor.prototype.undoAction = function() {
         self.createObject(object);
     }
 
+    UI.setUndoRedo(self.hasUndos(), self.hasRedos());
+
     console.log("Undo action: " + action.type);
 };
 
 Editor.prototype.redoAction = function() {
     var self = this;
 
-    if (self.actionStackPos == self.actionStack.length - 1) return;
+    if (!self.hasRedos()) return;
     self.actionStackPos++;
     var action = self.actionStack[self.actionStackPos];
 
@@ -138,6 +151,8 @@ Editor.prototype.redoAction = function() {
         var object = self.getObjectById(action.data.id);
         self.destroyObject(object);
     }
+
+    UI.setUndoRedo(self.hasUndos(), self.hasRedos());
 
     console.log("Redo action: " + action.type);
 };
@@ -162,6 +177,8 @@ Editor.prototype.addAction = function(actionType, actionData) {
         self.actionStack.shift();
         self.actionStackPos--;
     }
+
+    UI.setUndoRedo(true, false);
 
     console.log("Add action: " + action.type);
     //console.log(action.data);
@@ -235,6 +252,9 @@ Editor.prototype.duplicateObject = function(object) {
 
     var data = object.getData();
     data.id = self.getNewId();
+    data.position[0] = 0;
+    data.position[1] = 0;
+    data.position[2] = 0;
     var object = new ObjectEdit(data);
     self.addObject(object);
 };
@@ -359,4 +379,30 @@ Editor.prototype.removeSelected = function() {
     if(self.selected === null) return;
 
     self.removeObject(self.selected);
+}
+
+Editor.prototype.duplicateSelected = function() {
+    var self = this;
+    if(self.selected === null) return;
+
+    self.duplicateObject(self.selected);
+}
+
+Editor.prototype.setModeTranslate = function() {
+    var self = this;
+    self.transformMode = 0;
+}
+
+Editor.prototype.setModeRotate = function() {
+    var self = this;
+    self.transformMode = 1;
+}
+
+Editor.prototype.setModeScale = function() {
+    var self = this;
+    self.transformMode = 2;
+}
+
+Editor.prototype.play = function() {
+
 }

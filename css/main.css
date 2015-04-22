@@ -189,7 +189,6 @@ textarea {
     color: inherit !important;
 }
 
-
 /* ACE custom styles */
 
 .ace_gutter {
@@ -254,6 +253,43 @@ body
 #menu-pane {
     overflow: hidden;
 }
+
+#properties-pane {
+    overflow-x: hidden;
+}
+
+.menu-button {
+    float:left;
+    width:30px;
+    height:30px;
+    padding: 10px;
+}
+
+.menu-spacer {
+    float: left;
+    width: 1px;
+    height: 40px;
+    margin-top: 5px;
+    margin-left: 10px;
+    margin-right: 10px;
+    background-color: #666;
+}
+
+.menu-button.disabled {
+    opacity: 0.5;
+}
+
+.menu-button:hover { 
+    background-color: #444;
+}
+
+.menu-button.selected {
+    background-color: #555; 
+}
+
+
+
+
 
 .library-item {
     position: relative;

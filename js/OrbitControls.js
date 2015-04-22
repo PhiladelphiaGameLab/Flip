@@ -385,7 +385,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	function onMouseDown( event ) {
 
-		if ( scope.enabled === false || scope.isHoldingAlt === false ) return;
+		if ( scope.enabled === false/* || scope.isHoldingAlt === false*/ ) return;
 		//event.preventDefault();
 
 		if ( event.button === scope.mouseButtons.ORBIT ) {
@@ -491,7 +491,7 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	function onMouseWheel( event ) {
 
-		if ( scope.enabled === false || scope.isHoldingAlt === false || scope.noZoom === true || state !== STATE.NONE ) return;
+		if ( scope.enabled === false/* || scope.isHoldingAlt === false*/ || scope.noZoom === true || state !== STATE.NONE ) return;
 
 		event.preventDefault();
 		event.stopPropagation();
