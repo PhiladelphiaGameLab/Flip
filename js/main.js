@@ -163,6 +163,10 @@ UI.selectObject = function(object) {
     propertiesPane.selectObject(object);
 };
 
+UI.updateSelectedObject = function() {
+    propertiesPane.updateSelectedObject();
+}
+
 UI.setUndoRedo = function(hasUndos, hasRedos) {
     if(hasUndos) {
         $("#undo-button").removeClass("disabled");
@@ -179,11 +183,16 @@ UI.setUndoRedo = function(hasUndos, hasRedos) {
 };
 
 UI.saveToLocalStorage = function(data) {
+
+    if(!$("html").hasClass("localstorage")) return;
+
     var json = JSON.stringify(data);
     localStorage.setItem("editor", json);
 };
 
 UI.loadFromLocalStorage = function() {
+    if(!$("html").hasClass("localstorage")) return;
+
     var json = localStorage.getItem("editor");
     if(json == null) return;
 
@@ -192,5 +201,7 @@ UI.loadFromLocalStorage = function() {
 };
 
 UI.clearLocalStorage = function() {
+    if(!$("html").hasClass("localstorage")) return;
+
     localStorage.removeItem("editor");
 }

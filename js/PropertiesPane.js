@@ -31,7 +31,7 @@ function PropertiesPane() {
     // Set name
     var basicFolder = gui.addFolder("Properties");
     basicFolder.add(controls, "name").onFinishChange(function(value){
-        self.selectedObject.name = name;
+        self.selectedObject.name = value;
         editor.editObject(self.selectedObject);
     });
 
@@ -101,16 +101,27 @@ PropertiesPane.prototype.selectObject = function(object) {
     $(self.gui.domElement).show();
     self.selectedObject = object;
 
+    self.basicFolder.open();
+    self.extraFolder.open();
+
+    self.updateSelectedObject();
+};
+
+PropertiesPane.prototype.updateSelectedObject = function() {
+    var self = this;
+    var object = self.selectedObject;
+    if(object === null) return;
+
+    console.log("update selected object");
+
     self.controls["name"] = object.name;
     self.controls["x"] = object.position[0];
     self.controls["y"] = object.position[1];
     self.controls["z"] = object.position[2];
-
-    self.basicFolder.open();
-    self.extraFolder.open();
+    self.controls["visible"] = object.visible;
 
     self.updateVisual();
-};
+}
 
 
 PropertiesPane.prototype.updateVisual = function() 

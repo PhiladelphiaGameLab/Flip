@@ -160,6 +160,7 @@ Editor.prototype.undoAction = function() {
 
     UI.setUndoRedo(self.hasUndos(), self.hasRedos());
     self.save();
+    UI.updateSelectedObject();
 
     console.log("Undo action: " + action.type);
 };
@@ -189,6 +190,7 @@ Editor.prototype.redoAction = function() {
 
     UI.setUndoRedo(self.hasUndos(), self.hasRedos());
     self.save();
+    UI.updateSelectedObject();
 
     console.log("Redo action: " + action.type);
 };
@@ -216,6 +218,7 @@ Editor.prototype.addAction = function(actionType, actionData) {
 
     UI.setUndoRedo(true, false);
     self.save();
+    UI.updateSelectedObject();
 
     console.log("Add action: " + action.type);
     //console.log(action.data);
