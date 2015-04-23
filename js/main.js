@@ -1,4 +1,4 @@
-var viewport, propertiesPane, codeEditor, editor;
+var viewport, propertiesPane, codeEditor, editor, game, renderer;
 var mouseX, mouseY;
 
 $(document).ready(function() {
@@ -27,9 +27,17 @@ $(document).ready(function() {
     splitter.bind("resize", onViewResize);
 
     viewport = $("#view-pane");
+    var width = viewport.innerWidth();
+    var height = viewport.innerHeight();
+    renderer = new THREE.WebGLRenderer();
+    renderer.setSize(width, height);
+    viewport.append(renderer.domElement);
+
     editor = new Editor();
-    editor.init(viewport.innerWidth(), viewport.innerHeight());
-    viewport.append(editor.renderer.domElement);
+    editor.init(renderer, width, height);
+    
+    game = new Game(renderer, width, height);
+
     propertiesPane = new PropertiesPane();
     $("#properties-pane").append(propertiesPane.gui.domElement);
 
@@ -84,7 +92,17 @@ $(document).ready(function() {
     });
 
     $("#play-button").click(function() {
-        editor.play();
+        if(game.active) {
+            console.log("stopping game");
+            game.stop();
+            editor.stopGame();
+            $("#play-button").attr("src", "img/play.png")
+        } else {
+            console.log("starting game");
+            game.start(editor.data);
+            editor.startGame();
+            $("#play-button").attr("src", "img/stop.png")
+        }
     });
 
     UI.setUndoRedo(false, false);
@@ -131,12 +149,18 @@ function onMouseDown(ev) {
 }
 
 function onViewResize() {
-    editor.viewResize(viewport.innerWidth(), viewport.innerHeight());
+    var width = viewport.innerWidth();
+    var height = viewport.innerHeight();
+    renderer.setSize(width, height);
+    editor.viewResize(width, height);
+    game.viewResize(width, height);
+
     propertiesPane.resize($("#properties-pane").innerWidth());
     codeEditor.resize();
 }
 
 
+// Functions called by Editor that update the UI
 var UI = {};
 
 UI.populateLibrary = function(assets) {
@@ -179,7 +203,6 @@ UI.setUndoRedo = function(hasUndos, hasRedos) {
     } else {
         $("#redo-button").addClass("disabled");
     }
-
 };
 
 UI.saveToLocalStorage = function(data) {

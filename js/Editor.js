@@ -22,18 +22,20 @@ function Editor() {
     self.scene = null;
     self.loader = null;
     self.camera = null;
+    self.controls = null;
     self.raycaster = null;
     self.mouse = new THREE.Vector2();
     self.selected = null; // The currently selected object
     self.transformMode = 0; // Translate = 0 | Rotate = 1 | Scale = 2
+    self.data = null; // Stores the game data
+    self.requestAnimationId = 0;
+    self.active = true; // Whether the editor is active (not in game)
 }
 
-Editor.prototype.init = function(width, height) {
+Editor.prototype.init = function(renderer, width, height) {
     var self = this;
 
-    self.renderer = new THREE.WebGLRenderer();
-    self.renderer.setSize(width, height);
-
+    self.renderer = renderer;
     self.scene = new THREE.Scene();
 
     self.camera = new THREE.PerspectiveCamera(70, width / height, 1, 1000);
@@ -41,7 +43,7 @@ Editor.prototype.init = function(width, height) {
     self.camera.position.y = 0;
     self.camera.position.z = 10;
     self.scene.add(self.camera);
-    var controls = new THREE.OrbitControls( self.camera, self.renderer.domElement );
+    self.controls = new THREE.OrbitControls( self.camera, self.renderer.domElement );
     self.raycaster = new THREE.Raycaster();
 
     var pointLight = new THREE.PointLight(0xFFFFFF);
@@ -65,6 +67,7 @@ Editor.prototype.load = function(data) {
     // Assume that scene is empty when you load.
 
     var self = this;
+    self.data = data;
     console.log("loading scene:", data.name);
 
     for(var i = 0; i < data.objects.length; i++) {
@@ -93,13 +96,14 @@ Editor.prototype.save = function() {
         data.objects[i] = self.objects[i].getData();
     }
 
+    self.data = data;
     UI.saveToLocalStorage(data);
 }
 
 Editor.prototype.animate = function() {
     var self = this;
 
-    requestAnimationFrame(this.animate.bind(this));
+    self.requestAnimationId = requestAnimationFrame(self.animate.bind(self));
     self.renderer.render(self.scene, self.camera);
 };
 
@@ -221,10 +225,7 @@ Editor.prototype.addAction = function(actionType, actionData) {
     UI.updateSelectedObject();
 
     console.log("Add action: " + action.type);
-    //console.log(action.data);
-    //console.log("Current stack:");
-    //console.log(self.actionStack);
-    //console.log(self.actionStackPos);
+
 };
 
 Editor.prototype.editObject = function(object) {
@@ -338,7 +339,6 @@ Editor.prototype.viewResize = function(width, height) {
 
     self.camera.aspect = width / height;
     self.camera.updateProjectionMatrix();
-    self.renderer.setSize(width, height);
 };
 
 Editor.prototype.click = function(x, y) {
@@ -448,6 +448,16 @@ Editor.prototype.setModeScale = function() {
     self.transformMode = 2;
 }
 
-Editor.prototype.play = function() {
+Editor.prototype.startGame = function() {
+    var self = this;
+    cancelAnimationFrame(self.requestAnimationId); // Stop render loop
+    self.active = false;
+    self.controls.enabled = false;
+}
 
+Editor.prototype.stopGame = function() {
+    var self = this;
+    self.animate(); // Restart render loop
+    self.active = true;
+    self.controls.enabled = true;
 }
