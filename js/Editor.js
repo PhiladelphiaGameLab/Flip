@@ -23,7 +23,7 @@ function Editor() {
     self.scene = null;
     self.loader = null;
     self.camera = null;
-    self.controls = null;
+    self.orbitControls = null;
     self.raycaster = null;
     self.mouse = new THREE.Vector2();
     self.selected = null; // The currently selected object
@@ -44,7 +44,7 @@ Editor.prototype.init = function(renderer, width, height) {
     self.camera.position.y = 0;
     self.camera.position.z = 10;
     self.scene.add(self.camera);
-    self.controls = new THREE.OrbitControls( self.camera, self.renderer.domElement );
+    self.orbitControls = new THREE.OrbitControls( self.camera, self.renderer.domElement );
     self.raycaster = new THREE.Raycaster();
 
     var pointLight = new THREE.PointLight(0xFFFFFF);
@@ -475,14 +475,14 @@ Editor.prototype.pause = function() {
     var self = this;
     cancelAnimationFrame(self.requestAnimationId); // Stop render loop
     self.active = false;
-    self.controls.enabled = false;
+    self.orbitControls.enabled = false;
 }
 
 Editor.prototype.resume = function() {
     var self = this;
     self.animate(); // Restart render loop
     self.active = true;
-    self.controls.enabled = true;
+    self.orbitControls.enabled = true;
 }
 
 Editor.prototype.editScript = function(contents) {

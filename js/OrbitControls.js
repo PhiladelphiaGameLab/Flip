@@ -370,6 +370,59 @@ THREE.OrbitControls = function ( object, domElement ) {
 		return theta
 
 	};
+    
+    this.onKeyDown = function( keyCode ) {
+
+		if ( scope.enabled === false || scope.noKeys === true ) return;
+        
+		switch ( keyCode ) {
+
+			case scope.keys.UP:
+                if ( scope.noPan ) { return; }
+				scope.pan( 0, scope.keyPanSpeed );
+				scope.update();
+				break;
+
+			case scope.keys.BOTTOM:
+                if ( scope.noPan ) { return; }
+				scope.pan( 0, - scope.keyPanSpeed );
+				scope.update();
+				break;
+
+			case scope.keys.LEFT:
+                if ( scope.noPan ) { return; }
+				scope.pan( scope.keyPanSpeed, 0 );
+				scope.update();
+				break;
+
+			case scope.keys.RIGHT:
+                if ( scope.noPan ) { return; }
+				scope.pan( - scope.keyPanSpeed, 0 );
+				scope.update();
+				break;
+            
+            case scope.keys.PLUS:
+                if ( scope.noZoom ) { return; }
+                scope.dollyOut();
+                scope.update();
+                break;
+            
+            case scope.keys.MINUS:
+                if ( scope.noZoom ) { return; }
+                scope.dollyIn();
+                scope.update();
+                break;
+                
+            case scope.keys.ALT:
+                scope.isHoldingAlt = true;
+                break;
+		}
+
+	};
+    
+    this.onKeyUp = function() {
+        scope.isHoldingAlt = false;
+    };
 
 	function getAutoRotationAngle() {
 
@@ -524,59 +577,6 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	}
 
-	function onKeyDown( event ) {
-
-		if ( scope.enabled === false || scope.noKeys === true ) return;
-        
-		switch ( event.keyCode ) {
-
-			case scope.keys.UP:
-                if ( scope.noPan ) { return; }
-				scope.pan( 0, scope.keyPanSpeed );
-				scope.update();
-				break;
-
-			case scope.keys.BOTTOM:
-                if ( scope.noPan ) { return; }
-				scope.pan( 0, - scope.keyPanSpeed );
-				scope.update();
-				break;
-
-			case scope.keys.LEFT:
-                if ( scope.noPan ) { return; }
-				scope.pan( scope.keyPanSpeed, 0 );
-				scope.update();
-				break;
-
-			case scope.keys.RIGHT:
-                if ( scope.noPan ) { return; }
-				scope.pan( - scope.keyPanSpeed, 0 );
-				scope.update();
-				break;
-            
-            case scope.keys.PLUS:
-                if ( scope.noZoom ) { return; }
-                scope.dollyOut();
-                scope.update();
-                break;
-            
-            case scope.keys.MINUS:
-                if ( scope.noZoom ) { return; }
-                scope.dollyIn();
-                scope.update();
-                break;
-                
-            case scope.keys.ALT:
-                scope.isHoldingAlt = true;
-                break;
-		}
-
-	}
-    
-    function onKeyUp( event ) {
-        scope.isHoldingAlt = false;
-    }
-
 	function touchstart( event ) {
 
 		if ( scope.enabled === false ) return;
@@ -719,9 +719,6 @@ THREE.OrbitControls = function ( object, domElement ) {
 	this.domElement.addEventListener( 'touchstart', touchstart, false );
 	this.domElement.addEventListener( 'touchend', touchend, false );
 	this.domElement.addEventListener( 'touchmove', touchmove, false );
-
-	window.addEventListener( 'keydown', onKeyDown, false );
-    window.addEventListener( 'keyup', onKeyUp, false );
 
 	// force an update at start
 	this.update();
