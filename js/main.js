@@ -46,7 +46,12 @@ $(document).ready(function() {
     codeEditor.getSession().setMode("ace/mode/javascript");
     codeEditor.setShowPrintMargin(false);
     codeEditor.$blockScrolling = Infinity;
-    codeEditor.getSession().setValue("function test(){\n\talert(\"flip\");\n}");
+    //codeEditor.getSession().setValue("function test(){\n\talert(\"flip\");\n}");
+    
+    codeEditor.on('change', function(){
+        var contents = codeEditor.getSession().getValue();
+        editor.editScript(contents);
+    });
 
     $(document).on('keydown', function(e) {
         var tag = e.target.tagName.toLowerCase();
@@ -95,20 +100,25 @@ $(document).ready(function() {
         if(game.active) {
             console.log("stopping game");
             game.stop();
-            editor.stopGame();
+            editor.resume();
             $("#play-button").attr("src", "img/play.png")
         } else {
             console.log("starting game");
             game.start(editor.data);
-            editor.startGame();
+            editor.pause();
             $("#play-button").attr("src", "img/stop.png")
         }
     });
 
     UI.setUndoRedo(false, false);
-    UI.selectObject(null);
     $("#translate-button").addClass("selected");
 
+});
+
+$(window).load(function() {
+    // Fixes bug where if code editor is hidden inside document.ready, then it won't respond to show()
+    // So hide now instead
+    UI.selectObject(null);
 });
 
 // Return mouse position in [0,1] range relative to bottom-left of viewport (screen space)
@@ -178,10 +188,23 @@ UI.populateLibrary = function(assets) {
 };
 
 UI.selectObject = function(object) {
+
     if(object === null) {
         $("#remove-button").addClass("disabled");
+        $("#code-editor").hide();
     } else {
         $("#remove-button").removeClass("disabled");
+        $("#code-editor").show();
+
+        // Show script in code editor pane
+        if(object.script === null) {
+            codeEditor.getSession().setValue("");
+        } else {
+            var scriptRef = object.script;
+            var script = editor.getScriptById(scriptRef);
+            var contents = script.contents;
+            codeEditor.getSession().setValue(contents);
+        }
     }
 
     propertiesPane.selectObject(object);

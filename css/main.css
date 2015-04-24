@@ -102,7 +102,7 @@ textarea {
 }
 
 .k-splitbar {
-    border-color:#000000;
+    border-color:#222;
     background-color:#2F2F2F;
     z-index: 9;
 }

@@ -40,8 +40,17 @@ Game.prototype.start = function(data) {
     // Load the scene data
     console.log("loading game scene:", data.name);
 
+    // Load objects
     for(var i = 0; i < data.objects.length; i++) {
         var object = new ObjectGame(data.objects[i]);
+    }
+
+    // Load scripts
+    for(var i = 0; i < data.scripts.length; i++) {
+        var script = document.createElement("script");
+        script.innerHTML = data.scripts[i].contents;
+        script.className = "game-script";
+        document.body.appendChild(script);
     }
 
     self.active = true;
@@ -59,6 +68,8 @@ Game.prototype.stop = function() {
     // Stop game loop
     cancelAnimationFrame(self.requestAnimationId);
     self.active = false;
+    $(".game-script").remove(); // Remove user-created scripts from the DOM
+
 }
 
 Game.prototype.animate = function() {

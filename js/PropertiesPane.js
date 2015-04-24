@@ -112,8 +112,6 @@ PropertiesPane.prototype.updateSelectedObject = function() {
     var object = self.selectedObject;
     if(object === null) return;
 
-    console.log("update selected object");
-
     self.controls["name"] = object.name;
     self.controls["x"] = object.position[0];
     self.controls["y"] = object.position[1];

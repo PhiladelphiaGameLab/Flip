@@ -15,6 +15,7 @@ function Editor() {
 
     self.objects = []; // Objects in the scene
     self.visuals = []; // ThreeJS objects. Need this array for doing raycasting.
+    self.scripts = []; // Scripts used by objects. Each object stores a reference to one of these, or null.
 
     self.objectId = 0; // Used to assign id's to new objects
 
@@ -75,6 +76,10 @@ Editor.prototype.load = function(data) {
         self.createObject(object);
     }
 
+    self.scripts = data.scripts; // TO-DO: is it ok not to copy?
+
+    console.log(self.scripts);
+
 }
 
 Editor.prototype.save = function() {
@@ -89,11 +94,20 @@ Editor.prototype.save = function() {
 
     var data = {
         name : "scene",
-        objects : new Array(self.objects.length)
+        objects : [],
+        scripts: []
     };
 
     for(var i = 0; i < self.objects.length; i++) {
-        data.objects[i] = self.objects[i].getData();
+
+        var object = self.objects[i];
+        data.objects.push(object.getData());
+
+        // If there is a script attached to this object, save it
+        if(object.script !== null) {
+            var script = self.getScriptById(object.script);
+            data.scripts.push(script);
+        }
     }
 
     self.data = data;
@@ -128,6 +142,17 @@ Editor.prototype.getAssetById = function(id) {
     }
     return null;
 };
+
+Editor.prototype.getScriptById = function(id) {
+    var self = this;
+
+    for (var i = 0; i < self.scripts.length; i++) {
+        if(self.scripts[i].id == id) {
+            return self.scripts[i];
+        }
+    }
+    return null;
+}
 
 Editor.prototype.hasUndos = function() {
     var self = this;
@@ -448,16 +473,41 @@ Editor.prototype.setModeScale = function() {
     self.transformMode = 2;
 }
 
-Editor.prototype.startGame = function() {
+Editor.prototype.pause = function() {
     var self = this;
     cancelAnimationFrame(self.requestAnimationId); // Stop render loop
     self.active = false;
     self.controls.enabled = false;
 }
 
-Editor.prototype.stopGame = function() {
+Editor.prototype.resume = function() {
     var self = this;
     self.animate(); // Restart render loop
     self.active = true;
     self.controls.enabled = true;
+}
+
+Editor.prototype.editScript = function(contents) {
+    var self = this;
+    var object = self.selected;
+    if(object === null) return; // Shouldn't happen, but just in case
+    if(contents.length == 0) return; // Ignore for now, maybe do something else later
+
+    if(object.script === null) {
+
+        // Create new script. Use the id of the object for now (rather than keeping a script count)
+        var scriptObj = {
+            id:object.id,
+            contents:contents
+        };
+
+        self.scripts.push(scriptObj);
+        object.script = scriptObj.id;
+
+    } else {
+        var script = self.getScriptById(object.script);
+        script.contents = contents;
+    }
+
+    self.save();
 }

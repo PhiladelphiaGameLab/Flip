@@ -2,8 +2,6 @@ function ObjectGame (data) {
 
     var self = this;
 
-    console.log(data);
-
     self.name = data.name;
     self.id = data.id;
     self.visible = data.visible;
@@ -27,7 +25,6 @@ function ObjectGame (data) {
             mesh.visible = self.visible;
             self.visual = mesh;
             game.scene.add(mesh);
-            console.log("loaded mesh");
         } );
     }
 }
