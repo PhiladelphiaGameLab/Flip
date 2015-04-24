@@ -29,7 +29,10 @@ window.Physijs = (function() {
 		VEHICLEREPORT_ITEMSIZE = 9,
 		CONSTRAINTREPORT_ITEMSIZE = 6;
 
-	Physijs.scripts = {};
+	Physijs.scripts = {
+		worker: "js/vendor/physijs_worker.js",
+		ammo: "ammo.js"
+	};
 
 	Eventable = function() {
 		this._eventListeners = {};

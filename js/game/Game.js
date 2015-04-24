@@ -17,7 +17,8 @@ Game.prototype.start = function(data) {
 
     console.log(data);
 
-    self.scene = new THREE.Scene();
+    //self.scene = new THREE.Scene();
+    self.scene = new Physijs.Scene();
     self.loader = new THREE.JSONLoader();
 
     self.camera = new THREE.PerspectiveCamera(70, self.width / self.height, 1, 1000);
@@ -77,6 +78,7 @@ Game.prototype.animate = function() {
 
     self.requestAnimationId = requestAnimationFrame(self.animate.bind(self));
     self.renderer.render(self.scene, self.camera);
+    self.scene.simulate();
 };
 
 Game.prototype.viewResize = function(width, height) {

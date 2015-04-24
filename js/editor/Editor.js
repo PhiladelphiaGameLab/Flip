@@ -10,7 +10,7 @@ function Editor() {
     self.assets = [
         {name:"MultiMat", icon:"img/cube.png", assetId:0, mesh:"data/assets/multimat/multimat.json"},
         {name:"Chair", icon:"img/cube.png", assetId:1, mesh:"data/assets/chair/chair.json"},
-        {name:"Tree", icon:"img/cube.png", assetId:2}
+        {name:"Skinning Simple", icon:"img/cube.png", assetId:2, mesh:"data/assets/skinning_simple/skinning_simple.js"}
     ];
 
     self.objects = []; // Objects in the scene
@@ -420,7 +420,7 @@ Editor.prototype.unprojectMousePosition = function(x, y) {
     var camera = self.camera;
     var vector = new THREE.Vector3();
     vector.set(x*2-1, y*2-1, 0.5); // NDC space
-    vector.unproject(camera);
+    vector.unproject(camera); // World space
     var dir = vector.sub(camera.position).normalize();
     //var distance = - camera.position.z / dir.z;
     var distance = 15;
@@ -489,9 +489,8 @@ Editor.prototype.editScript = function(contents) {
     var self = this;
     var object = self.selected;
     if(object === null) return; // Shouldn't happen, but just in case
-    if(contents.length == 0) return; // Ignore for now, maybe do something else later
 
-    if(object.script === null) {
+    if(object.script === null && contents.length > 0) {
 
         // Create new script. Use the id of the object for now (rather than keeping a script count)
         var scriptObj = {

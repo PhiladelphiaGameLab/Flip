@@ -15,17 +15,21 @@ function ObjectGame (data) {
     console.log(data.mesh);
 
     // Load the ThreeJS mesh
-    if(data.mesh !== undefined) {
+    if(data.mesh !== null) {
         game.loader.load(data.mesh, function(geometry, materials) {
             var material = (materials.length == 1) ? materials[0] : new THREE.MeshFaceMaterial(materials);
-            var mesh = new THREE.Mesh(geometry, material);
-            mesh.position.fromArray(self.position);
-            mesh.rotation.fromArray(self.rotation);
-            mesh.scale.fromArray(self.scale);
-            mesh.visible = self.visible;
-            self.visual = mesh;
-            game.scene.add(mesh);
-        } );
+            //var mesh = new THREE.Mesh(geometry, material);
+            //mesh.position.fromArray(self.position);
+            //mesh.rotation.fromArray(self.rotation);
+            //mesh.scale.fromArray(self.scale);
+            //mesh.visible = self.visible;
+            //self.visual = mesh;
+            //game.scene.add(mesh);
+
+            box = new Physijs.BoxMesh(geometry, material);
+            game.scene.add( box );
+
+        });
     }
 }
 
