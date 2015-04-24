@@ -9,7 +9,7 @@ function InputHandler() {
     window.addEventListener( 'keyup', this.onKeyUp.bind(this), false );
 }
 InputHandler.prototype.onKeyUp = function(event) {
-	delete this.pressedKeys[event.keyCode];
+    delete this.pressedKeys[event.keyCode];
     editor.orbitControls.onKeyUp();
 };
 InputHandler.prototype.onKeyDown = function(event) {
