@@ -351,12 +351,9 @@ Editor.prototype.createAsset = function(assetId, x, y, z) {
 Editor.prototype.dropAsset = function(assetId, x, y) {
     var self = this;
 
-    var worldPosition = self.unprojectMousePosition(x, y);
-    var worldX = Math.round(worldPosition.x);
-    var worldY = Math.round(worldPosition.y);
-    var worldZ = 0;
+    var position = self.unprojectMousePosition(x, y);
 
-    self.createAsset(assetId, worldX, worldY, worldZ);
+    self.createAsset(assetId, position.x, position.y, position.z);
 };
 
 Editor.prototype.viewResize = function(width, height) {
@@ -425,7 +422,8 @@ Editor.prototype.unprojectMousePosition = function(x, y) {
     vector.set(x*2-1, y*2-1, 0.5); // NDC space
     vector.unproject(camera);
     var dir = vector.sub(camera.position).normalize();
-    var distance = - camera.position.z / dir.z;
+    //var distance = - camera.position.z / dir.z;
+    var distance = 15;
     var worldPosition = camera.position.clone().add(dir.multiplyScalar(distance));
     return worldPosition;
 };
