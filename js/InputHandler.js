@@ -13,9 +13,15 @@ InputHandler.prototype.onKeyUp = function(event) {
     editor.orbitControls.onKeyUp();
 };
 InputHandler.prototype.onKeyDown = function(event) {
+
+    // Avoid capturing key events from input boxes and text areas
+    var tag = event.target.tagName.toLowerCase();
+    if (tag == 'input' || tag == 'textarea') return;
+
     var keyCode = event.keyCode;
     this.pressedKeys[keyCode] = true;
-    editor.orbitControls.onKeyDown(keyCode);
+    var ctrl = event.ctrlKey;
+    editor.keyDown(keyCode, ctrl);
 };
 
 // Return mouse position in [0,1] range relative to bottom-left of viewport (screen space)
@@ -33,8 +39,8 @@ function onDrop(event) {
     event.preventDefault();
 
     var mouse = convertToScreenSpace(event.pageX, event.pageY);
-    var id = event.dataTransfer.getData("text");
-    editor.dropAsset(id, mouse[0], mouse[1]);
+    var assetName = event.dataTransfer.getData("text");
+    editor.dropAsset(assetName, mouse[0], mouse[1]);
 }
 
 function onClick(event) {

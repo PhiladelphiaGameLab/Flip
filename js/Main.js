@@ -53,16 +53,6 @@ $(document).ready(function() {
         editor.editScript(contents);
     });
 
-    $(document).on('keydown', function(e) {
-        var tag = e.target.tagName.toLowerCase();
-        var key = e.which;
-        var ctrl = e.ctrlKey;
-        if (tag != 'input' && tag != 'textarea'){
-            editor.keyPress(key, ctrl);
-        }
-    });
-
-
     $("#undo-button").click(function() {
         editor.undoAction();
     });
@@ -148,7 +138,7 @@ UI.populateLibrary = function(assets) {
         item.find(".library-item-name").html(asset.name);
         var image = item.find(".library-item-image");
         image.attr("src", asset.icon);
-        image.attr("id", asset.assetId);
+        image.attr("id", asset.name);
     }
 };
 
@@ -166,7 +156,7 @@ UI.selectObject = function(object) {
             codeEditor.getSession().setValue("");
         } else {
             var scriptRef = object.script;
-            var script = editor.getScriptById(scriptRef);
+            var script = editor.getScriptByName(scriptRef);
             var contents = script.contents;
             codeEditor.getSession().setValue(contents);
         }

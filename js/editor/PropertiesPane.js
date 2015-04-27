@@ -31,8 +31,14 @@ function PropertiesPane() {
     // Set name
     var basicFolder = gui.addFolder("Properties");
     basicFolder.add(controls, "name").onFinishChange(function(value){
-        self.selectedObject.name = value;
-        editor.editObject(self.selectedObject);
+        if(editor.isNameUnique(value)) {
+            self.selectedObject.setName(value);
+            editor.editObject(self.selectedObject);
+        } else {
+            alert("The name " + value + "is already taken");
+            self.controls["name"] = self.selectedObject.name;
+            self.updateVisual();
+        }
     });
 
 

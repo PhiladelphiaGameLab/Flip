@@ -14,6 +14,7 @@ ObjectEdit.prototype.setData = function(data) {
 
     self.name = data.name;
     self.id = data.id;
+    self.asset = data.asset;
     self.visible = data.visible;
     self.script = data.script;
     self.physics = data.physics; // TO-DO: do deep copy
@@ -38,6 +39,7 @@ ObjectEdit.prototype.getData = function() {
     var data = {
         name: self.name,
         id: self.id,
+        asset: self.asset,
         visible: self.visible,
         script: self.script,
         physics: self.physics, // TO-DO: do deep copy
@@ -57,6 +59,7 @@ ObjectEdit.createData = function(asset) {
     var data = {
         name: asset.name,
         id: 0,
+        asset: asset.name,
         visible: true,
         script: asset.script || null,
         physics: asset.physics || null, // TO-DO will have to do a deep copy since this is an object
@@ -71,9 +74,6 @@ ObjectEdit.createData = function(asset) {
 
 ObjectEdit.prototype.setVisual = function(visual) {
     var self = this;
-
-    visual.name = self.name;
-    visual.userData = self.id;
     self.visual = visual;
     self.updateVisual();
 };
@@ -86,8 +86,17 @@ ObjectEdit.prototype.updateVisual = function() {
         self.visual.rotation.fromArray(self.rotation);
         self.visual.scale.fromArray(self.scale);
         self.visual.visible = self.visible;
+        self.visual.name = self.name;
+        self.visual.userData = self.name;
     }
 };
+
+ObjectEdit.prototype.setName = function(name) {
+    var self = this;
+
+    self.name = name;
+    self.updateVisual();
+}
 
 ObjectEdit.prototype.setPosition = function(x, y, z) {
     var self = this;

@@ -8,9 +8,9 @@ function Editor() {
 
     // Assets in the library
     self.assets = [
-        {name:"MultiMat", icon:"img/cube.png", assetId:0, mesh:"data/assets/multimat/multimat.json"},
-        {name:"Chair", icon:"img/cube.png", assetId:1, mesh:"data/assets/chair/chair.json"},
-        {name:"Skinning Simple", icon:"img/cube.png", assetId:2, mesh:"data/assets/skinning_simple/skinning_simple.js"}
+        {name:"MultiMat", icon:"img/cube.png", id:0, mesh:"data/assets/multimat/multimat.json"},
+        {name:"Chair", icon:"img/cube.png", id:1, mesh:"data/assets/chair/chair.json"},
+        {name:"Skinning Simple", icon:"img/cube.png", id:2, mesh:"data/assets/skinning_simple/skinning_simple.js"}
     ];
 
     self.objects = []; // Objects in the scene
@@ -61,7 +61,6 @@ Editor.prototype.init = function(renderer, width, height) {
     UI.populateLibrary(self.assets);
     UI.loadFromLocalStorage();
     self.animate();
-
 };
 
 Editor.prototype.load = function(data) {
@@ -105,7 +104,7 @@ Editor.prototype.save = function() {
 
         // If there is a script attached to this object, save it
         if(object.script !== null) {
-            var script = self.getScriptById(object.script);
+            var script = self.getScriptByName(object.script);
             data.scripts.push(script);
         }
     }
@@ -121,33 +120,33 @@ Editor.prototype.animate = function() {
     self.renderer.render(self.scene, self.camera);
 };
 
-Editor.prototype.getObjectById = function(id) {
+Editor.prototype.getObjectByName = function(name) {
     var self = this;
 
     for (var i = 0; i < self.objects.length; i++) {
-        if(self.objects[i].id == id) {
+        if(self.objects[i].name == name) {
             return self.objects[i];
         }
     }
     return null;
 };
 
-Editor.prototype.getAssetById = function(id) {
+Editor.prototype.getAssetByName = function(name) {
     var self = this;
 
     for (var i = 0; i < self.assets.length; i++) {
-        if(self.assets[i].assetId == id) {
+        if(self.assets[i].name == name) {
             return self.assets[i];
         }
     }
     return null;
 };
 
-Editor.prototype.getScriptById = function(id) {
+Editor.prototype.getScriptByName = function(name) {
     var self = this;
 
     for (var i = 0; i < self.scripts.length; i++) {
-        if(self.scripts[i].id == id) {
+        if(self.scripts[i].name == name) {
             return self.scripts[i];
         }
     }
@@ -173,12 +172,12 @@ Editor.prototype.undoAction = function() {
     
     if(action.type == "edit") {
 
-        var object = self.getObjectById(action.data.id);
+        var object = self.getObjectByName(action.data.name);
         object.setData(action.data.oldData);
 
     } else if(action.type == "add") {
 
-        var object = self.getObjectById(action.data.id);
+        var object = self.getObjectByName(action.data.name);
         self.destroyObject(object);
 
     } else if(action.type == "remove") {
@@ -203,7 +202,7 @@ Editor.prototype.redoAction = function() {
 
     if(action.type == "edit") {
 
-        var object = self.getObjectById(action.data.id);
+        var object = self.getObjectByName(action.data.name);
         object.setData(action.data.newData);
 
     } else if(action.type == "add") {
@@ -213,7 +212,7 @@ Editor.prototype.redoAction = function() {
 
     } else if(action.type == "remove") {
 
-        var object = self.getObjectById(action.data.id);
+        var object = self.getObjectByName(action.data.name);
         self.destroyObject(object);
     }
 
@@ -263,7 +262,7 @@ Editor.prototype.editObject = function(object) {
     // Save the old state of the object and the new state of the object
     var newData = object.getData();
     var oldData = object.data;
-    self.addAction("edit", {id:object.id, newData:newData, oldData:oldData});
+    self.addAction("edit", {name:object.name, newData:newData, oldData:oldData});
     object.data = newData;
 };
 
@@ -323,11 +322,58 @@ Editor.prototype.destroyObject = function(object) {
     }
 };
 
+Editor.prototype.getUniqueId = function() {
+    // objectId is updated in createObject()
+    var self = this;
+    return self.objectId;
+}
+
+Editor.prototype.isNameUnique = function(name) {
+    var self = this;
+    var object = self.getObjectByName(name);
+    return object === null;
+}
+
+Editor.prototype.getUniqueName = function(name) {
+    var self = this;
+    
+    // Check if an object with this name exists. If not, return the name as it is
+    var object = self.getObjectByName(name);
+    if(object === null) return name;
+
+    // Get the copy count (if it exists)
+    var count = 0;
+    var base = name;
+    var hyphenIndex = name.lastIndexOf("-");
+    if(hyphenIndex >= 0) {
+        var beforeHyphen = name.substring(0, hyphenIndex);
+        var afterHyphen = name.substring(hyphenIndex+1);
+        var numerical = /^\d+$/.test(afterHyphen);
+        
+        // The count is valid only if there's a hyphen followed by digits
+        if(numerical) {
+            count = parseInt(afterHyphen, 10);
+            base = beforeHyphen;
+        }
+    }
+
+    // Keep incrementing the copy count and look for an open name
+    while(object !== null) {
+        count++;
+        name = base + "-" + count;
+        object = self.getObjectByName(name);
+    }
+
+    return name;
+    //var regex = /\.0*([0-9]+)$/gm;
+}
+
 Editor.prototype.duplicateObject = function(object) {
     var self = this;
 
     var data = object.getData();
-    data.id = self.objectId;
+    data.id = self.getUniqueId();
+    data.name = self.getUniqueName(data.name);
     data.position[0] = 0;
     data.position[1] = 0;
     data.position[2] = 0;
@@ -335,25 +381,26 @@ Editor.prototype.duplicateObject = function(object) {
     self.addObject(object);
 };
 
-Editor.prototype.createAsset = function(assetId, x, y, z) {
+Editor.prototype.createAsset = function(assetName, x, y, z) {
     var self = this;
 
-    var asset = self.getAssetById(assetId);
+    var asset = self.getAssetByName(assetName);
     var data = ObjectEdit.createData(asset);
+    data.id = self.getUniqueId();
+    data.name = self.getUniqueName(assetName);
     data.position[0] = x || 0; // x,y,z params are optional
     data.position[1] = y || 0;
     data.position[2] = z || 0;
-    data.id = self.objectId;
     var object = new ObjectEdit(data);
     self.addObject(object);
 };
 
-Editor.prototype.dropAsset = function(assetId, x, y) {
+Editor.prototype.dropAsset = function(assetName, x, y) {
     var self = this;
 
     var position = self.unprojectMousePosition(x, y);
 
-    self.createAsset(assetId, position.x, position.y, position.z);
+    self.createAsset(assetName, position.x, position.y, position.z);
 };
 
 Editor.prototype.viewResize = function(width, height) {
@@ -375,7 +422,7 @@ Editor.prototype.click = function(x, y) {
     var intersections = self.raycaster.intersectObjects( self.visuals );
     if (intersections.length > 0) {
         var mesh = intersections[0].object;
-        var object = self.getObjectById(mesh.userData);
+        var object = self.getObjectByName(mesh.userData);
         selected = object;
     }
 
@@ -428,7 +475,7 @@ Editor.prototype.unprojectMousePosition = function(x, y) {
     return worldPosition;
 };
 
-Editor.prototype.keyPress = function(key, ctrl) {
+Editor.prototype.keyDown = function(key, ctrl) {
     // TO-DO: ctrl-z doesn't work now because sometimes the code editor takes focus for no reason
 
     var self = this;
@@ -439,7 +486,11 @@ Editor.prototype.keyPress = function(key, ctrl) {
         self.redoAction();
     } else if(key == 46) { // DEL
         self.removeSelected();
+    } else if(key == 68) {
+        self.duplicateSelected();
     }
+
+    self.orbitControls.onKeyDown(key);
 };
 
 Editor.prototype.removeSelected = function() {
@@ -490,19 +541,22 @@ Editor.prototype.editScript = function(contents) {
     var object = self.selected;
     if(object === null) return; // Shouldn't happen, but just in case
 
-    if(object.script === null && contents.length > 0) {
+    console.log(object.script, contents.length);
 
-        // Create new script. Use the id of the object for now (rather than keeping a script count)
-        var scriptObj = {
-            id:object.id,
-            contents:contents
-        };
+    if(object.script === null) {
 
-        self.scripts.push(scriptObj);
-        object.script = scriptObj.id;
+        if(contents.length > 0) {
+            // Create new script. Use the id of the object to make the script name
+            var scriptObj = {
+                name:"script" + object.id,
+                contents:contents
+            };
 
+            self.scripts.push(scriptObj);
+            object.script = scriptObj.name;
+        }
     } else {
-        var script = self.getScriptById(object.script);
+        var script = self.getScriptByName(object.script);
         script.contents = contents;
     }
 
