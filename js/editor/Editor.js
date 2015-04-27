@@ -1,5 +1,8 @@
 function Editor() {
     var self = this;
+    
+    self.isCurrentlyTransforming = false;
+    self.copiedObjectData = null;
 
     // Undo/redo
     self.actionStack = [];
@@ -24,10 +27,10 @@ function Editor() {
     self.loader = null;
     self.camera = null;
     self.orbitControls = null;
+    self.transformControls = null;
     self.raycaster = null;
     self.mouse = new THREE.Vector2();
     self.selected = null; // The currently selected object
-    self.transformMode = 0; // Translate = 0 | Rotate = 1 | Scale = 2
     self.data = null; // Stores the game data
     self.requestAnimationId = 0;
     self.active = true; // Whether the editor is active (not in game)
@@ -45,6 +48,7 @@ Editor.prototype.init = function(renderer, width, height) {
     self.camera.position.z = 10;
     self.scene.add(self.camera);
     self.orbitControls = new THREE.OrbitControls( self.camera, self.renderer.domElement );
+    self.transformControls = new THREE.TransformControls( self.camera, self.renderer.domElement );
     self.raycaster = new THREE.Raycaster();
 
     var pointLight = new THREE.PointLight(0xFFFFFF);
@@ -118,6 +122,7 @@ Editor.prototype.animate = function() {
 
     self.requestAnimationId = requestAnimationFrame(self.animate.bind(self));
     self.renderer.render(self.scene, self.camera);
+    self.transformControls.update();
 };
 
 Editor.prototype.getObjectByName = function(name) {
@@ -266,10 +271,10 @@ Editor.prototype.editObject = function(object) {
     object.data = newData;
 };
 
-Editor.prototype.addObject = function(object) {
+Editor.prototype.addObject = function(object, callback) {
     var self = this;
 
-    self.createObject(object);
+    self.createObject(object, callback);
     self.addAction("add", object.getData());
 };
 
@@ -282,7 +287,7 @@ Editor.prototype.removeObject = function(object) {
 };
 
 // Do not call directly. Call addObject instead
-Editor.prototype.createObject = function(object) {
+Editor.prototype.createObject = function(object, callback) {
     var self = this;
 
     self.objects.push(object);
@@ -299,6 +304,9 @@ Editor.prototype.createObject = function(object) {
             object.setVisual(mesh);
             self.visuals.push(mesh);
             self.scene.add(mesh);
+            if(callback) {
+                callback(object);
+            }
         } );
     }
 };
@@ -367,6 +375,26 @@ Editor.prototype.getUniqueName = function(name) {
     return name;
     //var regex = /\.0*([0-9]+)$/gm;
 }
+
+Editor.prototype.copyObject = function() {
+    var self = this;
+    
+    if(self.selected) {
+        self.copiedObjectData = self.selected.getData();
+    }
+};
+
+Editor.prototype.pasteObject = function() {
+    var self = this;
+    
+    if(self.copiedObjectData) {
+        var data = self.copiedObjectData;
+        data.id = self.getUniqueId();
+        data.name = self.getUniqueName(data.name);
+        var object = new ObjectEdit(data);
+        self.addObject(object, self.select.bind(self));
+    }
+};
 
 Editor.prototype.duplicateObject = function(object) {
     var self = this;
@@ -442,20 +470,23 @@ Editor.prototype.select = function(object) {
 
     // Take away outline from previously selected object
     if(self.selected) {
-        self.selected.outline.visible = false;
+        //self.selected.outline.visible = false;
+        self.scene.remove(self.transformControls);
+        self.transformControls.detach(self.selected.visual);
     }
 
     // Show outline on selected object
     if(object) {
-
-        if(object.outline) {
+        self.transformControls.attach(object.visual);
+        self.scene.add(self.transformControls);
+        /*if(object.outline) {
             object.outline.visible = true;
         } else {
             // Create outline if it didn't exist
             var outline = new THREE.BoxHelper( object.visual, 0x00ffff );
             object.outline = outline;
             self.scene.add(outline);
-        }
+        }*/
     }
 
     self.selected = object;
@@ -486,8 +517,27 @@ Editor.prototype.keyDown = function(key, ctrl) {
         self.redoAction();
     } else if(key == 46) { // DEL
         self.removeSelected();
-    } else if(key == 68) {
+    } else if(key == 68) { // d
         self.duplicateSelected();
+    } else if(key == 87) { // w
+        self.setModeTranslate();
+        $("#translate-button").addClass("selected");
+        $("#rotate-button").removeClass("selected");
+        $("#scale-button").removeClass("selected");
+    } else if(key == 69) { // e
+        self.setModeRotate();
+        $("#translate-button").removeClass("selected");
+        $("#rotate-button").addClass("selected");
+        $("#scale-button").removeClass("selected");
+    } else if(key == 82) { // r
+        self.setModeScale();
+        $("#translate-button").removeClass("selected");
+        $("#rotate-button").removeClass("selected");
+        $("#scale-button").addClass("selected");
+    } else if(key == 67) { // c
+        self.copyObject();
+    } else if(key == 86) { // v
+        self.pasteObject();
     }
 
     self.orbitControls.onKeyDown(key);
@@ -509,17 +559,20 @@ Editor.prototype.duplicateSelected = function() {
 
 Editor.prototype.setModeTranslate = function() {
     var self = this;
-    self.transformMode = 0;
+    self.transformControls.setMode("translate");
+    self.transformControls.setSpace("world");
 }
 
 Editor.prototype.setModeRotate = function() {
     var self = this;
-    self.transformMode = 1;
+    self.transformControls.setMode("rotate");
+    self.transformControls.setSpace("world");
 }
 
 Editor.prototype.setModeScale = function() {
     var self = this;
-    self.transformMode = 2;
+    self.transformControls.setMode("scale");
+    self.transformControls.setSpace("local");
 }
 
 Editor.prototype.pause = function() {

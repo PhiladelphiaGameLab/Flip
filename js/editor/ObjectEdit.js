@@ -91,6 +91,17 @@ ObjectEdit.prototype.updateVisual = function() {
     }
 };
 
+ObjectEdit.prototype.updateFromVisual = function() {
+    var self = this;
+
+    if(self.visual) {
+        self.position = [self.visual.position.x, self.visual.position.y, self.visual.position.z];
+        self.rotation = [self.visual.rotation.x, self.visual.rotation.y, self.visual.rotation.z];
+        self.scale = [self.visual.scale.x, self.visual.scale.y, self.visual.scale.z];
+        self.visible = self.visual.visible;
+    }
+};
+
 ObjectEdit.prototype.setName = function(name) {
     var self = this;
 
