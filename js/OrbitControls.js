@@ -474,7 +474,9 @@ THREE.OrbitControls = function ( object, domElement ) {
 
 	function onMouseMove( event ) {
 
-		if ( scope.enabled === false ) return;
+        editor.transformControls.update();
+    
+		if ( scope.enabled === false || editor.isCurrentlyTransforming) return;
 
 		event.preventDefault();
 
