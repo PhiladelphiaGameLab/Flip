@@ -1,5 +1,5 @@
 var viewport, propertiesPane, codeEditor, editor, game, renderer, inputHandler;
-var mouseX, mouseY;
+var disableEdit;
 
 $(document).ready(function() {
     $("#vertical").kendoSplitter({
@@ -49,6 +49,7 @@ $(document).ready(function() {
     //codeEditor.getSession().setValue("function test(){\n\talert(\"flip\");\n}");
     
     codeEditor.on('change', function(){
+        if(disableEdit) return;
         var contents = codeEditor.getSession().getValue();
         editor.editScript(contents);
     });
@@ -162,7 +163,10 @@ UI.selectObject = function(object) {
             var scriptRef = object.script;
             var script = editor.getScriptByName(scriptRef);
             var contents = script.contents;
+            codeOld = contents;
+            disableEdit = true; // Prevent saving the script when you initially open it
             codeEditor.getSession().setValue(contents);
+            disableEdit = false;
         }
     }
 

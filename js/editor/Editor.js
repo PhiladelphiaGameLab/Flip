@@ -13,7 +13,10 @@ function Editor() {
     self.assets = [
         {name:"MultiMat", icon:"img/cube.png", id:0, mesh:"data/assets/multimat/multimat.json"},
         {name:"Chair", icon:"img/cube.png", id:1, mesh:"data/assets/chair/chair.json"},
-        {name:"Skinning Simple", icon:"img/cube.png", id:2, mesh:"data/assets/skinning_simple/skinning_simple.js"}
+        {name:"Skinning Simple", icon:"img/cube.png", id:2, mesh:"data/assets/skinning_simple/skinning_simple.js"},
+        {name:"Cube", icon:"img/cube.png", id:3, mesh:"data/assets/shapes/cube.json"},
+        {name:"Sphere", icon:"img/cube.png", id:4, mesh:"data/assets/shapes/sphere.json"}
+
     ];
 
     self.objects = []; // Objects in the scene
@@ -253,7 +256,7 @@ Editor.prototype.addAction = function(actionType, actionData) {
     self.save();
     UI.updateSelectedObject();
 
-    console.log("Add action" + action.type);
+    console.log("Add action " + action.type);
 };
 
 Editor.prototype.editObject = function(object) {
@@ -298,11 +301,24 @@ Editor.prototype.createObject = function(object, callback) {
     // Load the ThreeJS mesh
     if(object.mesh !== undefined) {
         self.loader.load(object.mesh, function(geometry, materials) {
-            var material = (materials.length == 1) ? materials[0] : new THREE.MeshFaceMaterial(materials);
+            
+            var material;
+            if(materials === undefined)material = new THREE.MeshLambertMaterial();
+            else if(materials.length == 1) material = materials[0];
+            else material = new THREE.MeshFaceMaterial(materials);
+
+            // Create mesh
             var mesh = new THREE.Mesh(geometry, material);
             object.setVisual(mesh);
             self.visuals.push(mesh);
             self.scene.add(mesh);
+
+            // Create outline
+            var outline = new THREE.BoxHelper( object.visual, 0x00ffff );
+            outline.visible = false;
+            object.outline = outline;
+            self.scene.add(outline);
+
             if(callback) {
                 callback(object);
             }
@@ -345,8 +361,7 @@ Editor.prototype.getUniqueName = function(name) {
     var self = this;
     
     // Check if an object with this name exists. If not, return the name as it is
-    var object = self.getObjectByName(name);
-    if(object === null) return name;
+    if(self.isNameUnique(name)) return name;
 
     // Get the copy count (if it exists)
     var count = 0;
@@ -359,16 +374,17 @@ Editor.prototype.getUniqueName = function(name) {
         
         // The count is valid only if there's a hyphen followed by digits
         if(numerical) {
-            count = parseInt(afterHyphen, 10);
+            count = parseInt(afterHyphen, 10); // base 10
             base = beforeHyphen;
         }
     }
 
     // Keep incrementing the copy count and look for an open name
-    while(object !== null) {
+    var unique = false;
+    while(!unique) {
         count++;
         name = base + "-" + count;
-        object = self.getObjectByName(name);
+        unique = self.isNameUnique(name);
     }
 
     return name;
@@ -469,7 +485,7 @@ Editor.prototype.select = function(object) {
 
     // Take away outline from previously selected object
     if(self.selected) {
-        //self.selected.outline.visible = false;
+        self.selected.outline.visible = false;
         self.scene.remove(self.transformControls);
         self.transformControls.detach(self.selected.visual);
     }
@@ -478,14 +494,9 @@ Editor.prototype.select = function(object) {
     if(object) {
         self.transformControls.attach(object.visual);
         self.scene.add(self.transformControls);
-        /*if(object.outline) {
-            object.outline.visible = true;
-        } else {
-            // Create outline if it didn't exist
-            var outline = new THREE.BoxHelper( object.visual, 0x00ffff );
-            object.outline = outline;
-            self.scene.add(outline);
-        }*/
+        // Only show outline on invisible objects
+        //object.outline.visible = true;
+        object.outline.visible = !object.visible;
     }
 
     self.selected = object;
@@ -591,9 +602,7 @@ Editor.prototype.resume = function() {
 Editor.prototype.editScript = function(contents) {
     var self = this;
     var object = self.selected;
-    if(object === null) return; // Shouldn't happen, but just in case
-
-    console.log(object.script, contents.length);
+    if(object === null) return;
 
     if(object.script === null) {
 
@@ -606,11 +615,12 @@ Editor.prototype.editScript = function(contents) {
 
             self.scripts.push(scriptObj);
             object.script = scriptObj.name;
+            self.save();
         }
     } else {
         var script = self.getScriptByName(object.script);
         script.contents = contents;
+        self.save();
     }
 
-    self.save();
 }

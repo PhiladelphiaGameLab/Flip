@@ -17,18 +17,34 @@ function ObjectGame (data) {
     // Load the ThreeJS mesh
     if(data.mesh !== null) {
         game.loader.load(data.mesh, function(geometry, materials) {
-            var material = (materials.length == 1) ? materials[0] : new THREE.MeshFaceMaterial(materials);
-            //var mesh = new THREE.Mesh(geometry, material);
-            //mesh.position.fromArray(self.position);
-            //mesh.rotation.fromArray(self.rotation);
-            //mesh.scale.fromArray(self.scale);
-            //mesh.visible = self.visible;
-            //self.visual = mesh;
-            //game.scene.add(mesh);
+            
+            // Create material
+            var material;
+            if(materials === undefined) material = new THREE.MeshLambertMaterial();
+            else if(materials.length == 1) material = materials[0];
+            else material = new THREE.MeshFaceMaterial(materials);
 
-            box = new Physijs.BoxMesh(geometry, material);
-            game.scene.add( box );
+            if(data.physics) {
 
+                var static = data.physics.type == "static";
+                var mass = static ? 0.0 : data.physics.mass;
+
+                var physicsMat = Physijs.createMaterial(
+                    material,
+                    data.physics.friction,
+                    data.physics.restitution
+                );
+
+                console.log(data.physics.friction, data.physics.restitution);
+
+
+                var shape = new Physijs.BoxMesh(geometry, physicsMat, mass);
+                shape.position.fromArray(data.position);
+                shape.rotation.fromArray(data.rotation);
+                shape.scale.fromArray(data.scale);
+
+                game.scene.add( shape );
+            }
         });
     }
 }

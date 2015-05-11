@@ -28,7 +28,7 @@ Game.prototype.start = function(data) {
     self.scene.add(self.camera);
     var controls = new THREE.OrbitControls( self.camera, self.renderer.domElement );
 
-    var pointLight = new THREE.PointLight(0xFF0000);
+    var pointLight = new THREE.PointLight(0xFFFFFF);
     pointLight.position.y = 1000;
     pointLight.position.z = 1000;
     pointLight.intensity = 1.0;

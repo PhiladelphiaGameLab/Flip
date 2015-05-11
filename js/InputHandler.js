@@ -1,3 +1,5 @@
+var mouseX, mouseY, mouseMoved;
+
 function InputHandler() {
     this.pressedKeys = {};
     var viewport = document.getElementById("view-pane");
@@ -5,6 +7,7 @@ function InputHandler() {
     viewport.ondragover = function(event) { event.preventDefault(); };
     viewport.onclick = function(event) { onClick(event); };
     viewport.onmousedown = function(event) { onMouseDown(event); };
+    viewport.onmousemove = function(event) { onMouseMove(event); };
     window.addEventListener( 'keydown', this.onKeyDown.bind(this), false );
     window.addEventListener( 'keyup', this.onKeyUp.bind(this), false );
 }
@@ -40,9 +43,8 @@ function onDrop(event) {
 }
 
 function onClick(event) {
-    // Ignore click if mouse moved too much between mouse down and mouse click
-    if(Math.abs(mouseX - event.pageX) > 3 || Math.abs(mouseY - event.pageY) > 3) return;
-
+    
+    if(mouseMoved) return;
     var mouse = convertToScreenSpace(event.pageX, event.pageY);
     editor.click(mouse[0], mouse[1]);
     viewport.focus();
@@ -51,4 +53,10 @@ function onClick(event) {
 function onMouseDown(event) {
     mouseX = event.pageX;
     mouseY = event.pageY;
+    mouseMoved = false;
+}
+
+function onMouseMove(event) {
+    // Ignore click if mouse moved too much between mouse down and mouse click
+    if(Math.abs(mouseX - event.pageX) > 3 || Math.abs(mouseY - event.pageY) > 3) mouseMoved = true;
 }

@@ -6,7 +6,6 @@ function ObjectEdit (data) {
     this.rotation = [0,0,0];
     this.scale = [1,1,1];
     this.setData(data);
-    this.data = this.getData(); // Used for undo/redo
 }
 
 ObjectEdit.prototype.setData = function(data) {
@@ -17,7 +16,7 @@ ObjectEdit.prototype.setData = function(data) {
     self.asset = data.asset;
     self.visible = data.visible;
     self.script = data.script;
-    self.physics = data.physics; // TO-DO: do deep copy
+    self.physics = self.copyPhysicsData(data.physics);
     self.mesh = data.mesh;
 
     self.position[0] = data.position[0];
@@ -30,7 +29,7 @@ ObjectEdit.prototype.setData = function(data) {
     self.scale[1] = data.scale[1];
     self.scale[2] = data.scale[2];
     
-    self.data = self.getData();
+    self.data = self.getData(); // Used for undo/redo
     self.updateVisual();
 };
 
@@ -43,7 +42,7 @@ ObjectEdit.prototype.getData = function() {
         asset: self.asset,
         visible: self.visible,
         script: self.script,
-        physics: self.physics, // TO-DO: do deep copy
+        physics: self.copyPhysicsData(self.physics),
         mesh: self.mesh,
         position: [self.position[0], self.position[1], self.position[2]],
         rotation: [self.rotation[0], self.rotation[1], self.rotation[2]],
@@ -53,7 +52,7 @@ ObjectEdit.prototype.getData = function() {
     return data;
 };
 
-// Static function.
+// Static function.chec
 // Create object data from asset data
 ObjectEdit.createData = function(asset) {
 
@@ -63,7 +62,7 @@ ObjectEdit.createData = function(asset) {
         asset: asset.name,
         visible: true,
         script: asset.script || null,
-        physics: asset.physics || null, // TO-DO will have to do a deep copy since this is an object
+        physics: asset.physics || null,
         mesh: asset.mesh || null,
         position: [0,0,0],
         rotation: [0,0,0],
@@ -72,6 +71,36 @@ ObjectEdit.createData = function(asset) {
 
     return data;
 };
+
+ObjectEdit.prototype.copyPhysicsData = function(physics) {
+    if(physics === null) return null;
+
+    return {
+        enabled : physics.enabled,
+        type: physics.type,
+        friction: physics.friction,
+        restitution: physics.restitution,
+        shape : physics.shape,
+        mass : physics.mass
+    };
+}
+
+ObjectEdit.prototype.addPhysics = function() {
+    var self = this;
+    self.physics = {
+        enabled: true,
+        type: "dynamic",
+        friction: 0.5,
+        restitution: 0.5,
+        shape: "sphere",
+        mass : 1.0
+    };
+}
+
+ObjectEdit.prototype.removePhysics = function() {
+    var self = this;
+    self.physics = null;
+}
 
 ObjectEdit.prototype.setVisual = function(visual) {
     var self = this;
@@ -89,6 +118,10 @@ ObjectEdit.prototype.updateVisual = function() {
         self.visual.visible = self.visible;
         self.visual.name = self.name;
         self.visual.userData = self.name;
+    }
+
+    if(self.outline) {
+        self.outline.visible = !self.visible;
     }
 };
 
