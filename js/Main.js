@@ -139,6 +139,10 @@ UI.populateLibrary = function(assets) {
         var image = item.find(".library-item-image");
         image.attr("src", asset.icon);
         image.attr("id", asset.name);
+        image.attr("draggable", "true");
+        image.get(0).addEventListener("dragstart", function(event){
+            event.dataTransfer.setData("text", event.target.id);
+        });
     }
 };
 

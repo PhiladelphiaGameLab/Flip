@@ -31,10 +31,6 @@ function convertToScreenSpace(pageX, pageY) {
     return [x,y];
 }
 
-function onDrag(event) {
-    event.dataTransfer.setData("text", event.target.id);
-}
-
 function onDrop(event) {
     event.preventDefault();
 

@@ -30,6 +30,7 @@ ObjectEdit.prototype.setData = function(data) {
     self.scale[1] = data.scale[1];
     self.scale[2] = data.scale[2];
     
+    self.data = self.getData();
     self.updateVisual();
 };
 

@@ -253,8 +253,7 @@ Editor.prototype.addAction = function(actionType, actionData) {
     self.save();
     UI.updateSelectedObject();
 
-    console.log("Add action: " + action.type);
-
+    console.log("Add action" + action.type);
 };
 
 Editor.prototype.editObject = function(object) {
