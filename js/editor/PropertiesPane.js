@@ -9,6 +9,12 @@ function PropertiesPane() {
         this.x = 0;
         this.y = 0;
         this.z = 0;
+        this.rx = 0;
+        this.ry = 0;
+        this.rz = 0;
+        this.sx = 1.0;
+        this.sy = 1.0;
+        this.sz = 1.0;
         this.visible = true;
         this.physics = true;
 
@@ -27,17 +33,39 @@ function PropertiesPane() {
         this.velocity = 0.5;
         this.alive = false;
         this.explode = function(){alert("explode")};
-        this.color1 = "#000000";
+        this.color1 = "#ff0000";
     };
 
     var controls = new Controls();
     var gui = new dat.GUI({ autoPlace: false });
     
+
+    function combineNumberControllers(controllers, name) {
+        var master = controllers[0];
+        var container = $(master.domElement);
+        $(master.__li).find(".property-name").html(name);
+
+        var margin = 5;
+        for(var i = 0; i < controllers.length; i++) {
+            var input = $(controllers[i].__input);
+            var width = (100.0 - margin*(controllers.length-1))/controllers.length;
+            input.css("width", width+"%");
+            container.append(input);
+            if(i>0){
+                $(controllers[i].__li).hide();
+                input.css("margin-left", margin+"%");
+            }
+        }
+    }
+
     // Basic Folder
     var basicFolder = gui.addFolder("Properties");
 
     // Set name
     basicFolder.add(controls, "name").onFinishChange(function(value){
+
+        if(value == self.selectedObject.name) return;
+
         if(editor.isNameUnique(value)) {
             self.selectedObject.setName(value);
             editor.editObject(self.selectedObject);
@@ -49,22 +77,64 @@ function PropertiesPane() {
     });
 
     // Set x
-    basicFolder.add(controls, "x").onChange(function(value){
-        self.selectedObject.setPosition(value, controls["y"], controls["z"]);
+    var xControl = basicFolder.add(controls, "x").onChange(function(value){
+        self.selectedObject.setPosition(controls["x"], controls["y"], controls["z"]);
     }).onFinishChange(function(value){
         editor.editObject(self.selectedObject);
     });
 
     // Set y
-    basicFolder.add(controls, "y").onChange(function(value){
-        self.selectedObject.setPosition(controls["x"], value, controls["z"]);
+    var yControl = basicFolder.add(controls, "y").onChange(function(value){
+        self.selectedObject.setPosition(controls["x"], controls["y"], controls["z"]);
     }).onFinishChange(function(value){
         editor.editObject(self.selectedObject);
     });
 
     // Set z
-    basicFolder.add(controls, "z").onChange(function(value){
-        self.selectedObject.setPosition(controls["x"], controls["y"], value);
+    var zControl = basicFolder.add(controls, "z").onChange(function(value){
+        self.selectedObject.setPosition(controls["x"], controls["y"], controls["z"]);
+    }).onFinishChange(function(value){
+        editor.editObject(self.selectedObject);
+    });
+
+    // Set rx
+    var rxControl = basicFolder.add(controls, "rx").onChange(function(value){
+        self.selectedObject.setRotation(toRadians(controls["rx"]), toRadians(controls["ry"]), toRadians(controls["rz"]));
+    }).onFinishChange(function(value){
+        editor.editObject(self.selectedObject);
+    });
+
+    // Set ry
+    var ryControl = basicFolder.add(controls, "ry").onChange(function(value){
+        self.selectedObject.setRotation(toRadians(controls["rx"]), toRadians(controls["ry"]), toRadians(controls["rz"]));
+    }).onFinishChange(function(value){
+        editor.editObject(self.selectedObject);
+    });
+
+    // Set rz
+    var rzControl = basicFolder.add(controls, "rz").onChange(function(value){
+        self.selectedObject.setRotation(toRadians(controls["rx"]), toRadians(controls["ry"]), toRadians(controls["rz"]));
+    }).onFinishChange(function(value){
+        editor.editObject(self.selectedObject);
+    });
+
+    // Set sx
+    var sxControl = basicFolder.add(controls, "sx").onChange(function(value){
+        self.selectedObject.setScale(controls["sx"], controls["sy"], controls["sz"]);
+    }).onFinishChange(function(value){
+        editor.editObject(self.selectedObject);
+    });
+
+    // Set sy
+    var syControl = basicFolder.add(controls, "sy").onChange(function(value){
+        self.selectedObject.setScale(controls["sx"], controls["sy"], controls["sz"]);
+    }).onFinishChange(function(value){
+        editor.editObject(self.selectedObject);
+    });
+
+    // Set sz
+    var szControl = basicFolder.add(controls, "sz").onChange(function(value){
+        self.selectedObject.setScale(controls["sx"], controls["sy"], controls["sz"]);
     }).onFinishChange(function(value){
         editor.editObject(self.selectedObject);
     });
@@ -86,6 +156,9 @@ function PropertiesPane() {
         editor.editObject(self.selectedObject);
     });
 
+    combineNumberControllers([xControl, yControl, zControl], "position");
+    combineNumberControllers([rxControl, ryControl, rzControl], "rotation");
+    combineNumberControllers([sxControl, syControl, szControl], "scale");
 
 
     // Physics folder
@@ -124,13 +197,13 @@ function PropertiesPane() {
 
     // Test folder
     var testFolder = gui.addFolder('Test Folder');
+    testFolder.addColor(controls, "color1");
     testFolder.add(controls, "title");
     testFolder.add(controls, "message", [ "hello", "goodbye", "wonderful" ] );
     testFolder.add(controls, "speed");
     testFolder.add(controls, "velocity", 0, 1, 0.5);
     testFolder.add(controls, "alive");
     testFolder.add(controls, "explode");
-    testFolder.add(controls, "color1");
 
     self.gui = gui;
     self.controls = controls;
@@ -178,9 +251,14 @@ PropertiesPane.prototype.updateSelectedObject = function() {
     self.controls["x"] = object.position[0];
     self.controls["y"] = object.position[1];
     self.controls["z"] = object.position[2];
+    self.controls["rx"] = toDegrees(object.rotation[0]);
+    self.controls["ry"] = toDegrees(object.rotation[1]);
+    self.controls["rz"] = toDegrees(object.rotation[2]);
+    self.controls["sx"] = object.scale[0];
+    self.controls["sy"] = object.scale[1];
+    self.controls["sz"] = object.scale[2];
     self.controls["visible"] = object.visible;
     self.controls["physics"] = hasPhysics;
-    console.log("has physics: " + hasPhysics);
 
     if(hasPhysics) {
         self.controls["type"] = object.physics.type;
@@ -209,3 +287,11 @@ PropertiesPane.prototype.updateVisual = function()
         }
     }
 };
+
+function toRadians (angle) {
+    return angle * (Math.PI / 180);
+}
+
+function toDegrees (angle) {
+    return angle * (180 / Math.PI);
+}

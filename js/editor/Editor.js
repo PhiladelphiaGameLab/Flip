@@ -1,4 +1,4 @@
-function Editor() {
+function Editor(renderer, width, height) {
     var self = this;
     
     self.isCurrentlyTransforming = false;
@@ -25,7 +25,9 @@ function Editor() {
 
     self.objectId = 0; // Used to assign id's to new objects
 
-    self.renderer = null;
+    self.width = width;
+    self.height = height;
+    self.renderer = renderer;
     self.scene = null;
     self.loader = null;
     self.camera = null;
@@ -39,13 +41,12 @@ function Editor() {
     self.active = true; // Whether the editor is active (not in game)
 }
 
-Editor.prototype.init = function(renderer, width, height) {
+Editor.prototype.init = function() {
     var self = this;
 
-    self.renderer = renderer;
     self.scene = new THREE.Scene();
 
-    self.camera = new THREE.PerspectiveCamera(70, width / height, 1, 1000);
+    self.camera = new THREE.PerspectiveCamera(70, self.width / self.height, 1, 1000);
     self.camera.position.x = 0;
     self.camera.position.y = 0;
     self.camera.position.z = 10;
@@ -79,7 +80,11 @@ Editor.prototype.load = function(data) {
 
     for(var i = 0; i < data.objects.length; i++) {
         var object = new ObjectEdit(data.objects[i]);
-        self.createObject(object);
+        //self.createObject(object);
+        self.createObject(object, function(object){
+            self.selectObject(object);
+        });
+
     }
 
     self.scripts = data.scripts; // TO-DO: is it ok not to copy?
@@ -283,7 +288,7 @@ Editor.prototype.addObject = function(object, callback) {
 Editor.prototype.removeObject = function(object) {
     var self = this;
 
-    self.select(null); // Deselect before removing
+    self.selectObject(null); // Deselect before removing
     self.destroyObject(object);
     self.addAction("remove", object.getData());
 };
@@ -449,6 +454,8 @@ Editor.prototype.dropAsset = function(assetName, x, y) {
 Editor.prototype.viewResize = function(width, height) {
     var self = this;
 
+    self.width = width;
+    self.height = height;
     self.camera.aspect = width / height;
     self.camera.updateProjectionMatrix();
 };
@@ -469,10 +476,10 @@ Editor.prototype.click = function(x, y) {
         selected = object;
     }
 
-    self.select(selected);
+    self.selectObject(selected);
 }
 
-Editor.prototype.select = function(object) {
+Editor.prototype.selectObject = function(object) {
 
     // When object is null, it counts as a deselect
 

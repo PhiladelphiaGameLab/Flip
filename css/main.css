@@ -136,12 +136,37 @@ textarea {
     border: none !important;
 }
 
+.c {
+    white-space:nowrap !important;
+    overflow:hidden !important;
+}
+
 .cr input {
     color: inherit !important;
 }
 
 .c input {
     background-color: #2a2a2a !important;
+
+    -webkit-box-sizing: border-box !important;
+    -moz-box-sizing: border-box !important;
+    box-sizing: border-box !important;
+    float: none !important;
+}
+
+.has-slider .c input {
+    width: 30% !important;
+    float: left !important;
+
+}
+
+.slider {
+    float: none !important;
+    margin-left:0px !important;
+    margin-right: 0px !important;
+    display: inline-block !important;
+    width:65% !important;
+    margin-left:5% !important;
 }
 
 
@@ -154,9 +179,8 @@ textarea {
     background-color: #2a2a2a;
     color: inherit;
     border: none;
-    padding: 2px 3px;
+    padding: 2px 0px;
     width: 100%;
-    float: right;
 }
 
 .c input[type="checkbox"] {
@@ -189,6 +213,7 @@ textarea {
     text-shadow: none !important;
     color: inherit !important;
 }
+
 
 /* ACE custom styles */
 

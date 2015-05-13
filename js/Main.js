@@ -2,6 +2,8 @@ var viewport, propertiesPane, codeEditor, editor, game, renderer, inputHandler;
 var disableEdit;
 
 $(document).ready(function() {
+
+    // Initialize splitter panes
     $("#vertical").kendoSplitter({
         orientation: "vertical",
         panes: [
@@ -26,6 +28,7 @@ $(document).ready(function() {
     splitter = $("#horizontal").data("kendoSplitter");
     splitter.bind("resize", onViewResize);
 
+    // Create renderer
     viewport = $("#view-pane");
     var width = viewport.innerWidth();
     var height = viewport.innerHeight();
@@ -33,20 +36,22 @@ $(document).ready(function() {
     renderer.setSize(width, height);
     viewport.append(renderer.domElement);
 
-    editor = new Editor();
-    editor.init(renderer, width, height);
+    // Create editor
+    editor = new Editor(renderer, width, height);
     
+    // Create game
     game = new Game(renderer, width, height);
 
+    // Create properties pane
     propertiesPane = new PropertiesPane();
     $("#properties-pane").append(propertiesPane.gui.domElement);
 
+    // Create code
     codeEditor = ace.edit("code-editor");
     codeEditor.setTheme("ace/theme/monokai");
     codeEditor.getSession().setMode("ace/mode/javascript");
     codeEditor.setShowPrintMargin(false);
     codeEditor.$blockScrolling = Infinity;
-    //codeEditor.getSession().setValue("function test(){\n\talert(\"flip\");\n}");
     
     codeEditor.on('change', function(){
         if(disableEdit) return;
@@ -101,17 +106,18 @@ $(document).ready(function() {
         }
     });
 
+    UI.selectObject(null);
     UI.setUndoRedo(false, false);
     $("#translate-button").addClass("selected");
-    
+    editor.init();
     inputHandler = new InputHandler();
-
 });
 
 $(window).load(function() {
-    // Fixes bug where if code editor is hidden inside document.ready, then it won't respond to show()
-    // So hide now instead
-    UI.selectObject(null);
+
+    // Final initialize step once the window is loaded
+    
+
 });
 
 function onViewResize() {
