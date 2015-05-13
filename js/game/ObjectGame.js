@@ -44,6 +44,13 @@ function ObjectGame (data) {
                 shape.scale.fromArray(data.scale);
 
                 game.scene.add( shape );
+            
+            } else {
+                var shape = new THREE.Mesh(geometry, material);
+                shape.position.fromArray(data.position);
+                shape.rotation.fromArray(data.rotation);
+                shape.scale.fromArray(data.scale);
+                game.scene.add(shape);
             }
         });
     }

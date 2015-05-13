@@ -3,6 +3,8 @@ var disableEdit;
 
 $(document).ready(function() {
 
+    $("#loading-cover").show();
+
     // Initialize splitter panes
     $("#vertical").kendoSplitter({
         orientation: "vertical",
@@ -97,15 +99,18 @@ $(document).ready(function() {
             console.log("stopping game");
             game.stop();
             editor.resume();
+            $("#screen-cover").hide();
             $("#play-button").attr("src", "img/play.png")
         } else {
             console.log("starting game");
             game.start(editor.data);
             editor.pause();
+            $("#screen-cover").show();
             $("#play-button").attr("src", "img/stop.png")
         }
     });
 
+    $("#screen-cover").hide();
     UI.selectObject(null);
     UI.setUndoRedo(false, false);
     $("#translate-button").addClass("selected");
@@ -116,7 +121,7 @@ $(document).ready(function() {
 $(window).load(function() {
 
     // Final initialize step once the window is loaded
-    
+    $("#loading-cover").hide();
 
 });
 

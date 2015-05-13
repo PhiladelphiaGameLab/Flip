@@ -462,6 +462,7 @@ Editor.prototype.viewResize = function(width, height) {
 
 Editor.prototype.click = function(x, y) {
     var self = this;
+    if(!self.active) return;
 
     var selected = null;
 
@@ -527,6 +528,7 @@ Editor.prototype.keyDown = function(key, ctrl) {
     // TO-DO: ctrl-z doesn't work now because sometimes the code editor takes focus for no reason
 
     var self = this;
+    if(!self.active) return;
 
     if(key == 90) { // z
         self.undoAction();
