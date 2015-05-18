@@ -3,7 +3,7 @@
     "materials": [{
         "DbgName": "chair",
         "colorAmbient": [1,1,1],
-        "colorSpecular": [1,1,1],
+        "colorSpecular": [0.1,0.1,0.1],
         "wireframe": false,
         "DbgIndex": 0,
         "mapDiffuse": "Chair_Diffuse.jpg",
@@ -15,7 +15,7 @@
         "depthWrite": true,
         "visible": true,
         "colorDiffuse": [1,1,1],
-        "specularCoef": 50,
+        "specularCoef": 5,
         "opacity": 1,
         "transparent": false,
         "colorEmissive": [0,0,0],

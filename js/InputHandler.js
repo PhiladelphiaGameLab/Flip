@@ -1,4 +1,4 @@
-var mouseX, mouseY, mouseMoved;
+var mouseX, mouseY, mouseMoved, mouseIsDown;
 
 function InputHandler() {
     this.pressedKeys = {};
@@ -8,6 +8,8 @@ function InputHandler() {
     viewport.onclick = function(event) { onClick(event); };
     viewport.onmousedown = function(event) { onMouseDown(event); };
     viewport.onmousemove = function(event) { onMouseMove(event); };
+    //window.onmouseup = function(event) {console.log("mouse up")};
+    //window.onmousedown = function(event) {console.log("mouse down")};
     window.addEventListener( 'keydown', this.onKeyDown.bind(this), false );
     window.addEventListener( 'keyup', this.onKeyUp.bind(this), false );
 }

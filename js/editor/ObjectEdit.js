@@ -2,6 +2,7 @@ function ObjectEdit (data) {
 
     this.visual = null;
     this.outline = null; // ThreeJS box that is shown when an object is selected
+    this.raycastDetector = null; // Object that checks for raycasts
     this.position = [0,0,0];
     this.rotation = [0,0,0];
     this.scale = [1,1,1];
@@ -16,8 +17,10 @@ ObjectEdit.prototype.setData = function(data) {
     self.asset = data.asset;
     self.visible = data.visible;
     self.script = data.script;
-    self.physics = self.copyPhysicsData(data.physics);
     self.mesh = data.mesh;
+    self.physics = self.copyPhysicsData(data.physics);
+    self.light = self.copyLightData(data.light);
+    self.camera = self.copyCameraData(data.camera);
 
     self.position[0] = data.position[0];
     self.position[1] = data.position[1];
@@ -42,8 +45,10 @@ ObjectEdit.prototype.getData = function() {
         asset: self.asset,
         visible: self.visible,
         script: self.script,
-        physics: self.copyPhysicsData(self.physics),
         mesh: self.mesh,
+        physics: self.copyPhysicsData(self.physics),
+        light: self.copyLightData(self.light),
+        camera: self.copyCameraData(self.camera),
         position: [self.position[0], self.position[1], self.position[2]],
         rotation: [self.rotation[0], self.rotation[1], self.rotation[2]],
         scale: [self.scale[0], self.scale[1], self.scale[2]]
@@ -62,8 +67,10 @@ ObjectEdit.createData = function(asset) {
         asset: asset.name,
         visible: true,
         script: asset.script || null,
-        physics: asset.physics || null,
         mesh: asset.mesh || null,
+        physics: asset.physics || null,
+        light: asset.light || null,
+        camera: asset.camera || null,
         position: [0,0,0],
         rotation: [0,0,0],
         scale: [1,1,1]
@@ -73,16 +80,34 @@ ObjectEdit.createData = function(asset) {
 };
 
 ObjectEdit.prototype.copyPhysicsData = function(physics) {
-    if(physics === null) return null;
+    if(physics === null || physics === undefined) return null;
 
     return {
-        enabled : physics.enabled,
+        enabled: physics.enabled,
         type: physics.type,
         friction: physics.friction,
         restitution: physics.restitution,
         shape : physics.shape,
         mass : physics.mass
     };
+}
+
+ObjectEdit.prototype.copyLightData = function(light) {
+    if(light === null || light === undefined) return null;
+
+    return {
+        color: light.color,
+        distance: light.distance || 0.0,
+        type: light.type
+    }
+}
+
+ObjectEdit.prototype.copyCameraData = function(camera) {
+    if(camera === null || camera === undefined) return null;
+
+    return {
+        fov: camera.fov
+    }
 }
 
 ObjectEdit.prototype.addPhysics = function() {
@@ -102,77 +127,68 @@ ObjectEdit.prototype.removePhysics = function() {
     self.physics = null;
 }
 
-ObjectEdit.prototype.setVisual = function(visual) {
+ObjectEdit.prototype.setVisual = function(visual, outline, raycastDetector, transformTarget) {
     var self = this;
-    self.visual = visual;
+    self.visual = visual; // Actual ThreeJS object being modified (mesh, light, etc)
+    self.outline = outline; // Outline around object
+    self.raycastDetector = raycastDetector; // Thing that detects raycasts (usually the outline for lights)
+    self.transformTarget = transformTarget; // Object that is visually transformed (outline for dir lights)
+    self.updateVisual();
+
+    self.visual.userData = self.id; // May not need this
+    self.raycastDetector.userData = self.id;
+};
+
+// Called when the transform controls move the object
+ObjectEdit.prototype.updateFromVisual = function() {
+    var self = this;
+
+    if(self.transformTarget) {
+        self.position[0] = self.transformTarget.position.x;
+        self.position[1] = self.transformTarget.position.y;
+        self.position[2] = self.transformTarget.position.z;
+
+        self.rotation[0] = self.transformTarget.rotation.x;
+        self.rotation[1] = self.transformTarget.rotation.y;
+        self.rotation[2] = self.transformTarget.rotation.z;
+
+        self.scale[0] = self.transformTarget.scale.x;
+        self.scale[1] = self.transformTarget.scale.y;
+        self.scale[2] = self.transformTarget.scale.z;
+    }
+
     self.updateVisual();
 };
 
 ObjectEdit.prototype.updateVisual = function() {
     var self = this;
 
-    if(self.visual) {
-        self.visual.position.fromArray(self.position);
-        self.visual.rotation.fromArray(self.rotation);
-        self.visual.scale.fromArray(self.scale);
-        self.visual.visible = self.visible;
-        self.visual.name = self.name;
-        self.visual.userData = self.name;
-    }
+    if(self.transformTarget) {
+
+        self.transformTarget.position.fromArray(self.position);
+        self.transformTarget.rotation.fromArray(self.rotation);
+        self.transformTarget.scale.fromArray(self.scale);
+        self.transformTarget.visible = self.visible;
+
+        if(self.light) {
+            self.visual.color.setHex(self.light.color);
+
+            if(self.light.type == "point") {
+                self.visual.distance = self.light.distance;
+            } else {
+                // Dir light treat their position as their direction, so convert rotation to position
+                var euler = new THREE.Euler(self.rotation[0], self.rotation[1], self.rotation[2], 'XYZ');
+                var position = new THREE.Vector3(0, 1, 0);
+                position.applyEuler(euler).normalize();
+                self.visual.position.copy(position);
+            }
+            
+            self.visual.updateMatrixWorld();
+            self.outline.update(); // Light helpers have this function
+        }
+    }    
 
     if(self.outline) {
-        self.outline.visible = !self.visible;
+        //self.outline.visible = !self.visible;
     }
-};
-
-ObjectEdit.prototype.updateFromVisual = function() {
-    var self = this;
-
-    if(self.visual) {
-        self.position = [self.visual.position.x, self.visual.position.y, self.visual.position.z];
-        self.rotation = [self.visual.rotation.x, self.visual.rotation.y, self.visual.rotation.z];
-        self.scale = [self.visual.scale.x, self.visual.scale.y, self.visual.scale.z];
-        self.visible = self.visual.visible;
-    }
-};
-
-ObjectEdit.prototype.setName = function(name) {
-    var self = this;
-
-    self.name = name;
-    self.updateVisual();
-}
-
-ObjectEdit.prototype.setPosition = function(x, y, z) {
-    var self = this;
-
-    self.position[0] = x;
-    self.position[1] = y;
-    self.position[2] = z;
-    self.updateVisual();
-};
-
-ObjectEdit.prototype.setRotation = function(x, y, z) {
-    var self = this;
-
-    self.rotation[0] = x;
-    self.rotation[1] = y;
-    self.rotation[2] = z;
-    self.updateVisual();
-};
-
-ObjectEdit.prototype.setScale = function(x, y, z) {
-    var self = this;
-
-    self.scale[0] = x;
-    self.scale[1] = y;
-    self.scale[2] = z;
-    self.updateVisual();
-};
-
-ObjectEdit.prototype.setVisible = function(visible) {
-    var self = this;
-
-    self.visible = visible;
-    self.updateVisual();
 };

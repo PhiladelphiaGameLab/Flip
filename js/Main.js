@@ -35,6 +35,7 @@ $(document).ready(function() {
     var width = viewport.innerWidth();
     var height = viewport.innerHeight();
     renderer = new THREE.WebGLRenderer();
+    renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(width, height);
     viewport.append(renderer.domElement);
 
@@ -48,7 +49,7 @@ $(document).ready(function() {
     propertiesPane = new PropertiesPane();
     $("#properties-pane").append(propertiesPane.gui.domElement);
 
-    // Create code
+    // Create code editor
     codeEditor = ace.edit("code-editor");
     codeEditor.setTheme("ace/theme/monokai");
     codeEditor.getSession().setMode("ace/mode/javascript");
@@ -61,6 +62,7 @@ $(document).ready(function() {
         editor.editScript(contents);
     });
 
+    // Bind events to buttons
     $("#undo-button").click(function() {
         editor.undoAction();
     });
@@ -110,6 +112,11 @@ $(document).ready(function() {
         }
     });
 
+    $("#settings-button").click(function() {
+        editor.selectObject(null);
+        propertiesPane.openSettings();
+    });
+
     $("#screen-cover").hide();
     UI.selectObject(null);
     UI.setUndoRedo(false, false);
@@ -122,7 +129,6 @@ $(window).load(function() {
 
     // Final initialize step once the window is loaded
     $("#loading-cover").hide();
-
 });
 
 function onViewResize() {
@@ -174,8 +180,7 @@ UI.selectObject = function(object) {
             var scriptRef = object.script;
             var script = editor.getScriptByName(scriptRef);
             var contents = script.contents;
-            codeOld = contents;
-            disableEdit = true; // Prevent saving the script when you initially open it
+            disableEdit = true; // Prevents saving the script when you initially open it
             codeEditor.getSession().setValue(contents);
             disableEdit = false;
         }
@@ -186,6 +191,10 @@ UI.selectObject = function(object) {
 
 UI.updateSelectedObject = function() {
     propertiesPane.updateSelectedObject();
+}
+
+UI.updateSettings = function() {
+    propertiesPane.updateSettings();
 }
 
 UI.setUndoRedo = function(hasUndos, hasRedos) {

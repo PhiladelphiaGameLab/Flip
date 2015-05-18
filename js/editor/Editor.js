@@ -15,12 +15,19 @@ function Editor(renderer, width, height) {
         {name:"Chair", icon:"img/cube.png", id:1, mesh:"data/assets/chair/chair.json"},
         {name:"Skinning Simple", icon:"img/cube.png", id:2, mesh:"data/assets/skinning_simple/skinning_simple.js"},
         {name:"Cube", icon:"img/cube.png", id:3, mesh:"data/assets/shapes/cube.json"},
-        {name:"Sphere", icon:"img/cube.png", id:4, mesh:"data/assets/shapes/sphere.json"}
+        {name:"Sphere", icon:"img/cube.png", id:4, mesh:"data/assets/shapes/sphere.json"},
+        {name:"Terrain", icon:"img/cube.png", id:5, mesh:"data/assets/terrain/terrain.json"},
+        {name:"Tree", icon:"img/cube.png", id:5, mesh:"data/assets/tree/tree.json"},
+        {name:"Rock", icon:"img/cube.png", id:5, mesh:"data/assets/rock/rock.json"},
 
+
+        {name:"Point Light", icon:"img/light.png", id:6, light:{color:0xFFF000, distance:10, type:"point"}},
+        {name:"Dir Light", icon:"img/light.png", id:7, light:{color:0xffffff, type:"dir"}},
+        {name:"Camera", icon:"img/camera.png", id:8, camera:{fov:70}}
     ];
 
     self.objects = []; // Objects in the scene
-    self.visuals = []; // ThreeJS objects. Need this array for doing raycasting.
+    self.raycastDetectors = []; // ThreeJS objects. Need this array for doing raycasting.
     self.scripts = []; // Scripts used by objects. Each object stores a reference to one of these, or null.
 
     self.objectId = 0; // Used to assign id's to new objects
@@ -31,10 +38,21 @@ function Editor(renderer, width, height) {
     self.scene = null;
     self.loader = null;
     self.camera = null;
+    self.ambientLight = null;
     self.orbitControls = null;
     self.transformControls = null;
     self.raycaster = null;
     self.mouse = new THREE.Vector2();
+
+    self.skyboxCamera = null;
+    self.skyboxScene = null;
+    self.skyboxMesh = null;
+    self.skyboxEnabled = false;
+    self.skybox = "none"; // Name
+    self.skyboxUrl = "";
+    self.ambientColor = 0x000000;
+    self.backgroundColor = 0x000000;
+
     self.selected = null; // The currently selected object
     self.data = null; // Stores the game data
     self.requestAnimationId = 0;
@@ -49,27 +67,83 @@ Editor.prototype.init = function() {
     self.camera = new THREE.PerspectiveCamera(70, self.width / self.height, 1, 1000);
     self.camera.position.x = 0;
     self.camera.position.y = 0;
-    self.camera.position.z = 10;
+    self.camera.position.z = 50;
     self.scene.add(self.camera);
     self.orbitControls = new THREE.OrbitControls( self.camera, self.renderer.domElement );
     self.transformControls = new THREE.TransformControls( self.camera, self.renderer.domElement );
     self.raycaster = new THREE.Raycaster();
 
-    var pointLight = new THREE.PointLight(0xFFFFFF);
-    pointLight.position.y = 1000;
-    pointLight.position.z = 1000;
-    pointLight.intensity = 1.0;
-    pointLight.distance = 10000;
-    self.scene.add(pointLight);
-    var ambientLight = new THREE.AmbientLight( 0x404040 );
-    self.scene.add(ambientLight);
+    self.ambientLight = new THREE.AmbientLight( 0x404040 );
+    self.scene.add(self.ambientLight);
 
     self.loader = new THREE.JSONLoader();
+
+    // Skybox
+    self.skyboxCamera = new THREE.PerspectiveCamera( 70, self.width / self.height, 1, 1000 );
+    self.skyboxScene = new THREE.Scene();
+
+    var shader = THREE.ShaderLib[ "cube" ];
+    var skyboxMat = new THREE.ShaderMaterial({
+        fragmentShader: shader.fragmentShader,
+        vertexShader: shader.vertexShader,
+        uniforms: shader.uniforms,
+        depthWrite: false,
+        side: THREE.BackSide
+    });
+
+    self.skyboxMesh = new THREE.Mesh( new THREE.BoxGeometry( 100, 100, 100 ), skyboxMat );
+    self.skyboxScene.add(self.skyboxMesh);
 
     UI.populateLibrary(self.assets);
     UI.loadFromLocalStorage();
     self.animate();
 };
+
+Editor.prototype.viewResize = function(width, height) {
+    var self = this;
+
+    self.width = width;
+    self.height = height;
+    self.camera.aspect = width / height;
+    self.camera.updateProjectionMatrix();
+
+    self.skyboxCamera.aspect = width / height;
+    self.skyboxCamera.updateProjectionMatrix();
+};
+
+Editor.prototype.animate = function() {
+    var self = this;
+
+    self.requestAnimationId = requestAnimationFrame(self.animate.bind(self));
+    self.render();
+};
+
+Editor.prototype.render = function() {
+    var self = this;
+
+    if(self.skyboxEnabled) {   
+        self.skyboxCamera.rotation.copy(self.camera.rotation);
+        self.renderer.render(self.skyboxScene, self.skyboxCamera);
+    }
+
+    self.renderer.render(self.scene, self.camera);
+    self.transformControls.update();
+}
+
+Editor.prototype.pause = function() {
+    var self = this;
+    cancelAnimationFrame(self.requestAnimationId); // Stop render loop
+    self.active = false;
+    self.orbitControls.enabled = false;
+}
+
+Editor.prototype.resume = function() {
+    var self = this;
+    self.animate(); // Restart render loop
+    self.active = true;
+    self.orbitControls.enabled = true;
+}
+
 
 Editor.prototype.load = function(data) {
     // Assume that scene is empty when you load.
@@ -78,19 +152,21 @@ Editor.prototype.load = function(data) {
     self.data = data;
     console.log("loading scene:", data.name);
 
+    self.scripts = data.scripts; // TO-DO: is it ok not to deep copy?
+
+    // Create objects
     for(var i = 0; i < data.objects.length; i++) {
         var object = new ObjectEdit(data.objects[i]);
-        //self.createObject(object);
-        self.createObject(object, function(object){
-            self.selectObject(object);
-        });
-
+        self.createObject(object);
     }
 
-    self.scripts = data.scripts; // TO-DO: is it ok not to copy?
+    // Set camera position and rotation
+    self.camera.position.fromArray(data.editorData.cameraPos);
+    self.camera.rotation.fromArray(data.editorData.cameraRot);
 
-    console.log(self.scripts);
-
+    self.setBackgroundColor(data.backgroundColor);
+    self.setAmbientColor(data.ambientColor);
+    self.setSkybox(data.skybox.name);
 }
 
 Editor.prototype.save = function() {
@@ -103,10 +179,21 @@ Editor.prototype.save = function() {
 
     console.log("saving scene");
 
+    var sceneCameraPos = self.camera.position.toArray();
+    var sceneCameraRot = self.camera.rotation.toArray();
+
     var data = {
         name : "scene",
         objects : [],
-        scripts: []
+        scripts : [],
+        backgroundColor: self.backgroundColor,
+        ambientColor: self.ambientColor,
+        skybox: {name:self.skybox, url:self.skyboxUrl},
+        editorData : {
+            cameraPos : sceneCameraPos,
+            cameraRot : sceneCameraRot,
+            skyboxName : self.skybox
+        }
     };
 
     for(var i = 0; i < self.objects.length; i++) {
@@ -125,19 +212,22 @@ Editor.prototype.save = function() {
     UI.saveToLocalStorage(data);
 }
 
-Editor.prototype.animate = function() {
-    var self = this;
-
-    self.requestAnimationId = requestAnimationFrame(self.animate.bind(self));
-    self.renderer.render(self.scene, self.camera);
-    self.transformControls.update();
-};
-
 Editor.prototype.getObjectByName = function(name) {
     var self = this;
 
     for (var i = 0; i < self.objects.length; i++) {
         if(self.objects[i].name == name) {
+            return self.objects[i];
+        }
+    }
+    return null;
+};
+
+Editor.prototype.getObjectById = function(id) {
+    var self = this;
+
+    for (var i = 0; i < self.objects.length; i++) {
+        if(self.objects[i].id == id) {
             return self.objects[i];
         }
     }
@@ -267,7 +357,7 @@ Editor.prototype.addAction = function(actionType, actionData) {
 Editor.prototype.editObject = function(object) {
     
     // TO-DO: is it a good idea for the edit action to save the the entire state of the object,
-    // or should the edit action only contain the property name, old value, and current value
+    // or should the edit action only contain the property name, old value, and current value?
 
     var self = this;
 
@@ -288,7 +378,6 @@ Editor.prototype.addObject = function(object, callback) {
 Editor.prototype.removeObject = function(object) {
     var self = this;
 
-    self.selectObject(null); // Deselect before removing
     self.destroyObject(object);
     self.addAction("remove", object.getData());
 };
@@ -304,30 +393,73 @@ Editor.prototype.createObject = function(object, callback) {
     self.objectId = Math.max(self.objectId, object.id+1);
 
     // Load the ThreeJS mesh
-    if(object.mesh !== undefined) {
+    if(object.mesh !== null) {
         self.loader.load(object.mesh, function(geometry, materials) {
-            
-            var material;
-            if(materials === undefined)material = new THREE.MeshLambertMaterial();
-            else if(materials.length == 1) material = materials[0];
-            else material = new THREE.MeshFaceMaterial(materials);
+
+            var material = Utils.createMaterial(materials);
 
             // Create mesh
             var mesh = new THREE.Mesh(geometry, material);
-            object.setVisual(mesh);
-            self.visuals.push(mesh);
             self.scene.add(mesh);
 
             // Create outline
-            var outline = new THREE.BoxHelper( object.visual, 0x00ffff );
+            var outline = new THREE.BoxHelper(mesh, 0x00ffff);
             outline.visible = false;
-            object.outline = outline;
             self.scene.add(outline);
 
-            if(callback) {
-                callback(object);
-            }
+            // Create raycast detector (which is the mesh)
+            var raycastDetector = mesh;
+            self.raycastDetectors.push(raycastDetector);
+
+            // Transform target
+            var transformTarget = mesh;
+
+            object.setVisual(mesh, outline, raycastDetector, transformTarget);
+            if(callback) callback(object);
+
         } );
+    }
+    else if(object.light !== null) {
+
+        var light, outline, raycastDetector, transformTarget;
+
+        if(object.light.type == "point") {
+
+            light = new THREE.PointLight();
+            light.distance = 10;
+            outline = new THREE.PointLightHelper(light, 0.5);
+            raycastDetector = outline;
+            transformTarget = light;
+
+        } else if(object.light.type == "dir") {
+
+            light = new THREE.DirectionalLight();
+            outline = new THREE.DirectionalLightHelper(light, 1);
+            outline.matrix = new THREE.Matrix4();
+            outline.matrixAutoUpdate = true;
+            raycastDetector = outline.lightPlane;
+            transformTarget = outline;
+        }
+
+        self.raycastDetectors.push(raycastDetector);
+        object.setVisual(light, outline, raycastDetector, transformTarget);
+        self.scene.add(light);
+        self.scene.add(outline);
+
+        // Need to update all the materials when a new light is added
+        for(var i = 0; i < self.scene.children.length; i++) {
+            var material = self.scene.children[i].material;
+            if(!material) continue;
+            if(material.type == "MeshFaceMaterial") {
+                for(var j = 0; j < material.materials; j++) {
+                    material.materials[j].needsUpdate = true;
+                }
+            } else {
+                material.needsUpdate = true;
+            }
+        }
+
+        if(callback) callback(object);
     }
 };
 
@@ -335,18 +467,25 @@ Editor.prototype.createObject = function(object, callback) {
 Editor.prototype.destroyObject = function(object) {
     var self = this;
 
+    self.selectObject(null); // Deselect before destroying
+
     // Remove object
     self.objects.splice(self.objects.indexOf(object), 1);
 
     // Remove visual
     if(object.visual) {
-        self.visuals.splice(self.visuals.indexOf(object.visual), 1);
         self.scene.remove(object.visual);
     }
 
     // Remove outline
     if(object.outline) {
         self.scene.remove(object.outline);
+    }
+
+    // Remove raycast detector
+    if(object.raycastDetector) {
+        self.raycastDetectors.splice(self.raycastDetectors.indexOf(object.raycastDetector), 1);
+        self.scene.remove(object.raycastDetector); // Since the raycast detector is often the visual or outline, this step could be redundant
     }
 };
 
@@ -412,7 +551,7 @@ Editor.prototype.pasteObject = function() {
         data.id = self.getUniqueId();
         data.name = self.getUniqueName(data.name);
         var object = new ObjectEdit(data);
-        self.addObject(object, self.select.bind(self));
+        self.addObject(object, self.selectObject.bind(self));
     }
 };
 
@@ -451,15 +590,6 @@ Editor.prototype.dropAsset = function(assetName, x, y) {
     self.createAsset(assetName, position.x, position.y, position.z);
 };
 
-Editor.prototype.viewResize = function(width, height) {
-    var self = this;
-
-    self.width = width;
-    self.height = height;
-    self.camera.aspect = width / height;
-    self.camera.updateProjectionMatrix();
-};
-
 Editor.prototype.click = function(x, y) {
     var self = this;
     if(!self.active) return;
@@ -470,59 +600,15 @@ Editor.prototype.click = function(x, y) {
     self.mouse.x = x*2-1;
     self.mouse.y = y*2-1;
     self.raycaster.setFromCamera( self.mouse, self.camera );                
-    var intersections = self.raycaster.intersectObjects( self.visuals );
+    var intersections = self.raycaster.intersectObjects( self.raycastDetectors );
     if (intersections.length > 0) {
         var mesh = intersections[0].object;
-        var object = self.getObjectByName(mesh.userData);
+        var object = self.getObjectById(mesh.userData);
         selected = object;
     }
 
     self.selectObject(selected);
 }
-
-Editor.prototype.selectObject = function(object) {
-
-    // When object is null, it counts as a deselect
-
-    var self = this;
-
-    // Don't reselect
-    if(self.selected == object) {
-        return;
-    }
-
-    // Take away outline from previously selected object
-    if(self.selected) {
-        self.selected.outline.visible = false;
-        self.scene.remove(self.transformControls);
-        self.transformControls.detach(self.selected.visual);
-    }
-
-    // Show outline on selected object
-    if(object) {
-        self.transformControls.attach(object.visual);
-        self.scene.add(self.transformControls);
-        // Only show outline on invisible objects
-        //object.outline.visible = true;
-        object.outline.visible = !object.visible;
-    }
-
-    self.selected = object;
-    UI.selectObject(object);
-};
-
-Editor.prototype.unprojectMousePosition = function(x, y) {
-    var self = this;
-    var camera = self.camera;
-    var vector = new THREE.Vector3();
-    vector.set(x*2-1, y*2-1, 0.5); // NDC space
-    vector.unproject(camera); // World space
-    var dir = vector.sub(camera.position).normalize();
-    //var distance = - camera.position.z / dir.z;
-    var distance = 15;
-    var worldPosition = camera.position.clone().add(dir.multiplyScalar(distance));
-    return worldPosition;
-};
 
 Editor.prototype.keyDown = function(key, ctrl) {
     // TO-DO: ctrl-z doesn't work now because sometimes the code editor takes focus for no reason
@@ -562,6 +648,50 @@ Editor.prototype.keyDown = function(key, ctrl) {
     self.orbitControls.onKeyDown(key);
 };
 
+Editor.prototype.selectObject = function(object) {
+
+    // When object is null, it counts as a deselect
+
+    var self = this;
+
+    // Don't reselect
+    if(self.selected == object) {
+        return;
+    }
+
+    // Unselect previous object
+    if(self.selected) {
+        //self.selected.outline.visible = false;
+        self.scene.remove(self.transformControls);
+        self.transformControls.detach(self.selected.transformTarget);
+    }
+
+    // Select object
+    if(object) {
+        self.transformControls.attach(object.transformTarget);
+        self.scene.add(self.transformControls);
+        // Only show outline on invisible objects
+        //object.outline.visible = true;
+        //object.outline.visible = !object.visible;
+    }
+
+    self.selected = object;
+    UI.selectObject(object);
+};
+
+Editor.prototype.unprojectMousePosition = function(x, y) {
+    var self = this;
+    var camera = self.camera;
+    var vector = new THREE.Vector3();
+    vector.set(x*2-1, y*2-1, 0.5); // NDC space
+    vector.unproject(camera); // World space
+    var dir = vector.sub(camera.position).normalize();
+    //var distance = - camera.position.z / dir.z;
+    var distance = 15;
+    var worldPosition = camera.position.clone().add(dir.multiplyScalar(distance));
+    return worldPosition;
+};
+
 Editor.prototype.removeSelected = function() {
     var self = this;
     if(self.selected === null) return;
@@ -594,20 +724,6 @@ Editor.prototype.setModeScale = function() {
     self.transformControls.setSpace("local");
 }
 
-Editor.prototype.pause = function() {
-    var self = this;
-    cancelAnimationFrame(self.requestAnimationId); // Stop render loop
-    self.active = false;
-    self.orbitControls.enabled = false;
-}
-
-Editor.prototype.resume = function() {
-    var self = this;
-    self.animate(); // Restart render loop
-    self.active = true;
-    self.orbitControls.enabled = true;
-}
-
 Editor.prototype.editScript = function(contents) {
     var self = this;
     var object = self.selected;
@@ -631,5 +747,54 @@ Editor.prototype.editScript = function(contents) {
         script.contents = contents;
         self.save();
     }
+}
+
+Editor.prototype.setAmbientColor = function(color) {
+    var self = this;
+    self.ambientColor = color;
+    self.ambientLight.color.setHex(color);
+}
+
+Editor.prototype.setBackgroundColor = function(color) {
+    var self = this;
+    self.backgroundColor = color;
+    self.renderer.setClearColor(color, 1);
+}
+
+Editor.prototype.setSkybox = function(skybox) {
+    var self = this;
+
+    // Disable skybox
+    if(skybox == "none") {
+        self.skyboxEnabled = false;
+        self.renderer.autoClear = true;
+        self.skybox = skybox;
+        self.skyboxUrl = "";
+        return;
+    }
+
+    // Get skybox image path based on the selection
+    var path = "";
+    if(skybox == "clouds") {
+        path = "data/skybox/"
+    } else {
+        return;
+    }
+
+    self.skyboxUrl = path;
+
+    var format = '.jpg';
+    var urls = [
+        path + 'px' + format, path + 'nx' + format,
+        path + 'py' + format, path + 'ny' + format,
+        path + 'pz' + format, path + 'nz' + format
+    ];
+
+    // TO-DO: does threejs cache the image in case you load the same skybox again?
+    var skyboxTexture = THREE.ImageUtils.loadTextureCube(urls);
+    self.skyboxMesh.material.uniforms["tCube"].value = skyboxTexture;
+    self.skybox = skybox;
+    self.skyboxEnabled = true;
+    self.renderer.autoClear = false;
 
 }
