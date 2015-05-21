@@ -117,8 +117,11 @@ $(document).ready(function() {
         propertiesPane.openSettings();
     });
 
+    $("#help-button").click(function() {
+        alert("help");
+    })
+
     $("#screen-cover").hide();
-    UI.selectObject(null);
     UI.setUndoRedo(false, false);
     $("#translate-button").addClass("selected");
     editor.init();
@@ -128,7 +131,9 @@ $(document).ready(function() {
 $(window).load(function() {
 
     // Final initialize step once the window is loaded
+    UI.selectObject(null);
     $("#loading-cover").hide();
+    propertiesPane.openSettings();
 });
 
 function onViewResize() {

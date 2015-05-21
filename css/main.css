@@ -225,6 +225,19 @@ li.cr:not(.color) .c input:focus {
     border-bottom: 1px solid #555 !important;
 }
 
+.function {
+    margin-top: 5px;
+    //margin-left:15%;
+    //margin-right:18%;
+}
+
+.function .property-name{
+    text-align: center;
+    width: 100% !important;
+    background-color: #555;
+    border-radius: 5px;
+}
+
 .dg {
     text-shadow: none !important;
     color: inherit !important;

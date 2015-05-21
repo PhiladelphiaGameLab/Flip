@@ -52,6 +52,8 @@ function Editor(renderer, width, height) {
     self.skyboxUrl = "";
     self.ambientColor = 0x000000;
     self.backgroundColor = 0x000000;
+    self.grid = null;
+    self.gridVisible = true;
 
     self.selected = null; // The currently selected object
     self.data = null; // Stores the game data
@@ -65,9 +67,7 @@ Editor.prototype.init = function() {
     self.scene = new THREE.Scene();
 
     self.camera = new THREE.PerspectiveCamera(70, self.width / self.height, 1, 1000);
-    self.camera.position.x = 0;
-    self.camera.position.y = 0;
-    self.camera.position.z = 50;
+    self.camera.position.set(30, 20, 30);
     self.scene.add(self.camera);
     self.orbitControls = new THREE.OrbitControls( self.camera, self.renderer.domElement );
     self.transformControls = new THREE.TransformControls( self.camera, self.renderer.domElement );
@@ -94,10 +94,28 @@ Editor.prototype.init = function() {
     self.skyboxMesh = new THREE.Mesh( new THREE.BoxGeometry( 100, 100, 100 ), skyboxMat );
     self.skyboxScene.add(self.skyboxMesh);
 
+    // Grid
+    var grid = new THREE.GridHelper( 200, 10 );
+    grid.setColors( 0x0000ff, 0x808080 );
+    grid.visible = self.gridVisible;
+    self.scene.add(grid);
+    self.grid = grid;
+
+    self.setDefaultSettings();
+
     UI.populateLibrary(self.assets);
+    //UI.clearLocalStorage();
     UI.loadFromLocalStorage();
     self.animate();
 };
+
+Editor.prototype.setDefaultSettings = function() {
+    var self = this;
+    self.setAmbientColor(0x404040);
+    self.setBackgroundColor(0x97a7b2);
+    self.setSkybox("none");
+    self.setGridVisible(true);
+}
 
 Editor.prototype.viewResize = function(width, height) {
     var self = this;
@@ -144,6 +162,14 @@ Editor.prototype.resume = function() {
     self.orbitControls.enabled = true;
 }
 
+// Do not call directly. Call clearScene instead
+Editor.prototype.clear = function() {
+    var self = this;
+    self.setDefaultSettings();
+    while(self.objects.length > 0) {
+        self.destroyObject(self.objects[0]);
+    }
+}
 
 Editor.prototype.load = function(data) {
     // Assume that scene is empty when you load.
@@ -161,12 +187,13 @@ Editor.prototype.load = function(data) {
     }
 
     // Set camera position and rotation
-    self.camera.position.fromArray(data.editorData.cameraPos);
-    self.camera.rotation.fromArray(data.editorData.cameraRot);
+    self.camera.position.fromArray(data.editor.cameraPos);
+    self.camera.rotation.fromArray(data.editor.cameraRot);
 
     self.setBackgroundColor(data.backgroundColor);
     self.setAmbientColor(data.ambientColor);
     self.setSkybox(data.skybox.name);
+    self.setGridVisible(data.editor.gridVisible);
 }
 
 Editor.prototype.save = function() {
@@ -189,10 +216,10 @@ Editor.prototype.save = function() {
         backgroundColor: self.backgroundColor,
         ambientColor: self.ambientColor,
         skybox: {name:self.skybox, url:self.skyboxUrl},
-        editorData : {
+        editor : {
             cameraPos : sceneCameraPos,
             cameraRot : sceneCameraRot,
-            skyboxName : self.skybox
+            gridVisible : self.gridVisible
         }
     };
 
@@ -266,6 +293,49 @@ Editor.prototype.hasRedos = function() {
     return (self.actionStackPos != self.actionStack.length - 1);
 };
 
+Editor.prototype.doAction = function(action, reverse) {
+    var self = this;
+
+    if(action.type == "edit") {
+
+        if(reverse) {
+            var object = self.getObjectByName(action.data.name);
+            object.setData(action.data.oldData);
+        } else {
+            var object = self.getObjectByName(action.data.name);
+            object.setData(action.data.newData);
+        }
+
+    } else if(action.type == "add") {
+
+        if(reverse) {
+            var object = self.getObjectByName(action.data.name);
+            self.destroyObject(object);
+        } else {
+            var object = new ObjectEdit(action.data);
+            self.createObject(object);
+        }
+
+    } else if(action.type == "remove") {
+
+        if(reverse) {
+            var object = new ObjectEdit(action.data);
+            self.createObject(object);
+        } else {
+            var object = self.getObjectByName(action.data.name);
+            self.destroyObject(object);
+        }
+
+    } else if(action.type == "clear") {
+
+        if(reverse) {
+            self.load(action.data);
+        } else {
+            self.clear();
+        }
+    }
+}
+
 Editor.prototype.undoAction = function() {
     var self = this;
 
@@ -273,21 +343,7 @@ Editor.prototype.undoAction = function() {
     var action = self.actionStack[self.actionStackPos];
     self.actionStackPos--;
     
-    if(action.type == "edit") {
-
-        var object = self.getObjectByName(action.data.name);
-        object.setData(action.data.oldData);
-
-    } else if(action.type == "add") {
-
-        var object = self.getObjectByName(action.data.name);
-        self.destroyObject(object);
-
-    } else if(action.type == "remove") {
-
-        var object = new ObjectEdit(action.data);
-        self.createObject(object);
-    }
+    self.doAction(action, true);
 
     UI.setUndoRedo(self.hasUndos(), self.hasRedos());
     self.save();
@@ -303,21 +359,7 @@ Editor.prototype.redoAction = function() {
     self.actionStackPos++;
     var action = self.actionStack[self.actionStackPos];
 
-    if(action.type == "edit") {
-
-        var object = self.getObjectByName(action.data.name);
-        object.setData(action.data.newData);
-
-    } else if(action.type == "add") {
-
-        var object = new ObjectEdit(action.data);
-        self.createObject(object);
-
-    } else if(action.type == "remove") {
-
-        var object = self.getObjectByName(action.data.name);
-        self.destroyObject(object);
-    }
+    self.doAction(action, false);
 
     UI.setUndoRedo(self.hasUndos(), self.hasRedos());
     self.save();
@@ -353,6 +395,13 @@ Editor.prototype.addAction = function(actionType, actionData) {
 
     console.log("Add action " + action.type);
 };
+
+
+Editor.prototype.clearScene = function() {
+    var self = this;
+    self.clear();
+    self.addAction("clear", self.data);
+}
 
 Editor.prototype.editObject = function(object) {
     
@@ -751,14 +800,19 @@ Editor.prototype.editScript = function(contents) {
 
 Editor.prototype.setAmbientColor = function(color) {
     var self = this;
+    console.log("ambient:", color);
     self.ambientColor = color;
     self.ambientLight.color.setHex(color);
+    UI.updateSettings();
 }
 
 Editor.prototype.setBackgroundColor = function(color) {
     var self = this;
+    console.log("ambient:", color);
     self.backgroundColor = color;
     self.renderer.setClearColor(color, 1);
+    UI.updateSettings();
+
 }
 
 Editor.prototype.setSkybox = function(skybox) {
@@ -770,6 +824,7 @@ Editor.prototype.setSkybox = function(skybox) {
         self.renderer.autoClear = true;
         self.skybox = skybox;
         self.skyboxUrl = "";
+        UI.updateSettings();
         return;
     }
 
@@ -791,10 +846,22 @@ Editor.prototype.setSkybox = function(skybox) {
     ];
 
     // TO-DO: does threejs cache the image in case you load the same skybox again?
-    var skyboxTexture = THREE.ImageUtils.loadTextureCube(urls);
-    self.skyboxMesh.material.uniforms["tCube"].value = skyboxTexture;
-    self.skybox = skybox;
-    self.skyboxEnabled = true;
-    self.renderer.autoClear = false;
+    var skyboxTexture = THREE.ImageUtils.loadTextureCube(urls, undefined, function(texture){
+        self.skyboxMesh.material.uniforms["tCube"].value = skyboxTexture;
+        self.skybox = skybox;
+        self.skyboxEnabled = true;
+        self.renderer.autoClear = false;
+        UI.updateSettings();
+    });
+    
 
+
+}
+
+Editor.prototype.setGridVisible = function(visible) {
+    var self = this;
+
+    self.gridVisible = visible;
+    self.grid.visible = visible;
+    UI.updateSettings();
 }

@@ -168,18 +168,31 @@ ObjectEdit.prototype.updateVisual = function() {
         self.transformTarget.position.fromArray(self.position);
         self.transformTarget.rotation.fromArray(self.rotation);
         self.transformTarget.scale.fromArray(self.scale);
-        self.transformTarget.visible = self.visible;
+
+        if(self.mesh) {
+            var materials = Utils.getMaterials(self.visual.material);
+            for(var i = 0; i < materials.length; i++) {
+                var material = materials[i];
+                
+                if(self.visible) {
+                    material.transparent = material.transparentOld;
+                    material.opacity = material.opacityOld;
+                } else {
+                    material.transparent = true;
+                    material.opacity = 0.5;
+                } 
+            } 
+        }
 
         if(self.light) {
+            self.visual.visible = self.visible;
             self.visual.color.setHex(self.light.color);
 
             if(self.light.type == "point") {
                 self.visual.distance = self.light.distance;
             } else {
                 // Dir light treat their position as their direction, so convert rotation to position
-                var euler = new THREE.Euler(self.rotation[0], self.rotation[1], self.rotation[2], 'XYZ');
-                var position = new THREE.Vector3(0, 1, 0);
-                position.applyEuler(euler).normalize();
+                var position = Utils.getDirLightPosition(self.rotation);
                 self.visual.position.copy(position);
             }
             

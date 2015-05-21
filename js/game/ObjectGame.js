@@ -21,19 +21,20 @@ function ObjectGame (data) {
 
                 console.log(data.physics.friction, data.physics.restitution);
 
-                var shape = new Physijs.BoxMesh(geometry, physicsMat, mass);
-                shape.position.fromArray(data.position);
-                shape.rotation.fromArray(data.rotation);
-                shape.scale.fromArray(data.scale);
-
-                game.addObject(shape);
+                var object = new Physijs.BoxMesh(geometry, physicsMat, mass);
+                object.position.fromArray(data.position);
+                object.rotation.fromArray(data.rotation);
+                object.scale.fromArray(data.scale);
+                object.visible = data.visible;
+                game.addObject(object);
             
             } else {
-                var shape = new THREE.Mesh(geometry, material);
-                shape.position.fromArray(data.position);
-                shape.rotation.fromArray(data.rotation);
-                shape.scale.fromArray(data.scale);
-               game.addObject(shape);
+                var object = new THREE.Mesh(geometry, material);
+                object.position.fromArray(data.position);
+                object.rotation.fromArray(data.rotation);
+                object.scale.fromArray(data.scale);
+                object.visible = data.visible;
+                game.addObject(object);
             }
         });
     }
@@ -43,13 +44,18 @@ function ObjectGame (data) {
 
         if(data.light.type == "point") {
 
-            light = new THREE.PointLight(data.light.color, 1.0, data.light.distance);
-            game.addObject(light);
+            var object = new THREE.PointLight(data.light.color, 1.0, data.light.distance);
+            object.position.fromArray(data.position);
+            object.visible = data.visible;
+            game.addObject(object);
 
         } else if(data.light.type == "dir") {
 
-            light = new THREE.DirectionalLight(data.light.color, 1.0);
-            game.addObject(light);
+            var object = new THREE.DirectionalLight(data.light.color, 1.0);
+            var position = Utils.getDirLightPosition(data.rotation);
+            object.position.copy(position);
+            object.visible = data.visible;
+            game.addObject(object);
         }
     }
 }

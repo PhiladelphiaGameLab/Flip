@@ -23,8 +23,28 @@ Utils.createMaterial = function(materials) {
         if(material.transparent) {
             material.depthWrite = false;
             material.side = THREE.DoubleSide;
+        } else {
+            material.side = THREE.FrontSide;
         }
+
+        material.transparentOld = material.transparent;
+        material.opacityOld = material.opacity;
     }
 
     return meshMaterial;
+}
+
+Utils.getMaterials = function(material) {
+    if(material.type == "MeshFaceMaterial") {
+        return material.materials;
+    } else {
+        return [material];
+    }
+}
+
+Utils.getDirLightPosition = function(rotation) {
+    var euler = new THREE.Euler(rotation[0], rotation[1], rotation[2], 'XYZ');
+    var position = new THREE.Vector3(0, 1, 0);
+    position.applyEuler(euler).normalize().multiplyScalar(1.0);
+    return position;
 }

@@ -5,34 +5,36 @@ function PropertiesPane() {
     var Controls = function() {
 
         // Basic folder
-        this.name = "Name";
-        this.x = 0;
-        this.y = 0;
-        this.z = 0;
-        this.rx = 0;
-        this.ry = 0;
-        this.rz = 0;
-        this.sx = 1.0;
-        this.sy = 1.0;
-        this.sz = 1.0;
-        this.visible = true;
-        this.physics = true;
+        this["Name"] = "Name";
+        this["x"] = 0;
+        this["y"] = 0;
+        this["z"] = 0;
+        this["rx"] = 0;
+        this["ry"] = 0;
+        this["rz"] = 0;
+        this["sx"] = 1.0;
+        this["sy"] = 1.0;
+        this["sz"] = 1.0;
+        this["Visible"] = true;
+        this["Physics"] = true;
 
         // Physics folder
-        this.type = "dynamic";
-        this.friction = 0.5;
-        this.restitution = 0.5;
-        this.shape = "sphere";
-        this.mass = 1.0;
+        this["Type"] = "dynamic";
+        this["Friction"] = 0.5;
+        this["Restitution"] = 0.5;
+        this["Shape"] = "sphere";
+        this["Mass"] = 1.0;
 
         // Light folder
-        this.color = "#ffffff";
-        this.distance = 10;
+        this["Color"] = "#ffffff";
+        this["Distance"] = 10;
 
         // Settings folder
-        this.ambientColor = "#404040";
-        this.backgroundColor = "#ffffff";
-        this.skybox = "clouds";
+        this["Ambient Color"] = "#000000";
+        this["Background Color"] = "#000000";
+        this["Skybox"] = "clouds";
+        this["Grid Visible"] = true;
+        this["Clear Scene"] = function() { editor.clearScene() };
     };
 
     var controls = new Controls();
@@ -65,7 +67,7 @@ function PropertiesPane() {
     var basicFolder = gui.addFolder("Properties");
 
     // Set name
-    basicFolder.add(controls, "name").onFinishChange(function(value){
+    basicFolder.add(controls, "Name").onFinishChange(function(value){
 
         if(value == self.selectedObject.name) return;
 
@@ -75,7 +77,7 @@ function PropertiesPane() {
             editor.editObject(self.selectedObject);
         } else {
             alert("The name " + value + " is already taken");
-            self.controls["name"] = self.selectedObject.name;
+            self.controls["Name"] = self.selectedObject.name;
             self.updateVisual();
         }
     });
@@ -153,14 +155,14 @@ function PropertiesPane() {
     });
 
     // Set visible
-    basicFolder.add(controls, "visible").onFinishChange(function(value){
+    basicFolder.add(controls, "Visible").onFinishChange(function(value){
         self.selectedObject.visible = value;
         self.selectedObject.updateVisual();
         editor.editObject(self.selectedObject);
     });
 
     // Set physics enabled
-    basicFolder.add(controls, "physics").onFinishChange(function(value){
+    basicFolder.add(controls, "Physics").onFinishChange(function(value){
         if(value == true) {
             self.selectedObject.addPhysics();
         } else {
@@ -170,40 +172,40 @@ function PropertiesPane() {
         editor.editObject(self.selectedObject);
     });
 
-    var translateVisual = combineNumberControllers([xControl, yControl, zControl], "position");
-    var rotateVisual = combineNumberControllers([rxControl, ryControl, rzControl], "rotation");
-    var scaleVisual = combineNumberControllers([sxControl, syControl, szControl], "scale");
+    var translateVisual = combineNumberControllers([xControl, yControl, zControl], "Position");
+    var rotateVisual = combineNumberControllers([rxControl, ryControl, rzControl], "Rotation");
+    var scaleVisual = combineNumberControllers([sxControl, syControl, szControl], "Scale");
 
 
     // Physics folder
     var physicsFolder = gui.addFolder("Physics");
 
     // Set type
-    physicsFolder.add(controls, "type", ["static", "dynamic"]).onFinishChange(function(value){
+    physicsFolder.add(controls, "Type", ["static", "dynamic"]).onFinishChange(function(value){
         self.selectedObject.physics.type = value;
         editor.editObject(self.selectedObject);
     });
     
     // Set friction
-    physicsFolder.add(controls, "friction", 0, 1, 0.5).onFinishChange(function(value){
+    physicsFolder.add(controls, "Friction", 0, 1, 0.5).onFinishChange(function(value){
         self.selectedObject.physics.friction = value;
         editor.editObject(self.selectedObject);
     });
     
     // Set restitution
-    physicsFolder.add(controls, "restitution", 0, 1, 0.5).onFinishChange(function(value){
+    physicsFolder.add(controls, "Restitution", 0, 1, 0.5).onFinishChange(function(value){
         self.selectedObject.physics.restitution = value;
         editor.editObject(self.selectedObject);
     });
     
     // Set shape
-    physicsFolder.add(controls, "shape", ["sphere", "cube"]).onFinishChange(function(value){
+    physicsFolder.add(controls, "Shape", ["sphere", "cube"]).onFinishChange(function(value){
         self.selectedObject.physics.shape = value;
         editor.editObject(self.selectedObject);
     });
     
     // Set mass
-    physicsFolder.add(controls, "mass", 0, 10, 1).onFinishChange(function(value){
+    physicsFolder.add(controls, "Mass", 0, 10, 1).onFinishChange(function(value){
         self.selectedObject.physics.mass = value;
         editor.editObject(self.selectedObject);
     });
@@ -213,7 +215,7 @@ function PropertiesPane() {
     var lightFolder = gui.addFolder("Light");
     
     // Set color
-    lightFolder.addColor(controls, "color").onChange(function(value){
+    lightFolder.addColor(controls, "Color").onChange(function(value){
         self.selectedObject.light.color = stringToColor(value);
         self.selectedObject.updateVisual();
     }).onFinishChange(function(value){
@@ -222,7 +224,7 @@ function PropertiesPane() {
     
     
     // Set distance
-    var lightDistanceControl = lightFolder.add(controls, "distance").min(0.01).onChange(function(value){
+    var lightDistanceControl = lightFolder.add(controls, "Distance").min(0.01).onChange(function(value){
         self.selectedObject.light.distance = value;
         self.selectedObject.updateVisual();
     }).onFinishChange(function(value){
@@ -234,24 +236,32 @@ function PropertiesPane() {
     var settingsFolder = gui.addFolder("Settings");
 
     // Ambient color
-    settingsFolder.addColor(controls, "ambientColor").onChange(function(value){
-        editor.setAmbientColor(value);
+    settingsFolder.addColor(controls, "Ambient Color").onChange(function(value){
+        editor.setAmbientColor(stringToColor(value));
     }).onFinishChange(function(value){
         editor.save();
     });
 
     // Background color
-    settingsFolder.addColor(controls, "backgroundColor").onChange(function(value){
-        editor.setBackgroundColor(value);
+    settingsFolder.addColor(controls, "Background Color").onChange(function(value){
+        editor.setBackgroundColor(stringToColor(value));
     }).onFinishChange(function(value){
         editor.save();
     });
 
     // Skybox
-    settingsFolder.add(controls, "skybox", ["none", "clouds"]).onFinishChange(function(value){
+    settingsFolder.add(controls, "Skybox", ["none", "clouds"]).onFinishChange(function(value){
         editor.setSkybox(value);
         editor.save();
     });
+
+    // Grid
+    settingsFolder.add(controls, "Grid Visible").onFinishChange(function(value){
+        editor.setGridVisible(value);
+        editor.save();
+    });
+
+    settingsFolder.add(controls, "Clear Scene");
 
     self.gui = gui;
     self.guiVisual = $(self.gui.domElement);
@@ -300,9 +310,11 @@ PropertiesPane.prototype.closeSettings = function() {
 
 PropertiesPane.prototype.updateSettings = function() {
     var self = this;
-    self.controls["ambientColor"] = editor.ambientColor;
-    self.controls["backgroundColor"] = editor.backgroundColor;
-    self.controls["skybox"] = editor.skybox;
+
+    self.controls["Ambient Color"] = editor.ambientColor;
+    self.controls["Background Color"] = editor.backgroundColor;
+    self.controls["Skybox"] = editor.skybox;
+    self.controls["Grid Visible"] = editor.gridVisible;
     self.updateVisual();
 }
 
@@ -336,7 +348,7 @@ PropertiesPane.prototype.updateSelectedObject = function() {
     var hasPhysics = object.physics !== null;
     var hasLight = object.light != null;
 
-    self.controls["name"] = object.name;
+    self.controls["Name"] = object.name;
     self.controls["x"] = object.position[0];
     self.controls["y"] = object.position[1];
     self.controls["z"] = object.position[2];
@@ -346,16 +358,16 @@ PropertiesPane.prototype.updateSelectedObject = function() {
     self.controls["sx"] = object.scale[0];
     self.controls["sy"] = object.scale[1];
     self.controls["sz"] = object.scale[2];
-    self.controls["visible"] = object.visible;
-    self.controls["physics"] = hasPhysics;
+    self.controls["Visible"] = object.visible;
+    self.controls["Physics"] = hasPhysics;
     self.basicFolderVisual.show();
 
     if(hasPhysics) {
-        self.controls["type"] = object.physics.type;
-        self.controls["friction"] = object.physics.friction;
-        self.controls["restitution"] = object.physics.restitution;
-        self.controls["shape"] = object.physics.shape;
-        self.controls["mass"] = object.physics.mass;
+        self.controls["Type"] = object.physics.type;
+        self.controls["Friction"] = object.physics.friction;
+        self.controls["Restitution"] = object.physics.restitution;
+        self.controls["Shape"] = object.physics.shape;
+        self.controls["Mass"] = object.physics.mass;
         self.physicsFolderVisual.show();
     } else {
         self.physicsFolderVisual.hide();
@@ -363,8 +375,8 @@ PropertiesPane.prototype.updateSelectedObject = function() {
 
     if(hasLight) {
 
-        self.controls["color"] = colorToString(object.light.color);
-        self.controls["distance"] = object.light.distance;
+        self.controls["Color"] = colorToString(object.light.color);
+        self.controls["Distance"] = object.light.distance;
 
         var type = object.light.type;
         if(type == "point") {
@@ -421,5 +433,7 @@ function colorToString(c)
 
 function stringToColor(c)
 {
-    return parseInt(c.substring(1), 16);
+    if(isNaN(c)) return parseInt(c.substring(1), 16);
+    else return c;
+    
 }
