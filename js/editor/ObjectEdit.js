@@ -57,7 +57,7 @@ ObjectEdit.prototype.getData = function() {
     return data;
 };
 
-// Static function.chec
+// Static function.
 // Create object data from asset data
 ObjectEdit.createData = function(asset) {
 

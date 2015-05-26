@@ -160,6 +160,13 @@ li.cr:not(.color) .c input:focus {
     background-color: #2a2a2a !important;
 }
 
+li.cr.has-slider .c input {
+    width: 30% !important;
+    float: left !important;
+}
+
+
+
 .saturation-field {
     border: none !important;
 }
@@ -171,13 +178,6 @@ li.cr:not(.color) .c input:focus {
 .selector {
     margin-left: 0px !important;
     margin-top: 22px !important;
-}
-
-
-.has-slider .c input {
-    width: 30% !important;
-    float: left !important;
-
 }
 
 .slider {

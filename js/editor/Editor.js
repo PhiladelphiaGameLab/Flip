@@ -800,7 +800,6 @@ Editor.prototype.editScript = function(contents) {
 
 Editor.prototype.setAmbientColor = function(color) {
     var self = this;
-    console.log("ambient:", color);
     self.ambientColor = color;
     self.ambientLight.color.setHex(color);
     UI.updateSettings();
@@ -808,7 +807,6 @@ Editor.prototype.setAmbientColor = function(color) {
 
 Editor.prototype.setBackgroundColor = function(color) {
     var self = this;
-    console.log("ambient:", color);
     self.backgroundColor = color;
     self.renderer.setClearColor(color, 1);
     UI.updateSettings();
@@ -853,9 +851,6 @@ Editor.prototype.setSkybox = function(skybox) {
         self.renderer.autoClear = false;
         UI.updateSettings();
     });
-    
-
-
 }
 
 Editor.prototype.setGridVisible = function(visible) {
