@@ -34,10 +34,13 @@
                 <img class="menu-button" id="play-button" src="img/play.png"></img>
                 <img class="menu-button menu-right" id="help-button" src="img/help.png"></img>
                 <img class="menu-button menu-right" id="settings-button" src="img/settings.png"></img>
+                <img class="menu-button menu-right" id="puzzle-button" src="img/puzzle.png"></img>
+
             </div>
             <div id="middle-pane">
                 <div id="horizontal">
                     <div id="code-pane">
+                        <div id="blockly-area"></div>
                         <pre id="code-editor"></pre>
                     </div>
                     <div id="view-pane"></div>
@@ -55,6 +58,16 @@
                 </div>
             </div>
         </div>
+        <div id="blockly-div"></div>
+        <xml id="toolbox" style="display: none">
+          <block type="controls_if"></block>
+          <block type="controls_repeat_ext"></block>
+          <block type="logic_compare"></block>
+          <block type="math_number"></block>
+          <block type="math_arithmetic"></block>
+          <block type="text"></block>
+          <block type="text_print"></block>
+        </xml>
 
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
         <script>window.jQuery || document.write('<script src="js/vendor/jquery-1.11.2.min.js"><\/script>')</script>
@@ -64,11 +77,15 @@
         <script src="js/vendor/physi.js"></script>
         <script src="js/vendor/dat.gui.min.js"></script>
         <script src="js/vendor/ace.js"></script>
+        <script src="js/vendor/blockly_compressed.js"></script>
+        <script src="js/vendor/blocks_compressed.js"></script>
+        <script src="js/vendor/msg/js/en.js"></script>
         <script src="js/Main.js"></script>
         <script src="js/OrbitControls.js"></script>
         <script src="js/TransformControls.js"></script>
         <script src="js/InputHandler.js"></script>
         <script src="js/Utils.js"></script>
+        <script src="js/editor/Workspace.js"></script>
         <script src="js/editor/PropertiesPane.js"></script>
         <script src="js/editor/Editor.js"></script>
         <script src="js/editor/Ground.js"></script>

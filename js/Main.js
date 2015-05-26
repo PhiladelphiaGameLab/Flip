@@ -1,5 +1,6 @@
-var viewport, propertiesPane, codeEditor, editor, game, renderer, inputHandler;
+var viewport, propertiesPane, codeEditor, workspace, editor, game, renderer, inputHandler;
 var disableEdit;
+var inWorkspace;
 
 $(document).ready(function() {
 
@@ -22,6 +23,9 @@ $(document).ready(function() {
             { collapsible: true, size: "250px" }
         ]
     });
+
+    // Workspace triggers a view resize event, so create it before binding view resize
+    workspace = new Workspace();
 
     // Add resize events to splitters
     var splitter;
@@ -121,6 +125,11 @@ $(document).ready(function() {
         alert("help");
     })
 
+    $("#puzzle-button").click(function() {
+        if(inWorkspace) UI.showCodeEditor();
+        else UI.showWorkspace();
+    });
+
     $("#screen-cover").hide();
     UI.setUndoRedo(false, false);
     $("#translate-button").addClass("selected");
@@ -131,22 +140,26 @@ $(document).ready(function() {
 $(window).load(function() {
 
     // Final initialize step once the window is loaded
+    UI.showCodeEditor();
     UI.selectObject(null);
-    $("#loading-cover").hide();
     propertiesPane.openSettings();
+    $("#loading-cover").hide();
 });
 
 function onViewResize() {
+
+    console.log("view resize");
+
     var width = viewport.innerWidth();
     var height = viewport.innerHeight();
     renderer.setSize(width, height);
     editor.viewResize(width, height);
     game.viewResize(width, height);
+    workspace.resize();
 
     propertiesPane.resize($("#properties-pane").innerWidth());
     codeEditor.resize();
 }
-
 
 // Functions called by Editor that update the UI
 var UI = {};
@@ -176,7 +189,8 @@ UI.selectObject = function(object) {
         $("#code-editor").hide();
     } else {
         $("#remove-button").removeClass("disabled");
-        $("#code-editor").show();
+        
+        if(!inWorkspace) $("#code-editor").show();
 
         // Show script in code editor pane
         if(object.script === null) {
@@ -215,6 +229,21 @@ UI.setUndoRedo = function(hasUndos, hasRedos) {
         $("#redo-button").addClass("disabled");
     }
 };
+
+UI.showWorkspace = function() {
+    $("#code-editor").hide();
+    $("#blockly-div").show();
+    inWorkspace = true;
+    onViewResize();
+};
+
+UI.showCodeEditor = function() {
+    $("#code-editor").show();
+    $("#blockly-div").hide();
+    inWorkspace = false;
+    onViewResize();
+
+}
 
 UI.saveToLocalStorage = function(data) {
 
