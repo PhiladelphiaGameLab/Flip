@@ -108,7 +108,7 @@ textarea {
 }
 
 .k-icon {
-    background-image: url("Black/sprite.png");
+    background-image: url("../vendor/css/Black/sprite.png");
 }
 
 .k-resize-handle {

@@ -5,9 +5,6 @@ function Workspace() {
     this.blocklyDiv = $("#blockly-div");
     this.toolbox = $("#toolbox");
 
-    var ele = this.toolbox.get(0);
-    console.log(ele);
-
     this.workspace = Blockly.inject(this.blocklyDiv.get(0), {toolbox: this.toolbox.get(0)});
 
     this.resize();
