@@ -216,7 +216,12 @@ function PropertiesPane() {
     
     // Set color
     lightFolder.addColor(controls, "Color").onChange(function(value){
-        self.selectedObject.light.color = stringToColor(value);
+        if(self.selectedObject.light) {
+            self.selectedObject.light.color = stringToColor(value);
+        } else {
+            self.selectedObject.visual.material.color = new THREE.Color(value);
+        }
+       
         self.selectedObject.updateVisual();
     }).onFinishChange(function(value){
         editor.editObject(self.selectedObject);
@@ -390,7 +395,10 @@ PropertiesPane.prototype.updateSelectedObject = function() {
         self.lightFolderVisual.show();
         //self.scaleVisual.hide();
     } else {
-        self.lightFolderVisual.hide();
+        //self.lightFolderVisual.hide();
+        //Enabled to change object color
+        self.lightFolderVisual.show();
+        self.lightDistanceControl.hide();
         //self.translateVisual.show();
         //self.rotateVisual.show();
         //self.scaleVisual.show();
