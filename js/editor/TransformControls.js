@@ -539,7 +539,7 @@
     THREE.TransformGizmoScale.prototype = Object.create( THREE.TransformGizmo.prototype );
     THREE.TransformGizmoScale.prototype.constructor = THREE.TransformGizmoScale;
 
-    THREE.TransformControls = function ( camera, domElement ) {
+    THREE.TransformControls = function ( camera, domElement, editor ) {
 
         // TODO: Make non-uniform scale and rotate play nice in hierarchies
         // TODO: ADD RXYZ contol
@@ -970,7 +970,7 @@
 
             editor.isCurrentlyTransforming = true;
             editor.selected.updateFromVisual();
-            UI.updateSelectedObject();
+            editorUI.updateSelectedObject();
 
         }
 

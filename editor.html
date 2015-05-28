@@ -1,0 +1,125 @@
+<!doctype html>
+<html class="no-js" lang="">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="x-ua-compatible" content="ie=edge">
+        <title>Flip Editor</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+
+        <link rel="apple-touch-icon" href="apple-touch-icon.png">
+        <!-- Place favicon.ico in the root directory -->
+
+        <link rel="stylesheet" href="vendor/css/kendo.common.min.css" />
+        <link rel="stylesheet" href="vendor/css/normalize.css">
+        <link rel="stylesheet" href="css/editor.css">
+        <script src="vendor/js/modernizr-2.8.3.min.js"></script>
+    </head>
+    <body>
+        <!--[if lt IE 8]>
+            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+        <![endif]-->
+
+        <div id="loading-cover"></div>
+        <div id="screen-cover"></div>
+        <div id="help-window">
+            <p class="window-section-header">Basic controls:</p>
+            <ul>
+                <li>Click and drag the mouse to rotate the view</li>
+                <li>Hold the W,A,S,D keys to move inside the view</li>
+                <li>Create an object by dragging it from the bottom panel</li>
+                <li>Click an object to select it</li>
+                <li>Edit an object's properties in the right panel</li>
+                <li>Edit an object's script in the left panel</li>
+            </ul>
+            <p class="window-selection-header">Extra controls:</p>
+            <ul>
+                <li>Use middle mouse button to pan</li>
+                <li>Use right mouse button to pan</li>
+                <li>Use scroll wheel to zoom</li>
+                <li>Click the settings icon to edit scene settings</li>
+            </ul>
+            <p>Keyboard Shortcuts</p>
+            <ul>
+                <li>1 - Translate mode</li>
+                <li>2 - Rotate mode</li>
+                <li>3 - Scale mode</li>
+                <li>c - Copy object</li>
+                <li>v - Paste object</li>
+                <li>z - Undo</li>
+                <li>y - Redo</li>
+                <li>Del - Delete object
+            </ul>
+        </div>
+        <div id="vertical">
+            <div id="menu-pane">
+                <img class="menu-button" id="undo-button" src="img/undo.png"></img>
+                <img class="menu-button" id="redo-button" src="img/redo.png"></img>
+                <img class="menu-button" id="remove-button" src="img/trash.png"></img>
+                <span class="menu-spacer"></span>
+                <img class="menu-button" id="translate-button" src="img/translate.png"></img>
+                <img class="menu-button" id="rotate-button" src="img/rotate.png"></img>
+                <img class="menu-button" id="scale-button" src="img/scale.png"></img>
+                <span class="menu-spacer"></span>
+                <img class="menu-button" id="play-button" src="img/play.png"></img>
+                <img class="menu-button menu-right" id="help-button" src="img/help.png"></img>
+                <img class="menu-button menu-right" id="settings-button" src="img/settings.png"></img>
+                <img class="menu-button menu-right" id="puzzle-button" src="img/puzzle.png"></img>
+
+            </div>
+            <div id="middle-pane">
+                <div id="horizontal">
+                    <div id="code-pane">
+                        <div id="blockly-area"></div>
+                        <pre id="code-editor"></pre>
+                    </div>
+                    <div id="view-pane"></div>
+                    <div id="properties-pane"></div>
+                </div>
+            </div>
+            <div id="library-pane">
+                <div id="library">
+                    <script id="library-item-template" type="text/x-custom-template">
+                    <div class="library-item">
+                        <img class="library-item-image" src="img/cube.png"></img>
+                        <div class="library-item-name">Item</div>
+                    </div>
+                    </script>
+                </div>
+            </div>
+        </div>
+        <div id="blockly-div"></div>
+        <xml id="toolbox" style="display: none">
+          <block type="controls_if"></block>
+          <block type="controls_repeat_ext"></block>
+          <block type="logic_compare"></block>
+          <block type="math_number"></block>
+          <block type="math_arithmetic"></block>
+          <block type="text"></block>
+          <block type="text_print"></block>
+        </xml>
+
+        <script src="vendor/js/jquery-1.11.2.min.js"></script>
+        <script src="vendor/js/jquery.mousewheel.min.js"></script>
+        <script src="vendor/js/kendo.ui.core.min.js"></script>
+        <!--<script src="js/vendor/ammo.js"></script>-->
+        <script src="vendor/js/three.min.js"></script>
+        <script src="vendor/js/physi.js"></script>
+        <script src="vendor/js/dat.gui.min.js"></script>
+        <script src="vendor/js/ace.js"></script>
+        <script src="vendor/js/blockly_compressed.js"></script>
+        <script src="vendor/js/blocks_compressed.js"></script>
+        <script src="vendor/js/msg/js/en.js"></script>
+        <script src="js/editor/EditorUI.js"></script>
+        <script src="js/util/CameraControls.js"></script>
+        <script src="js/util/InputHandler.js"></script>
+        <script src="js/util/Utils.js"></script>
+        <script src="js/editor/Workspace.js"></script>
+        <script src="js/editor/PropertiesPane.js"></script>
+        <script src="js/editor/Editor.js"></script>
+        <script src="js/editor/ObjectEdit.js"></script>
+        <script src="js/editor/TransformControls.js"></script>
+        <script src="js/game/Game.js"></script>
+        <script src="js/game/ObjectGame.js"></script>
+    </body>
+</html>

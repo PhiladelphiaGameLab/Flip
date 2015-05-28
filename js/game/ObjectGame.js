@@ -19,8 +19,6 @@ function ObjectGame (data) {
                     data.physics.restitution
                 );
 
-                console.log(data.physics.friction, data.physics.restitution);
-
                 var object = new Physijs.BoxMesh(geometry, physicsMat, mass);
                 object.position.fromArray(data.position);
                 object.rotation.fromArray(data.rotation);

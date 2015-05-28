@@ -1,8 +1,35 @@
-var viewport, propertiesPane, codeEditor, workspace, editor, game, renderer, inputHandler;
-var disableEdit;
-var inWorkspace;
+var editorUI = new EditorUI();
 
 $(document).ready(function() {
+    editorUI.init();
+});
+
+$(window).load(function() {
+    editorUI.load();
+});
+
+
+function EditorUI() {
+
+    var self = this;
+
+    self.viewport = null;
+    self.propertiesPane = null;
+    self.codeEditor = null;
+    self.workspace = null;
+    self.editor = null;
+    self.game = null;
+    self.renderer = null;
+    self.inputHandler = null;
+
+    self.disableEdit = false;
+    self.inWorkspace = false;
+    self.loaded = false;
+}
+
+EditorUI.prototype.init = function() {
+
+    var self = this;
 
     $("#loading-cover").show();
 
@@ -13,7 +40,8 @@ $(document).ready(function() {
             { collapsible: false, resizable: false, size: "50px"},
             { collapsible: false},
             { collapsible: true, resizable: true, size: "200px"},
-        ]
+        ],
+        resize: function(e) {self.onViewResize();}
     });
 
     $("#horizontal").kendoSplitter({
@@ -21,50 +49,61 @@ $(document).ready(function() {
             { collapsible: true, size: "200px" },
             { collapsible: false },
             { collapsible: true, size: "250px" }
-        ]
+        ],
+        resize: function(e) {self.onViewResize();}
     });
 
-    // Workspace triggers a view resize event, so create it before binding view resize
-    workspace = new Workspace();
-
-    // Add resize events to splitters
-    var splitter;
-    splitter = $("#vertical").data("kendoSplitter");
-    splitter.bind("resize", onViewResize);
-    splitter = $("#horizontal").data("kendoSplitter");
-    splitter.bind("resize", onViewResize);
+    var helpWindow = $("#help-window");
+    if (!helpWindow.data("kendoWindow")) {
+        helpWindow.kendoWindow({
+            visible: false,
+            animation: false,
+            width: "400px",
+            title: "Instructions",
+            actions: [
+                "Close"
+            ]
+        });
+    }
 
     // Create renderer
-    viewport = $("#view-pane");
+    var viewport = $("#view-pane");
     var width = viewport.innerWidth();
     var height = viewport.innerHeight();
-    renderer = new THREE.WebGLRenderer();
+    var renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(width, height);
     viewport.append(renderer.domElement);
 
+    // Input handler
+    var inputHandler = new InputHandler(viewport);
+
     // Create editor
-    editor = new Editor(renderer, width, height);
+    var editor = new Editor(renderer, width, height, inputHandler);
+    inputHandler.target = editor;
     
     // Create game
-    game = new Game(renderer, width, height);
+    var game = new Game(renderer, width, height, inputHandler);
 
     // Create properties pane
-    propertiesPane = new PropertiesPane();
+    var propertiesPane = new PropertiesPane(editor);
     $("#properties-pane").append(propertiesPane.gui.domElement);
 
     // Create code editor
-    codeEditor = ace.edit("code-editor");
+    var codeEditor = ace.edit("code-editor");
     codeEditor.setTheme("ace/theme/monokai");
     codeEditor.getSession().setMode("ace/mode/javascript");
     codeEditor.setShowPrintMargin(false);
     codeEditor.$blockScrolling = Infinity;
     
     codeEditor.on('change', function(){
-        if(disableEdit) return;
+        if(self.disableEdit) return;
         var contents = codeEditor.getSession().getValue();
         editor.editScript(contents);
     });
+
+    // Create Blockly workspace
+    var workspace = new Workspace();
 
     // Bind events to buttons
     $("#undo-button").click(function() {
@@ -80,6 +119,7 @@ $(document).ready(function() {
     });
 
     $("#translate-button").click(function() {
+        UI.setModeRotate();
         editor.setModeTranslate();
         $("#translate-button").addClass("selected");
         $("#rotate-button").removeClass("selected");
@@ -103,16 +143,19 @@ $(document).ready(function() {
     $("#play-button").click(function() {
         if(game.active) {
             console.log("stopping game");
+            inputHandler.target = editor;
             game.stop();
             editor.resume();
             $("#screen-cover").hide();
             $("#play-button").attr("src", "img/play.png")
         } else {
             console.log("starting game");
+            inputHandler.target = game;
             game.start(editor.data);
             editor.pause();
             $("#screen-cover").show();
             $("#play-button").attr("src", "img/stop.png")
+            helpWindow.data("kendoWindow").close();
         }
     });
 
@@ -122,50 +165,62 @@ $(document).ready(function() {
     });
 
     $("#help-button").click(function() {
-        alert("help");
+        var window = helpWindow.data("kendoWindow");
+        window.open();
+        var x = viewport.offset().left + viewport.innerWidth()/2 - helpWindow.innerWidth()/2;
+        var y = viewport.offset().top + 50;
+        helpWindow.parent().css("left", x);
+        helpWindow.parent().css("top", y);
+
     })
 
     $("#puzzle-button").click(function() {
-        if(inWorkspace) UI.showCodeEditor();
-        else UI.showWorkspace();
+        if(self.inWorkspace) self.showCodeEditor();
+        else self.showWorkspace();
     });
 
     $("#screen-cover").hide();
-    UI.setUndoRedo(false, false);
+    self.setUndoRedo(false, false);
     $("#translate-button").addClass("selected");
-    editor.init();
-    inputHandler = new InputHandler();
-});
 
-$(window).load(function() {
+    self.viewport = viewport;
+    self.propertiesPane = propertiesPane;
+    self.codeEditor = codeEditor;
+    self.workspace = workspace;
+    self.editor = editor;
+    self.game = game;
+    self.renderer = renderer;
+    self.inputHandler = inputHandler;
 
-    // Final initialize step once the window is loaded
-    UI.showCodeEditor();
-    UI.selectObject(null);
-    propertiesPane.openSettings();
+    self.editor.init();
+};
+
+EditorUI.prototype.load = function() {
+    var self = this;
+    self.showCodeEditor();
+    self.selectObject(null);
+    self.propertiesPane.openSettings();
+    self.loaded = true;
+    self.onViewResize();
     $("#loading-cover").hide();
-});
+};
 
-function onViewResize() {
+EditorUI.prototype.onViewResize = function() {
+    var self = this;
+    if(!self.loaded) return;
 
-    console.log("view resize");
+    var width = self.viewport.innerWidth();
+    var height = self.viewport.innerHeight();
+    self.renderer.setSize(width, height);
+    self.editor.onViewResize(width, height);
+    self.game.onViewResize(width, height);
+    self.workspace.resize();
+    self.propertiesPane.resize($("#properties-pane").innerWidth());
+    self.codeEditor.resize();
+};
 
-    var width = viewport.innerWidth();
-    var height = viewport.innerHeight();
-    renderer.setSize(width, height);
-    editor.viewResize(width, height);
-    game.viewResize(width, height);
-    workspace.resize();
-
-    propertiesPane.resize($("#properties-pane").innerWidth());
-    codeEditor.resize();
-}
-
-// Functions called by Editor that update the UI
-var UI = {};
-
-UI.populateLibrary = function(assets) {
-
+EditorUI.prototype.populateLibrary = function(assets) {
+    var self = this;
     var template = $("#library-item-template").html();
 
     for(var i = 0; i < assets.length; i++) {
@@ -182,7 +237,8 @@ UI.populateLibrary = function(assets) {
     }
 };
 
-UI.selectObject = function(object) {
+EditorUI.prototype.selectObject = function(object) {
+    var self = this;
 
     if(object === null) {
         $("#remove-button").addClass("disabled");
@@ -190,33 +246,36 @@ UI.selectObject = function(object) {
     } else {
         $("#remove-button").removeClass("disabled");
         
-        if(!inWorkspace) $("#code-editor").show();
+        if(!self.inWorkspace) $("#code-editor").show();
 
         // Show script in code editor pane
         if(object.script === null) {
-            codeEditor.getSession().setValue("");
+            self.codeEditor.getSession().setValue("");
         } else {
             var scriptRef = object.script;
-            var script = editor.getScriptByName(scriptRef);
+            var script = self.editor.getScriptByName(scriptRef);
             var contents = script.contents;
-            disableEdit = true; // Prevents saving the script when you initially open it
-            codeEditor.getSession().setValue(contents);
-            disableEdit = false;
+            self.disableEdit = true; // Prevents saving the script when you initially open it
+            self.codeEditor.getSession().setValue(contents);
+            self.disableEdit = false;
         }
     }
 
-    propertiesPane.selectObject(object);
+    self.propertiesPane.selectObject(object);
 };
 
-UI.updateSelectedObject = function() {
-    propertiesPane.updateSelectedObject();
-}
+EditorUI.prototype.updateSelectedObject = function() {
+    var self = this;
+    self.propertiesPane.updateSelectedObject();
+};
 
-UI.updateSettings = function() {
-    propertiesPane.updateSettings();
-}
+EditorUI.prototype.updateSettings = function() {
+    var self = this;
+    self.propertiesPane.updateSettings();
+};
 
-UI.setUndoRedo = function(hasUndos, hasRedos) {
+EditorUI.prototype.setUndoRedo = function(hasUndos, hasRedos) {
+    var self = this;
     if(hasUndos) {
         $("#undo-button").removeClass("disabled");
     } else {
@@ -230,41 +289,43 @@ UI.setUndoRedo = function(hasUndos, hasRedos) {
     }
 };
 
-UI.showWorkspace = function() {
+EditorUI.prototype.showWorkspace = function() {
+    var self = this;
     $("#code-editor").hide();
     $("#blockly-div").show();
-    inWorkspace = true;
-    onViewResize();
+    self.inWorkspace = true;
+    self.onViewResize();
 };
 
-UI.showCodeEditor = function() {
+EditorUI.prototype.showCodeEditor = function() {
+    var self = this;
     $("#code-editor").show();
     $("#blockly-div").hide();
-    inWorkspace = false;
-    onViewResize();
-
+    self.inWorkspace = false;
+    self.onViewResize();
 }
 
-UI.saveToLocalStorage = function(data) {
-
+EditorUI.prototype.saveToLocalStorage = function(data) {
+    var self = this;
     if(!$("html").hasClass("localstorage")) return;
 
     var json = JSON.stringify(data);
     localStorage.setItem("editor", json);
 };
 
-UI.loadFromLocalStorage = function() {
+EditorUI.prototype.loadFromLocalStorage = function() {
+    var self = this;
     if(!$("html").hasClass("localstorage")) return;
 
     var json = localStorage.getItem("editor");
     if(json == null) return;
 
     var data = JSON.parse(json);
-    editor.load(data);
+    self.editor.load(data);
 };
 
-UI.clearLocalStorage = function() {
+EditorUI.prototype.clearLocalStorage = function() {
+    var self = this;
     if(!$("html").hasClass("localstorage")) return;
-
     localStorage.removeItem("editor");
-}
+};

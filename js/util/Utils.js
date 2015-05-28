@@ -27,6 +27,7 @@ Utils.createMaterial = function(materials) {
             material.side = THREE.FrontSide;
         }
 
+        // For editor purposes
         material.transparentOld = material.transparent;
         material.opacityOld = material.opacity;
     }

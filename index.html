@@ -3,103 +3,14 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>Flip Editor</title>
+        <title>Flip Index</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
         <link rel="apple-touch-icon" href="apple-touch-icon.png">
         <!-- Place favicon.ico in the root directory -->
-
-        <link rel="stylesheet" href="vendor/css/kendo.common.min.css" />
-        <link rel="stylesheet" href="vendor/css/normalize.css">
-        <link rel="stylesheet" href="css/main.css">
-        <script src="vendor/js/modernizr-2.8.3.min.js"></script>
     </head>
     <body>
-        <!--[if lt IE 8]>
-            <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
-        <![endif]-->
-        <div id="loading-cover"></div>
-        <div id="screen-cover"></div>
-        <div id="vertical">
-            <div id="menu-pane">
-                <img class="menu-button" id="undo-button" src="img/undo.png"></img>
-                <img class="menu-button" id="redo-button" src="img/redo.png"></img>
-                <img class="menu-button" id="remove-button" src="img/trash.png"></img>
-                <span class="menu-spacer"></span>
-                <img class="menu-button" id="translate-button" src="img/translate.png"></img>
-                <img class="menu-button" id="rotate-button" src="img/rotate.png"></img>
-                <img class="menu-button" id="scale-button" src="img/scale.png"></img>
-                <span class="menu-spacer"></span>
-                <img class="menu-button" id="play-button" src="img/play.png"></img>
-                <img class="menu-button menu-right" id="help-button" src="img/help.png"></img>
-                <img class="menu-button menu-right" id="settings-button" src="img/settings.png"></img>
-                <img class="menu-button menu-right" id="puzzle-button" src="img/puzzle.png"></img>
-
-            </div>
-            <div id="middle-pane">
-                <div id="horizontal">
-                    <div id="code-pane">
-                        <div id="blockly-area"></div>
-                        <pre id="code-editor"></pre>
-                    </div>
-                    <div id="view-pane"></div>
-                    <div id="properties-pane"></div>
-                </div>
-            </div>
-            <div id="library-pane">
-                <div id="library">
-                    <script id="library-item-template" type="text/x-custom-template">
-                    <div class="library-item">
-                        <img class="library-item-image" src="img/cube.png"></img>
-                        <div class="library-item-name">Item</div>
-                    </div>
-                    </script>
-                </div>
-            </div>
-        </div>
-        <div id="blockly-div"></div>
-        <xml id="toolbox" style="display: none">
-          <block type="controls_if"></block>
-          <block type="controls_repeat_ext"></block>
-          <block type="logic_compare"></block>
-          <block type="math_number"></block>
-          <block type="math_arithmetic"></block>
-          <block type="text"></block>
-          <block type="text_print"></block>
-        </xml>
-
-        <script src="vendor/js/jquery-1.11.2.min.js"></script>
-        <script src="vendor/js/kendo.ui.core.min.js"></script>
-        <!--<script src="js/vendor/ammo.js"></script>-->
-        <script src="vendor/js/three.min.js"></script>
-        <script src="vendor/js/physi.js"></script>
-        <script src="vendor/js/dat.gui.min.js"></script>
-        <script src="vendor/js/ace.js"></script>
-        <script src="vendor/js/blockly_compressed.js"></script>
-        <script src="vendor/js/blocks_compressed.js"></script>
-        <script src="vendor/js/msg/js/en.js"></script>
-        <script src="js/Main.js"></script>
-        <script src="js/OrbitControls.js"></script>
-        <script src="js/TransformControls.js"></script>
-        <script src="js/InputHandler.js"></script>
-        <script src="js/Utils.js"></script>
-        <script src="js/editor/Workspace.js"></script>
-        <script src="js/editor/PropertiesPane.js"></script>
-        <script src="js/editor/Editor.js"></script>
-        <script src="js/editor/Ground.js"></script>
-        <script src="js/editor/ObjectEdit.js"></script>
-        <script src="js/game/Game.js"></script>
-        <script src="js/game/ObjectGame.js"></script>
-
-        <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
-        <script>
-            (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
-            function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
-            e=o.createElement(i);r=o.getElementsByTagName(i)[0];
-            e.src='https://www.google-analytics.com/analytics.js';
-            r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
-            ga('create','UA-XXXXX-X','auto');ga('send','pageview');
-        </script>
+        <script src="js/Index.js"></script>
     </body>
 </html>

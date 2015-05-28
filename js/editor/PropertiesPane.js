@@ -1,4 +1,4 @@
-function PropertiesPane() {
+function PropertiesPane(editor) {
 
     var self = this;
 
@@ -73,7 +73,7 @@ function PropertiesPane() {
 
         if(editor.isNameUnique(value)) {
             self.selectedObject.name = value;
-            self.selectObject.updateVisual();
+            self.selectedObject.updateVisual();
             editor.editObject(self.selectedObject);
         } else {
             alert("The name " + value + " is already taken");
@@ -263,6 +263,7 @@ function PropertiesPane() {
 
     settingsFolder.add(controls, "Clear Scene");
 
+    self.editor = editor;
     self.gui = gui;
     self.guiVisual = $(self.gui.domElement);
     self.controls = controls;
@@ -310,6 +311,7 @@ PropertiesPane.prototype.closeSettings = function() {
 
 PropertiesPane.prototype.updateSettings = function() {
     var self = this;
+    var editor = self.editor;
 
     self.controls["Ambient Color"] = editor.ambientColor;
     self.controls["Background Color"] = editor.backgroundColor;

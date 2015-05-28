@@ -30,7 +30,7 @@ window.Physijs = (function() {
 		CONSTRAINTREPORT_ITEMSIZE = 6;
 
 	Physijs.scripts = {
-		worker: "js/vendor/physijs_worker.js",
+		worker: "vendor/js/physijs_worker.js",
 		ammo: "ammo.js"
 	};
 

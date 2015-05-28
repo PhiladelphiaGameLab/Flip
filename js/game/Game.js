@@ -1,10 +1,14 @@
-function Game(renderer, width, height) {
+var game = null;
+
+function Game(renderer, width, height, inputHandler) {
     var self = this;
 
     self.renderer = renderer;
     self.scene = null;
     self.camera = null;
     self.loader = null;
+    self.cameraControls = null;
+    self.inputHandler = inputHandler;
     self.objectsLoaded = 0;
     self.objectsToLoad = 0;
     self.skyboxEnabled = false;
@@ -15,6 +19,8 @@ function Game(renderer, width, height) {
     self.width = width;
     self.height = height;
     self.active = false; // Whether the game is running or not
+
+    game = this;
 }
 
 
@@ -33,10 +39,7 @@ Game.prototype.start = function(data) {
     self.camera.position.z = 10;
     self.scene.add(self.camera);
 
-    console.log(self.camera);
-
-    var controls = new THREE.OrbitControls( self.camera, self.renderer.domElement );
-
+    self.cameraControls = new CameraControls(self.camera);
 
     // Load the scene data
     console.log("loading game scene:", data.name);
@@ -120,6 +123,7 @@ Game.prototype.animate = function() {
     var self = this;
     self.requestAnimationId = requestAnimationFrame(self.animate.bind(self));
     self.render();
+    self.update();
 };
 
 Game.prototype.render = function() {
@@ -134,7 +138,27 @@ Game.prototype.render = function() {
     self.scene.simulate();
 }
 
-Game.prototype.viewResize = function(width, height) {
+Game.prototype.update = function() {
+    var self = this;
+
+    if(self.inputHandler.isKeyDown(87)) { // w
+        self.cameraControls.zoom(1);
+    }
+
+    if(self.inputHandler.isKeyDown(65)) { // a
+        self.cameraControls.pan(2, 0);
+    }
+
+    if(self.inputHandler.isKeyDown(83)) { // s
+        self.cameraControls.zoom(-1);
+    }
+
+    if(self.inputHandler.isKeyDown(68)) { // d
+        self.cameraControls.pan(-2, 0);
+    }
+}
+
+Game.prototype.onViewResize = function(width, height) {
     var self = this;
 
     self.width = width;
@@ -145,7 +169,7 @@ Game.prototype.viewResize = function(width, height) {
     self.camera.aspect = width / height;
     self.camera.updateProjectionMatrix();
 
-    if(skyboxEnabled) {
+    if(self.skyboxEnabled) {
         self.skyboxCamera.aspect = width / height;
         self.skyboxCamera.updateProjectionMatrix();
     }
@@ -161,9 +185,6 @@ Game.prototype.addObject = function(object) {
     if(self.objectsLoaded == self.objectsToLoad) {
         loadFinished();
     }
-
-    console.log("loaded object");
-
 }
 
 Game.prototype.loadFinished = function() {
@@ -184,3 +205,27 @@ Game.prototype.loadFinished = function() {
     }
 }
 
+// User Input events
+Game.prototype.onClick = function(x, y) {
+    console.log("click:", x, y);
+}
+
+Game.prototype.onKeyDown = function(keyCode, ctrl) {
+    console.log("key down:", keyCode);
+}
+
+Game.prototype.onMouseMove = function(x, y, xmove, ymove, mouseButton) {
+    var self = this;
+    if(mouseButton == 1) { // left button
+        self.cameraControls.rotate(xmove, ymove);
+    } else if(mouseButton == 2) { // middle button
+        self.cameraControls.pan(xmove, ymove)
+    } else if(mouseButton == 3) { // right button
+        self.cameraControls.pan(xmove, ymove);
+    }
+}
+
+Game.prototype.onScroll = function(scroll) {
+    var self = this;
+    self.cameraControls.zoom(scroll);
+}

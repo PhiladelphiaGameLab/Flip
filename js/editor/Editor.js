@@ -1,4 +1,4 @@
-function Editor(renderer, width, height) {
+function Editor(renderer, width, height, inputHandler) {
     var self = this;
     
     self.isCurrentlyTransforming = false;
@@ -39,10 +39,11 @@ function Editor(renderer, width, height) {
     self.loader = null;
     self.camera = null;
     self.ambientLight = null;
-    self.orbitControls = null;
+    self.cameraControls = null;
     self.transformControls = null;
     self.raycaster = null;
     self.mouse = new THREE.Vector2();
+    self.inputHandler = inputHandler;
 
     self.skyboxCamera = null;
     self.skyboxScene = null;
@@ -67,10 +68,9 @@ Editor.prototype.init = function() {
     self.scene = new THREE.Scene();
 
     self.camera = new THREE.PerspectiveCamera(70, self.width / self.height, 1, 1000);
-    self.camera.position.set(30, 20, 30);
     self.scene.add(self.camera);
-    self.orbitControls = new THREE.OrbitControls( self.camera, self.renderer.domElement );
-    self.transformControls = new THREE.TransformControls( self.camera, self.renderer.domElement );
+    self.cameraControls = new CameraControls(self.camera);
+    self.transformControls = new THREE.TransformControls(self.camera, self.renderer.domElement, self);
     self.raycaster = new THREE.Raycaster();
 
     self.ambientLight = new THREE.AmbientLight( 0x404040 );
@@ -103,10 +103,14 @@ Editor.prototype.init = function() {
 
     self.setDefaultSettings();
 
-    UI.populateLibrary(self.assets);
-    //UI.clearLocalStorage();
-    UI.loadFromLocalStorage();
+    editorUI.populateLibrary(self.assets);
+    //editorUI.clearLocalStorage();
+    editorUI.loadFromLocalStorage();
     self.animate();
+
+    // Position camera
+    self.camera.position.set(-20, 15, 20);
+    self.cameraControls.setRotation(-0.76, -0.43);
 };
 
 Editor.prototype.setDefaultSettings = function() {
@@ -117,7 +121,7 @@ Editor.prototype.setDefaultSettings = function() {
     self.setGridVisible(true);
 }
 
-Editor.prototype.viewResize = function(width, height) {
+Editor.prototype.onViewResize = function(width, height) {
     var self = this;
 
     self.width = width;
@@ -134,6 +138,7 @@ Editor.prototype.animate = function() {
 
     self.requestAnimationId = requestAnimationFrame(self.animate.bind(self));
     self.render();
+    self.update();
 };
 
 Editor.prototype.render = function() {
@@ -148,18 +153,36 @@ Editor.prototype.render = function() {
     self.transformControls.update();
 }
 
+Editor.prototype.update = function() {
+    var self = this;
+
+    if(self.inputHandler.isKeyDown(87)) { // w
+        self.cameraControls.zoom(1);
+    }
+
+    if(self.inputHandler.isKeyDown(65)) { // a
+        self.cameraControls.pan(2, 0);
+    }
+
+    if(self.inputHandler.isKeyDown(83)) { // s
+        self.cameraControls.zoom(-1);
+    }
+
+    if(self.inputHandler.isKeyDown(68)) { // d
+        self.cameraControls.pan(-2, 0);
+    }
+}
+
 Editor.prototype.pause = function() {
     var self = this;
     cancelAnimationFrame(self.requestAnimationId); // Stop render loop
     self.active = false;
-    self.orbitControls.enabled = false;
 }
 
 Editor.prototype.resume = function() {
     var self = this;
     self.animate(); // Restart render loop
     self.active = true;
-    self.orbitControls.enabled = true;
 }
 
 // Do not call directly. Call clearScene instead
@@ -187,8 +210,8 @@ Editor.prototype.load = function(data) {
     }
 
     // Set camera position and rotation
-    self.camera.position.fromArray(data.editor.cameraPos);
-    self.camera.rotation.fromArray(data.editor.cameraRot);
+    //self.camera.position.fromArray(data.editor.cameraPos);
+    //self.camera.rotation.fromArray(data.editor.cameraRot);
 
     self.setBackgroundColor(data.backgroundColor);
     self.setAmbientColor(data.ambientColor);
@@ -236,7 +259,7 @@ Editor.prototype.save = function() {
     }
 
     self.data = data;
-    UI.saveToLocalStorage(data);
+    editorUI.saveToLocalStorage(data);
 }
 
 Editor.prototype.getObjectByName = function(name) {
@@ -345,9 +368,9 @@ Editor.prototype.undoAction = function() {
     
     self.doAction(action, true);
 
-    UI.setUndoRedo(self.hasUndos(), self.hasRedos());
+    editorUI.setUndoRedo(self.hasUndos(), self.hasRedos());
     self.save();
-    UI.updateSelectedObject();
+    editorUI.updateSelectedObject();
 
     console.log("Undo action: " + action.type);
 };
@@ -361,9 +384,9 @@ Editor.prototype.redoAction = function() {
 
     self.doAction(action, false);
 
-    UI.setUndoRedo(self.hasUndos(), self.hasRedos());
+    editorUI.setUndoRedo(self.hasUndos(), self.hasRedos());
     self.save();
-    UI.updateSelectedObject();
+    editorUI.updateSelectedObject();
 
     console.log("Redo action: " + action.type);
 };
@@ -389,9 +412,9 @@ Editor.prototype.addAction = function(actionType, actionData) {
         self.actionStackPos--;
     }
 
-    UI.setUndoRedo(true, false);
+    editorUI.setUndoRedo(true, false);
     self.save();
-    UI.updateSelectedObject();
+    editorUI.updateSelectedObject();
 
     console.log("Add action " + action.type);
 };
@@ -621,6 +644,7 @@ Editor.prototype.createAsset = function(assetName, x, y, z) {
     var self = this;
 
     var asset = self.getAssetByName(assetName);
+    if(asset == null) return;
     var data = ObjectEdit.createData(asset);
     data.id = self.getUniqueId();
     data.name = self.getUniqueName(assetName);
@@ -639,7 +663,7 @@ Editor.prototype.dropAsset = function(assetName, x, y) {
     self.createAsset(assetName, position.x, position.y, position.z);
 };
 
-Editor.prototype.click = function(x, y) {
+Editor.prototype.onClick = function(x, y) {
     var self = this;
     if(!self.active) return;
 
@@ -659,7 +683,23 @@ Editor.prototype.click = function(x, y) {
     self.selectObject(selected);
 }
 
-Editor.prototype.keyDown = function(key, ctrl) {
+Editor.prototype.onMouseMove = function(x, y, xmove, ymove, mouseButton) {
+    var self = this;
+    if(mouseButton == 1) { // left button
+        self.cameraControls.rotate(xmove, ymove);
+    } else if(mouseButton == 2) { // middle button
+        self.cameraControls.pan(xmove, ymove)
+    } else if(mouseButton == 3) { // right button
+        self.cameraControls.pan(xmove, ymove);
+    }
+}
+
+Editor.prototype.onScroll = function(scroll) {
+    var self = this;
+    self.cameraControls.zoom(scroll);
+}
+
+Editor.prototype.onKeyDown = function(key, ctrl) {
     // TO-DO: ctrl-z doesn't work now because sometimes the code editor takes focus for no reason
 
     var self = this;
@@ -671,19 +711,17 @@ Editor.prototype.keyDown = function(key, ctrl) {
         self.redoAction();
     } else if(key == 46) { // DEL
         self.removeSelected();
-    } else if(key == 68) { // d
-        self.duplicateSelected();
-    } else if(key == 87) { // w
+    } else if(key == 49) { // 1
         self.setModeTranslate();
         $("#translate-button").addClass("selected");
         $("#rotate-button").removeClass("selected");
         $("#scale-button").removeClass("selected");
-    } else if(key == 69) { // e
+    } else if(key == 50) { // 2
         self.setModeRotate();
         $("#translate-button").removeClass("selected");
         $("#rotate-button").addClass("selected");
         $("#scale-button").removeClass("selected");
-    } else if(key == 82) { // r
+    } else if(key == 51) { // 3
         self.setModeScale();
         $("#translate-button").removeClass("selected");
         $("#rotate-button").removeClass("selected");
@@ -693,8 +731,6 @@ Editor.prototype.keyDown = function(key, ctrl) {
     } else if(key == 86) { // v
         self.pasteObject();
     }
-
-    self.orbitControls.onKeyDown(key);
 };
 
 Editor.prototype.selectObject = function(object) {
@@ -725,7 +761,7 @@ Editor.prototype.selectObject = function(object) {
     }
 
     self.selected = object;
-    UI.selectObject(object);
+    editorUI.selectObject(object);
 };
 
 Editor.prototype.unprojectMousePosition = function(x, y) {
@@ -802,14 +838,14 @@ Editor.prototype.setAmbientColor = function(color) {
     var self = this;
     self.ambientColor = color;
     self.ambientLight.color.setHex(color);
-    UI.updateSettings();
+    editorUI.updateSettings();
 }
 
 Editor.prototype.setBackgroundColor = function(color) {
     var self = this;
     self.backgroundColor = color;
     self.renderer.setClearColor(color, 1);
-    UI.updateSettings();
+    editorUI.updateSettings();
 
 }
 
@@ -822,7 +858,7 @@ Editor.prototype.setSkybox = function(skybox) {
         self.renderer.autoClear = true;
         self.skybox = skybox;
         self.skyboxUrl = "";
-        UI.updateSettings();
+        editorUI.updateSettings();
         return;
     }
 
@@ -849,7 +885,7 @@ Editor.prototype.setSkybox = function(skybox) {
         self.skybox = skybox;
         self.skyboxEnabled = true;
         self.renderer.autoClear = false;
-        UI.updateSettings();
+        editorUI.updateSettings();
     });
 }
 
@@ -858,5 +894,5 @@ Editor.prototype.setGridVisible = function(visible) {
 
     self.gridVisible = visible;
     self.grid.visible = visible;
-    UI.updateSettings();
+    editorUI.updateSettings();
 }
