@@ -216,17 +216,22 @@ function PropertiesPane() {
     
     // Set color
     lightFolder.addColor(controls, "Color").onChange(function(value){
-        if(self.selectedObject.light) {
-            self.selectedObject.light.color = stringToColor(value);
-        } else {
-            self.selectedObject.visual.material.color = new THREE.Color(value);
-        }
-       
+        self.selectedObject.light.color = stringToColor(value);
+        self.selectedObject.updateVisual();
+    }).onFinishChange(function(value){
+        editor.editObject(self.selectedObject);
+    }); 
+    
+    //Material Folder 
+    var materialFolder = gui.addFolder("Material") ;
+
+    //Set Material Color
+    materialFolder.addColor(controls,"Color").onChange(function(value){
+        self.selectedObject.visual.material.color = new THREE.Color(value);
         self.selectedObject.updateVisual();
     }).onFinishChange(function(value){
         editor.editObject(self.selectedObject);
     });
-    
     
     // Set distance
     var lightDistanceControl = lightFolder.add(controls, "Distance").min(0.01).onChange(function(value){
@@ -281,6 +286,9 @@ function PropertiesPane() {
     self.lightFolderVisual = $(lightFolder.domElement).parent();
     self.lightFolderVisual.hide();
     self.lightDistanceControl = $(lightDistanceControl.__li);
+    self.materialFolder = materialFolder;
+    self.materialFolderVisual = $(materialFolder.domElement).parent();
+    self.materialFolderVisual.hide();
     self.translateVisual = translateVisual;
     self.rotateVisual = rotateVisual;
     self.scaleVisual = scaleVisual;
@@ -384,6 +392,7 @@ PropertiesPane.prototype.updateSelectedObject = function() {
         self.controls["Distance"] = object.light.distance;
 
         var type = object.light.type;
+        self.materialFolderVisual.hide();
         if(type == "point") {
             self.lightDistanceControl.show();
             //self.rotateVisual.hide();
@@ -396,9 +405,8 @@ PropertiesPane.prototype.updateSelectedObject = function() {
         //self.scaleVisual.hide();
     } else {
         //self.lightFolderVisual.hide();
-        //Enabled to change object color
-        self.lightFolderVisual.show();
-        self.lightDistanceControl.hide();
+        self.lightFolderVisual.hide();
+        self.materialFolderVisual.show();
         //self.translateVisual.show();
         //self.rotateVisual.show();
         //self.scaleVisual.show();
