@@ -25,6 +25,12 @@ function InputHandler(viewport) {
 
 }
 
+InputHandler.prototype.update = function(event) {
+    for(var key in this.pressedKeys) {
+        this.target.onKeyDown(key);
+    }
+}
+
 InputHandler.prototype.onKeyUp = function(event) {
     delete this.pressedKeys[event.keyCode];
 };
@@ -38,7 +44,7 @@ InputHandler.prototype.onKeyDown = function(event) {
     var keyCode = event.keyCode;
     this.pressedKeys[keyCode] = true;
     var ctrl = event.ctrlKey;
-    this.target.onKeyDown(keyCode, ctrl);
+    this.target.onKeyPress(keyCode, ctrl);
 };
 
 InputHandler.prototype.isKeyDown = function(key) {
@@ -95,16 +101,19 @@ InputHandler.prototype.onMouseUp = function(event) {
 
 InputHandler.prototype.onMouseMove = function(event) {
 
+    var mouseX = event.pageX;
+    var mouseY = event.pageY;
 
     // Ignore click if mouse moved too much between mouse down and mouse click
-    if(Math.abs(this.mouseDownX - event.pageX) > 3 || Math.abs(this.mouseDownY - event.pageY) > 3) this.mouseMoved = true;
+    if(Math.abs(this.mouseDownX - mouseX) > 3 || Math.abs(this.mouseDownY - mouseY) > 3) {
+        this.mouseMoved = true;
+    }
 
     if(this.mouseDown) {
         event.preventDefault();
     }
 
-    var mouseX = event.pageX;
-    var mouseY = event.pageY;
+    
 
     var mouseMoveX = mouseX - this.mouseX;
     var mouseMoveY = mouseY - this.mouseY;

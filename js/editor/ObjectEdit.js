@@ -14,6 +14,7 @@ ObjectEdit.prototype.setData = function(data) {
 
     self.name = data.name;
     self.id = data.id;
+    self.tag = data.tag;
     self.asset = data.asset;
     self.visible = data.visible;
     self.script = data.script;
@@ -42,6 +43,7 @@ ObjectEdit.prototype.getData = function() {
     var data = {
         name: self.name,
         id: self.id,
+        tag: self.tag,
         asset: self.asset,
         visible: self.visible,
         script: self.script,
@@ -64,6 +66,7 @@ ObjectEdit.createData = function(asset) {
     var data = {
         name: asset.name,
         id: 0,
+        tag: asset.tag || "",
         asset: asset.name,
         visible: true,
         script: asset.script || null,

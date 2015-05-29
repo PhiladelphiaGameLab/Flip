@@ -1,48 +1,81 @@
-var viewport, game, renderer, inputHandler;
+var gameUI = new GameUI();
 
 $(document).ready(function() {
+    gameUI.init();
+});
 
-    // Create game
-    var data = loadFromLocalStorage();
+$(window).load(function() {
+    gameUI.load();
+});
+
+function GameUI() {
+
+    var self = this;
+
+    self.viewport = null;
+    self.renderer = null;
+    self.inputHanadler = null;
+    self.game = null;
+    self.loaded = false;
+}
+
+GameUI.prototype.init = function() {
+    var self = this;
+
+    // Load game data
+    var data = self.loadFromLocalStorage();
     if(data == null) {
         alert("No game data found");
         return;
     }
 
-
     // Create renderer
-    viewport = $("#view-pane");
+    var viewport = $("#view-pane");
     var width = viewport.innerWidth();
     var height = viewport.innerHeight();
-    renderer = new THREE.WebGLRenderer();
+    var renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(width, height);
     viewport.append(renderer.domElement);
     
+    game = new Game(renderer, width, height, data);
     inputHandler = new InputHandler(viewport);
-    game = new Game(renderer, width, height, inputHandler);
     inputHandler.target = game;
-    game.start(data);
-
 
     window.onresize = function(event){onViewResize();};
-});
 
-$(window).load(function() {
+    self.viewport = viewport;
+    self.renderer = renderer;
+    self.inputHandler = inputHandler;
+    self.game = game;
+    self.loaded = true;
 
-});
 
-function onViewResize() {
-
-    console.log("view resize");
-
-    var width = viewport.innerWidth();
-    var height = viewport.innerHeight();
-    renderer.setSize(width, height);
-    game.onViewResize(width, height);
 }
 
-function loadFromLocalStorage() {
+GameUI.prototype.load = function() {
+    var self = this;
+    if(!self.loaded) return;
+    self.animate();
+};
+
+GameUI.prototype.animate = function() {
+    var self = this;
+    requestAnimationFrame(self.animate.bind(self));
+    self.inputHandler.update();
+    self.game.update();
+}
+
+GameUI.prototype.onViewResize = function() {
+    var self = this;
+    var width = self.viewport.innerWidth();
+    var height = self.viewport.innerHeight();
+    self.renderer.setSize(width, height);
+    self.game.onViewResize(width, height);
+}
+
+
+GameUI.prototype.loadFromLocalStorage = function() {
     if(!$("html").hasClass("localstorage")) return null;
 
     var json = localStorage.getItem("editor");

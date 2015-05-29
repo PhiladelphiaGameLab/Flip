@@ -1,4 +1,4 @@
-function Editor(renderer, width, height, inputHandler) {
+function Editor(renderer, width, height) {
     var self = this;
     
     self.isCurrentlyTransforming = false;
@@ -19,8 +19,7 @@ function Editor(renderer, width, height, inputHandler) {
         {name:"Terrain", icon:"img/cube.png", id:5, mesh:"data/assets/terrain/terrain.json"},
         {name:"Tree", icon:"img/cube.png", id:5, mesh:"data/assets/tree/tree.json"},
         {name:"Rock", icon:"img/cube.png", id:5, mesh:"data/assets/rock/rock.json"},
-
-
+        {name:"Player", icon:"img/cube.png", tag:"player", id:5, mesh:"data/assets/capsule/capsule.json"},
         {name:"Point Light", icon:"img/light.png", id:6, light:{color:0xFFF000, distance:10, type:"point"}},
         {name:"Dir Light", icon:"img/light.png", id:7, light:{color:0xffffff, type:"dir"}},
         {name:"Camera", icon:"img/camera.png", id:8, camera:{fov:70}}
@@ -43,7 +42,6 @@ function Editor(renderer, width, height, inputHandler) {
     self.transformControls = null;
     self.raycaster = null;
     self.mouse = new THREE.Vector2();
-    self.inputHandler = inputHandler;
 
     self.skyboxCamera = null;
     self.skyboxScene = null;
@@ -58,8 +56,6 @@ function Editor(renderer, width, height, inputHandler) {
 
     self.selected = null; // The currently selected object
     self.data = null; // Stores the game data
-    self.requestAnimationId = 0;
-    self.active = true; // Whether the editor is active (not in game)
 }
 
 Editor.prototype.init = function() {
@@ -106,7 +102,6 @@ Editor.prototype.init = function() {
     editorUI.populateLibrary(self.assets);
     //editorUI.clearLocalStorage();
     editorUI.loadFromLocalStorage();
-    self.animate();
 
     // Position camera
     self.camera.position.set(-20, 15, 20);
@@ -133,14 +128,6 @@ Editor.prototype.onViewResize = function(width, height) {
     self.skyboxCamera.updateProjectionMatrix();
 };
 
-Editor.prototype.animate = function() {
-    var self = this;
-
-    self.requestAnimationId = requestAnimationFrame(self.animate.bind(self));
-    self.render();
-    self.update();
-};
-
 Editor.prototype.render = function() {
     var self = this;
 
@@ -155,34 +142,7 @@ Editor.prototype.render = function() {
 
 Editor.prototype.update = function() {
     var self = this;
-
-    if(self.inputHandler.isKeyDown(87)) { // w
-        self.cameraControls.zoom(1);
-    }
-
-    if(self.inputHandler.isKeyDown(65)) { // a
-        self.cameraControls.pan(2, 0);
-    }
-
-    if(self.inputHandler.isKeyDown(83)) { // s
-        self.cameraControls.zoom(-1);
-    }
-
-    if(self.inputHandler.isKeyDown(68)) { // d
-        self.cameraControls.pan(-2, 0);
-    }
-}
-
-Editor.prototype.pause = function() {
-    var self = this;
-    cancelAnimationFrame(self.requestAnimationId); // Stop render loop
-    self.active = false;
-}
-
-Editor.prototype.resume = function() {
-    var self = this;
-    self.animate(); // Restart render loop
-    self.active = true;
+    self.render();
 }
 
 // Do not call directly. Call clearScene instead
@@ -665,7 +625,6 @@ Editor.prototype.dropAsset = function(assetName, x, y) {
 
 Editor.prototype.onClick = function(x, y) {
     var self = this;
-    if(!self.active) return;
 
     var selected = null;
 
@@ -699,11 +658,10 @@ Editor.prototype.onScroll = function(scroll) {
     self.cameraControls.zoom(scroll);
 }
 
-Editor.prototype.onKeyDown = function(key, ctrl) {
+Editor.prototype.onKeyPress = function(key, ctrl) {
     // TO-DO: ctrl-z doesn't work now because sometimes the code editor takes focus for no reason
 
     var self = this;
-    if(!self.active) return;
 
     if(key == 90) { // z
         self.undoAction();
@@ -732,6 +690,26 @@ Editor.prototype.onKeyDown = function(key, ctrl) {
         self.pasteObject();
     }
 };
+
+Editor.prototype.onKeyDown = function(key, ctrl) {
+    var self = this;
+
+    if(key == 87) { // w
+        self.cameraControls.zoom(1);
+    }
+
+    if(key == 65) { // a
+        self.cameraControls.pan(2, 0);
+    }
+
+    if(key == 83) { // s
+        self.cameraControls.zoom(-1);
+    }
+
+    if(key == 68) { // d
+        self.cameraControls.pan(-2, 0);
+    }
+}
 
 Editor.prototype.selectObject = function(object) {
 

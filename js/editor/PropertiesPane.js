@@ -35,6 +35,7 @@ function PropertiesPane(editor) {
         this["Skybox"] = "clouds";
         this["Grid Visible"] = true;
         this["Clear Scene"] = function() { editor.clearScene() };
+        this["Clear Saved Data"] = function() { editorUI.clearLocalStorage(); };
     };
 
     var controls = new Controls();
@@ -262,6 +263,7 @@ function PropertiesPane(editor) {
     });
 
     settingsFolder.add(controls, "Clear Scene");
+    settingsFolder.add(controls, "Clear Saved Data")
 
     self.editor = editor;
     self.gui = gui;

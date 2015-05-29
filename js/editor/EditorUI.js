@@ -21,6 +21,7 @@ function EditorUI() {
     self.game = null;
     self.renderer = null;
     self.inputHandler = null;
+    self.inGame = false;
 
     self.disableEdit = false;
     self.inWorkspace = false;
@@ -75,16 +76,14 @@ EditorUI.prototype.init = function() {
     renderer.setSize(width, height);
     viewport.append(renderer.domElement);
 
-    // Input handler
-    var inputHandler = new InputHandler(viewport);
 
     // Create editor
-    var editor = new Editor(renderer, width, height, inputHandler);
+    var editor = new Editor(renderer, width, height);
+
+    // Input handler
+    var inputHandler = new InputHandler(viewport);
     inputHandler.target = editor;
     
-    // Create game
-    var game = new Game(renderer, width, height, inputHandler);
-
     // Create properties pane
     var propertiesPane = new PropertiesPane(editor);
     $("#properties-pane").append(propertiesPane.gui.domElement);
@@ -141,21 +140,10 @@ EditorUI.prototype.init = function() {
     });
 
     $("#play-button").click(function() {
-        if(game.active) {
-            console.log("stopping game");
-            inputHandler.target = editor;
-            game.stop();
-            editor.resume();
-            $("#screen-cover").hide();
-            $("#play-button").attr("src", "img/play.png")
+        if(self.inGame) {
+            self.stopGame();
         } else {
-            console.log("starting game");
-            inputHandler.target = game;
-            game.start(editor.data);
-            editor.pause();
-            $("#screen-cover").show();
-            $("#play-button").attr("src", "img/stop.png")
-            helpWindow.data("kendoWindow").close();
+            self.startGame();
         }
     });
 
@@ -188,7 +176,6 @@ EditorUI.prototype.init = function() {
     self.codeEditor = codeEditor;
     self.workspace = workspace;
     self.editor = editor;
-    self.game = game;
     self.renderer = renderer;
     self.inputHandler = inputHandler;
 
@@ -202,8 +189,21 @@ EditorUI.prototype.load = function() {
     self.propertiesPane.openSettings();
     self.loaded = true;
     self.onViewResize();
+    self.animate();
     $("#loading-cover").hide();
 };
+
+EditorUI.prototype.animate = function() {
+    var self = this;
+    requestAnimationFrame(self.animate.bind(self));
+    self.inputHandler.update();
+
+    if(self.inGame) {
+        self.game.update();
+    } else {
+        self.editor.update();
+    }
+}
 
 EditorUI.prototype.onViewResize = function() {
     var self = this;
@@ -212,12 +212,36 @@ EditorUI.prototype.onViewResize = function() {
     var width = self.viewport.innerWidth();
     var height = self.viewport.innerHeight();
     self.renderer.setSize(width, height);
-    self.editor.onViewResize(width, height);
-    self.game.onViewResize(width, height);
     self.workspace.resize();
     self.propertiesPane.resize($("#properties-pane").innerWidth());
     self.codeEditor.resize();
+    self.editor.onViewResize(width, height);
+    if(self.inGame) self.game.onViewResize(width, height);    
 };
+
+EditorUI.prototype.startGame = function() {
+    var self = this;
+    console.log("starting game");
+    var width = self.viewport.innerWidth();
+    var height = self.viewport.innerHeight();
+    self.game = new Game(self.renderer, width, height, self.editor.data);
+    self.inputHandler.target = game;
+    self.inGame = true;
+    $("#screen-cover").show();
+    $("#play-button").attr("src", "img/stop.png")
+    $("#help-window").data("kendoWindow").close();
+}
+
+EditorUI.prototype.stopGame = function() {
+    var self = this;
+    console.log("stopping game");
+    self.inputHandler.target = self.editor;
+    self.game.stop();
+    self.inGame = false;
+    self.game = null;
+    $("#screen-cover").hide();
+    $("#play-button").attr("src", "img/play.png")
+}
 
 EditorUI.prototype.populateLibrary = function(assets) {
     var self = this;
