@@ -41,6 +41,9 @@ Game.prototype.start = function(data) {
     self.scene = new Physijs.Scene();
     self.loader = new THREE.JSONLoader();
 
+    // Create observer
+    var observer = new Observer();
+
     // Load objects
     self.objectsToLoad = data.objects.length;
     if(self.objectsToLoad == 0) self.loadFinished();
@@ -141,8 +144,6 @@ Game.prototype.update = function() {
     var self = this;
     if(!self.loaded) return;
 
-    self.render();
-
     for(var i = 0; i < self.objects.length; i++) {
         self.objects[i].update();
     }
@@ -203,12 +204,6 @@ Game.prototype.loadFinished = function() {
         } else {
             material.needsUpdate = true;
         }
-    }
-
-    // No camera was created with the scene, so create one now
-    if(self.camera == null) {
-        console.log("No camera is scene, creating observer");
-        var observer = new Observer();
     }
 }
 

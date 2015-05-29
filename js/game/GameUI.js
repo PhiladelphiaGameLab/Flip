@@ -42,7 +42,7 @@ GameUI.prototype.init = function() {
     inputHandler = new InputHandler(viewport);
     inputHandler.target = game;
 
-    window.onresize = function(event){onViewResize();};
+    window.onresize = function(event){self.onViewResize();};
 
     self.viewport = viewport;
     self.renderer = renderer;
@@ -64,6 +64,7 @@ GameUI.prototype.animate = function() {
     requestAnimationFrame(self.animate.bind(self));
     self.inputHandler.update();
     self.game.update();
+    self.game.render();
 }
 
 GameUI.prototype.onViewResize = function() {

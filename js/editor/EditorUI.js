@@ -196,13 +196,18 @@ EditorUI.prototype.load = function() {
 EditorUI.prototype.animate = function() {
     var self = this;
     requestAnimationFrame(self.animate.bind(self));
+
     self.inputHandler.update();
 
     if(self.inGame) {
         self.game.update();
+        self.game.render();
     } else {
         self.editor.update();
+        self.editor.render();
     }
+
+    self.inputHandler.update();
 }
 
 EditorUI.prototype.onViewResize = function() {

@@ -142,7 +142,6 @@ Editor.prototype.render = function() {
 
 Editor.prototype.update = function() {
     var self = this;
-    self.render();
 }
 
 // Do not call directly. Call clearScene instead

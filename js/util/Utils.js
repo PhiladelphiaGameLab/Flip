@@ -1,5 +1,15 @@
 var Utils = {};
 
+// Temp objects for use in calculations. This avoids a lot of unneeded allocations.
+var vector = new THREE.Vector3();
+var vector1 = new THREE.Vector3();
+var vector2 = new THREE.Vector3();
+
+var quaternion = new THREE.Quaternion(); 
+var quaternion1 = new THREE.Quaternion();
+var quaternion2 = new THREE.Quaternion();
+
+
 Utils.createMaterial = function(materials) {
 
     var meshMaterial;

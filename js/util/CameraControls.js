@@ -5,12 +5,6 @@ CameraControls = function(camera) {
 
     self.angleHorizontal = 0.0;
     self.angleVertical = 0.0;
-
-    // temp objects to avoid tons of allocations
-    self.quaternion1 = new THREE.Quaternion();
-    self.quaternion2 = new THREE.Quaternion();
-    self.vector1 = new THREE.Vector3();
-    self.vector2 = new THREE.Vector3();
 }
 
 CameraControls.prototype.update = function() {
@@ -27,10 +21,9 @@ CameraControls.prototype.setRotation = function(x, y) {
     self.angleHorizontal = x;
     self.angleVertical = y;
 
-    var vector = self.vector1;
-    var quatHorizontal = self.quaternion1;
-    var quatVertical = self.quaternion2;
-    var quatFinal = self.quaternion1;
+    var quatHorizontal = quaternion1;
+    var quatVertical = quaternion2;
+    var quatFinal = quaternion1;
 
     quatHorizontal.setFromAxisAngle(vector.set(0, 1, 0), self.angleHorizontal);
     quatVertical.setFromAxisAngle(vector.set(1, 0, 0), self.angleVertical);
@@ -53,7 +46,6 @@ CameraControls.prototype.rotate = function(x, y) {
 CameraControls.prototype.zoom = function(scroll) {
     var self = this;
 
-    var vector = self.vector1;
     var viewDir = vector.set(0, 0, -1).applyQuaternion(self.camera.quaternion);
 
     self.camera.position.add(viewDir.multiplyScalar(4.0 * scroll));
@@ -62,9 +54,9 @@ CameraControls.prototype.zoom = function(scroll) {
 CameraControls.prototype.pan = function(x, y) {
     var self = this;
 
-    var rightDir = self.vector1;
-    var upDir = self.vector2;
-    var pan = self.vector1;
+    var rightDir = vector1;
+    var upDir = vector2;
+    var pan = vector1;
 
     rightDir.set(1, 0, 0).applyQuaternion(self.camera.quaternion);
     upDir.set(0, 1, 0).applyQuaternion(self.camera.quaternion);
