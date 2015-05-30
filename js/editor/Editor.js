@@ -656,6 +656,7 @@ Editor.prototype.onClick = function(x, y) {
 
 Editor.prototype.onMouseMove = function(x, y, xmove, ymove, mouseButton) {
     var self = this;
+    if(self.isCurrentlyTransforming) return;
     if(mouseButton == 1) { // left button
         self.cameraControls.rotate(xmove, ymove);
     } else if(mouseButton == 2) { // middle button

@@ -74,7 +74,6 @@ InputHandler.prototype.onDrop = function(event) {
 };
 
 InputHandler.prototype.onClick = function(event) {
-    
     if(this.mouseMoved) return;
     var mouse = this.convertToScreenSpace(event.pageX, event.pageY);
     this.target.onClick(mouse[0], mouse[1]);
@@ -100,7 +99,7 @@ InputHandler.prototype.onMouseUp = function(event) {
 };
 
 InputHandler.prototype.onMouseMove = function(event) {
-
+    
     var mouseX = event.pageX;
     var mouseY = event.pageY;
 

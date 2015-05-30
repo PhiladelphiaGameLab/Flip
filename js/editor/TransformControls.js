@@ -806,7 +806,7 @@
             }
 
             event.preventDefault();
-            event.stopPropagation();
+            //event.stopPropagation();
 
             var pointer = event.changedTouches ? event.changedTouches[0] : event;
 
