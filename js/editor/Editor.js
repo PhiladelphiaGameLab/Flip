@@ -53,6 +53,7 @@ function Editor(renderer, width, height) {
     self.backgroundColor = 0x000000;
     self.grid = null;
     self.gridVisible = true;
+    self.sceneName = "My Scene";
 
     self.selected = null; // The currently selected object
     self.data = null; // Stores the game data
@@ -99,14 +100,25 @@ Editor.prototype.init = function() {
 
     self.setDefaultSettings();
 
-    editorUI.populateLibrary(self.assets);
-    //editorUI.clearLocalStorage();
-    editorUI.loadFromLocalStorage();
-
     // Position camera
     self.camera.position.set(-20, 15, 20);
     self.cameraControls.setRotation(-0.76, -0.43);
+
+    editorUI.populateLibrary(self.assets);
+
+    function dataLoaded(data) {
+        if(data == null) return;
+        self.load(data);
+    }
+
+    //editorUI.clearLocalStorage();
+    //editorUI.loadFromLocalStorage(dataLoaded);
+    editorUI.loadFromFile("data/scenes/TerrainScene.txt", dataLoaded);
 };
+
+Editor.prototype.loaded = function() {
+    self.load(data);
+}
 
 Editor.prototype.setDefaultSettings = function() {
     var self = this;
@@ -158,7 +170,8 @@ Editor.prototype.load = function(data) {
 
     var self = this;
     self.data = data;
-    console.log("loading scene:", data.name);
+    self.sceneName = data.sceneName;
+    console.log("loading scene:", data.sceneName);
 
     self.scripts = data.scripts; // TO-DO: is it ok not to deep copy?
 
@@ -192,7 +205,7 @@ Editor.prototype.save = function() {
     var sceneCameraRot = self.camera.rotation.toArray();
 
     var data = {
-        name : "scene",
+        sceneName : self.sceneName,
         objects : [],
         scripts : [],
         backgroundColor: self.backgroundColor,

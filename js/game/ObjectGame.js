@@ -23,6 +23,7 @@ function ObjectGame (data) {
 
                 var static = data.physics.type == "static";
                 var mass = static ? 0.0 : data.physics.mass;
+                var shape = data.physics.shape;
 
                 var physicsMat = Physijs.createMaterial(
                     material,
@@ -30,7 +31,16 @@ function ObjectGame (data) {
                     data.physics.restitution
                 );
 
-                var visual = new Physijs.BoxMesh(geometry, physicsMat, mass);
+                var visual = null;
+
+                if(shape == "sphere") {
+                    visual = new Physijs.SphereMesh(geometry, physicsMat, mass);
+                } else if(shape == "cube") {
+                    visual = new Physijs.BoxMesh(geometry, physicsMat, mass);
+                } else if(shape == "capsule") {
+                    visual = new Physijs.CapsuleMesh(geometry, physicsMat, mass);
+                } 
+                
                 visual.position.fromArray(data.position);
                 visual.rotation.fromArray(data.rotation);
                 visual.scale.fromArray(data.scale);

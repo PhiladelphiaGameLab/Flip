@@ -14,7 +14,7 @@ Player.prototype.loaded = function() {
     self.cameraControls = new CameraControls(self.camera);
     game.setCamera(self.camera);
 
-    self.visual.visible = false;
+    //self.visual.visible = false;
 
     ObjectGame.prototype.loaded.call(self);
 }
@@ -26,9 +26,16 @@ Player.prototype.update = function() {
     // Attach camera above player
     self.visual.rotation.y = self.cameraControls.angleHorizontal;
     self.camera.position.copy(self.visual.position);
-    self.camera.position.y += 5;
+    self.camera.position.y += 10;
 
 };
+
+Player.prototype.onClick = function(x, y) {
+    // Throw ball
+
+
+
+}
 
 Player.prototype.onMouseDrag = function(x, y, xmove, ymove) {
     var self = this;
@@ -41,7 +48,7 @@ Player.prototype.onKeyDown = function(keyCode) {
     var viewDir = vector1.set(0, 0, -1).applyQuaternion(self.visual.quaternion);
     var upDir = vector2.set(0, 1, 0);
     var rightDir = vector2.crossVectors(viewDir, upDir);
-    var speed = 2.0;
+    var speed = 1.0;
 
     if(keyCode == 87) { // w
         self.moveVector(viewDir.multiplyScalar(speed));

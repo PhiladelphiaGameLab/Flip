@@ -342,15 +342,20 @@ EditorUI.prototype.saveToLocalStorage = function(data) {
     localStorage.setItem("editor", json);
 };
 
-EditorUI.prototype.loadFromLocalStorage = function() {
-    var self = this;
-    if(!$("html").hasClass("localstorage")) return;
+EditorUI.prototype.loadFromLocalStorage = function(callback) {
+    if(!$("html").hasClass("localstorage")) {
+        callback(null);
+        return;
+    }
 
     var json = localStorage.getItem("editor");
-    if(json == null) return;
+    if(json == null) {
+        callback(null);
+        return;
+    }
 
     var data = JSON.parse(json);
-    self.editor.load(data);
+    callback(data);
 };
 
 EditorUI.prototype.clearLocalStorage = function() {
@@ -358,3 +363,24 @@ EditorUI.prototype.clearLocalStorage = function() {
     if(!$("html").hasClass("localstorage")) return;
     localStorage.removeItem("editor");
 };
+
+EditorUI.prototype.saveToFile = function(data, filename) {
+    var self = this;
+    var json = JSON.stringify(data);
+    console.log(json);
+    var blob = new Blob([json], {type: "text/plain;charset=" + document.characterSet});
+    saveAs(blob, filename + ".txt");
+};
+
+EditorUI.prototype.loadFromFile = function(filename, callback) {
+    var request = $.ajax({
+        url : filename,
+        dataType: "text"
+    }).done(function(text){
+        var data = JSON.parse(text);
+        callback(data);
+    }).fail(function(jqXHR, textStatus){
+        alert("Could not find file");
+        callback(null);
+    });
+}

@@ -30,12 +30,14 @@ function PropertiesPane(editor) {
         this["Distance"] = 10;
 
         // Settings folder
+        this["Scene Name"] = "My Scene";
         this["Ambient Color"] = "#000000";
         this["Background Color"] = "#000000";
         this["Skybox"] = "clouds";
         this["Grid Visible"] = true;
         this["Clear Scene"] = function() { editor.clearScene() };
         this["Clear Saved Data"] = function() { editorUI.clearLocalStorage(); };
+        this["Save To File"] = function() { editorUI.saveToFile(editor.data, editor.sceneName)};
     };
 
     var controls = new Controls();
@@ -200,7 +202,7 @@ function PropertiesPane(editor) {
     });
     
     // Set shape
-    physicsFolder.add(controls, "Shape", ["sphere", "cube"]).onFinishChange(function(value){
+    physicsFolder.add(controls, "Shape", ["sphere", "cube", "capsule"]).onFinishChange(function(value){
         self.selectedObject.physics.shape = value;
         editor.editObject(self.selectedObject);
     });
@@ -236,6 +238,24 @@ function PropertiesPane(editor) {
     // Settings folder
     var settingsFolder = gui.addFolder("Settings");
 
+    // Scene name
+    settingsFolder.add(controls, "Scene Name").onFinishChange(function(value){
+        
+        if(value == editor.sceneName) return;
+
+        var validName = true;
+        if(value.length == 0) validName = false; // Do more checks later
+
+        if(validName) {
+            editor.sceneName = value;
+            editor.save();
+        } else {
+            alert("Invalid name");
+            self.controls["Scene Name"] = editor.sceneName;
+            self.updateVisual();
+        }
+    });
+
     // Ambient color
     settingsFolder.addColor(controls, "Ambient Color").onChange(function(value){
         editor.setAmbientColor(stringToColor(value));
@@ -263,7 +283,8 @@ function PropertiesPane(editor) {
     });
 
     settingsFolder.add(controls, "Clear Scene");
-    settingsFolder.add(controls, "Clear Saved Data")
+    settingsFolder.add(controls, "Clear Saved Data");
+    settingsFolder.add(controls, "Save To File");
 
     self.editor = editor;
     self.gui = gui;
@@ -315,6 +336,7 @@ PropertiesPane.prototype.updateSettings = function() {
     var self = this;
     var editor = self.editor;
 
+    self.controls["Scene Name"] = editor.sceneName;
     self.controls["Ambient Color"] = editor.ambientColor;
     self.controls["Background Color"] = editor.backgroundColor;
     self.controls["Skybox"] = editor.skybox;
