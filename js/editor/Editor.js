@@ -106,14 +106,22 @@ Editor.prototype.init = function() {
 
     editorUI.populateLibrary(self.assets);
 
-    function dataLoaded(data) {
-        if(data == null) return;
-        self.load(data);
-    }
-
     //editorUI.clearLocalStorage();
-    //editorUI.loadFromLocalStorage(dataLoaded);
-    editorUI.loadFromFile("data/scenes/TerrainScene.txt", dataLoaded);
+    //editorUI.loadFromFile("data/scenes/TerrainScene.txt", function(data){self.load(data);});
+
+    // Load scene
+    editorUI.loadFromLocalStorage(function(data){
+
+        // Found saved data, load it
+        if(data) self.load(data);
+
+        // Did not find saved data, load a pre-built scene
+        if(data == null) {
+            editorUI.loadFromFile("data/scenes/TerrainScene.txt", function(data){
+                self.load(data);
+            });
+        }
+    });
 };
 
 Editor.prototype.loaded = function() {
@@ -165,10 +173,26 @@ Editor.prototype.clear = function() {
     }
 }
 
+Editor.prototype.fixData = function(data) {
+    // This is a helper function that lets you fix the data in case you made any changes to the json format
+
+    // // Create objects
+    // for(var i = 0; i < data.objects.length; i++) {
+    //     var objData = data.objects[i];
+    //     if(objData.mesh !== null) objData.material = {color:0xffffff};
+    //     else objData.material = null;
+    // }
+}
+
 Editor.prototype.load = function(data) {
     // Assume that scene is empty when you load.
 
     var self = this;
+    if(data === null) return;
+
+    self.fixData(data);
+
+    console.log(data);
     self.data = data;
     self.sceneName = data.sceneName;
     console.log("loading scene:", data.sceneName);
@@ -617,7 +641,7 @@ Editor.prototype.createAsset = function(assetName, x, y, z) {
 
     var asset = self.getAssetByName(assetName);
     if(asset == null) return;
-    var data = ObjectEdit.createData(asset);
+    var data = ObjectEdit.createFromAsset(asset);
     data.id = self.getUniqueId();
     data.name = self.getUniqueName(assetName);
     data.position[0] = x || 0; // x,y,z params are optional

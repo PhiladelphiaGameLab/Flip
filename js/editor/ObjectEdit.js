@@ -19,6 +19,7 @@ ObjectEdit.prototype.setData = function(data) {
     self.visible = data.visible;
     self.script = data.script;
     self.mesh = data.mesh;
+    self.material = self.copyMaterialData(data.material);
     self.physics = self.copyPhysicsData(data.physics);
     self.light = self.copyLightData(data.light);
     self.camera = self.copyCameraData(data.camera);
@@ -48,6 +49,7 @@ ObjectEdit.prototype.getData = function() {
         visible: self.visible,
         script: self.script,
         mesh: self.mesh,
+        material: self.copyMaterialData(self.material),
         physics: self.copyPhysicsData(self.physics),
         light: self.copyLightData(self.light),
         camera: self.copyCameraData(self.camera),
@@ -61,7 +63,10 @@ ObjectEdit.prototype.getData = function() {
 
 // Static function.
 // Create object data from asset data
-ObjectEdit.createData = function(asset) {
+ObjectEdit.createFromAsset = function(asset) {
+
+    // If the asset has a mesh, create the default material
+    var material = (mesh ? {color: 0xffffff} : null);
 
     var data = {
         name: asset.name,
@@ -71,6 +76,7 @@ ObjectEdit.createData = function(asset) {
         visible: true,
         script: asset.script || null,
         mesh: asset.mesh || null,
+        material: material,
         physics: asset.physics || null,
         light: asset.light || null,
         camera: asset.camera || null,
@@ -81,6 +87,14 @@ ObjectEdit.createData = function(asset) {
 
     return data;
 };
+
+ObjectEdit.prototype.copyMaterialData = function(material) {
+    if(material === null || material === undefined) return null;
+
+    return {
+        color: material.color
+    }
+}
 
 ObjectEdit.prototype.copyPhysicsData = function(physics) {
     if(physics === null || physics === undefined) return null;
@@ -177,6 +191,8 @@ ObjectEdit.prototype.updateVisual = function() {
             for(var i = 0; i < materials.length; i++) {
                 var material = materials[i];
                 
+                material.color.setHex(self.material.color);
+
                 if(self.visible) {
                     material.transparent = material.transparentOld;
                     material.opacity = material.opacityOld;

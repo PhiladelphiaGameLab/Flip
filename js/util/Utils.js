@@ -10,6 +10,28 @@ var quaternion1 = new THREE.Quaternion();
 var quaternion2 = new THREE.Quaternion();
 
 
+function toRadians (angle) {
+    return angle * (Math.PI / 180);
+}
+
+function toDegrees (angle) {
+    return angle * (180 / Math.PI);
+}
+
+function colorToString(c) {
+    var val = c.toString(16);
+    while(val.length < 6){
+        val = "00" + val;
+    }
+
+    return "#" + val;
+}
+
+function stringToColor(c) {
+    if(isNaN(c)) return parseInt(c.substring(1), 16);
+    else return c; 
+}
+
 Utils.createMaterial = function(materials) {
 
     var meshMaterial;

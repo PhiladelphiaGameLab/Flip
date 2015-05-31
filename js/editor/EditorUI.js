@@ -380,6 +380,7 @@ EditorUI.prototype.loadFromFile = function(filename, callback) {
         var data = JSON.parse(text);
         callback(data);
     }).fail(function(jqXHR, textStatus){
+        console.log(textStatus);
         alert("Could not find file");
         callback(null);
     });
