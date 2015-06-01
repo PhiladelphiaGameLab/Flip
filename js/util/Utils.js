@@ -49,12 +49,14 @@ Utils.createMaterial = function(materials) {
 
         if(material.map) {
             material.map.wrapS = material.map.wrapT = THREE.RepeatWrapping; // Set repeat wrapping
-            if(material.transparent) material.opacity = 1.0; // If transparent and it has a texture, set opacity to 1.0
+            //if(material.transparent) material.opacity = 1.0; // If transparent and it has a texture, set opacity to 1.0
         }
         
+
         if(material.transparent) {
             material.depthWrite = false;
-            material.side = THREE.DoubleSide;
+            //material.side = THREE.DoubleSide;
+            material.side = THREE.FrontSide;
         } else {
             material.side = THREE.FrontSide;
         }

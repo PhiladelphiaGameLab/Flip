@@ -66,7 +66,7 @@ ObjectEdit.prototype.getData = function() {
 ObjectEdit.createFromAsset = function(asset) {
 
     // If the asset has a mesh, create the default material
-    var material = (mesh ? {color: 0xffffff} : null);
+    var material = (asset.mesh ? {color: 0xffffff} : null);
 
     var data = {
         name: asset.name,
@@ -198,7 +198,7 @@ ObjectEdit.prototype.updateVisual = function() {
                     material.opacity = material.opacityOld;
                 } else {
                     material.transparent = true;
-                    material.opacity = 0.5;
+                    material.opacity = material.opacityOld * 0.5;
                 } 
             } 
         }

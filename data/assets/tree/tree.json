@@ -33,7 +33,7 @@
         "mapDiffuse": "leaves.png",
         "transparent": true,
         "mapDiffuseWrap": ["RepeatWrapping","RepeatWrapping"],
-        "opacity": 0,
+        "opacity": 1,
         "colorEmissive": [0,0,0],
         "mapDiffuseRepeat": [1,1],
         "DbgIndex": 1,

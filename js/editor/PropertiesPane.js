@@ -28,7 +28,7 @@ function PropertiesPane(editor) {
         this["Shape"] = "sphere";
         this["Mass"] = 1.0;
 
-        // Light folder
+        // Dir Light folder
         this["LightColor"] = "#ffffff";
         this["Distance"] = 10;
 
@@ -245,6 +245,9 @@ function PropertiesPane(editor) {
     });
     setControllerName(lightColorControl, "Color");
     
+    // Set cast shadow
+    var l
+
     // Set distance
     var lightDistanceControl = lightFolder.add(controls, "Distance").min(0.01).onChange(function(value){
         self.selectedObject.light.distance = value;

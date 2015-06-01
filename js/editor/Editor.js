@@ -22,7 +22,22 @@ function Editor(renderer, width, height) {
         {name:"Player", icon:"img/cube.png", tag:"player", id:5, mesh:"data/assets/capsule/capsule.json"},
         {name:"Point Light", icon:"img/light.png", id:6, light:{color:0xFFF000, distance:10, type:"point"}},
         {name:"Dir Light", icon:"img/light.png", id:7, light:{color:0xffffff, type:"dir"}},
-        {name:"Camera", icon:"img/camera.png", id:8, camera:{fov:70}}
+        {name:"Camera", icon:"img/camera.png", id:8, camera:{fov:70}},
+
+        // Temp assets
+        {name:"Grass", icon:"img/cube.png", id:0, mesh:"data/assets/physics_demo/environment.json"},
+        {name:"Stones", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/stones.json"},
+        {name:"Steel Plank", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/plank_steel.json"},
+        {name:"Wood Plank", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/plank_wood.json"},
+        {name:"Glass Plank", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/plank_glass.json"},
+        {name:"Steel Box", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/cube_steel.json"},
+        {name:"Wood Box", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/cube_wood.json"},
+        {name:"Glass Box", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/cube_glass.json"},
+        {name:"Steel Ball", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/sphere_steel.json"},
+        {name:"Wood Ball", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/sphere_wood.json"},
+        {name:"Glass Ball", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/sphere_glass.json"},
+
+
     ];
 
     self.objects = []; // Objects in the scene
@@ -42,6 +57,8 @@ function Editor(renderer, width, height) {
     self.transformControls = null;
     self.raycaster = null;
     self.mouse = new THREE.Vector2();
+
+    self.shadowMapSize = 2048;
 
     self.skyboxCamera = null;
     self.skyboxScene = null;
@@ -117,7 +134,7 @@ Editor.prototype.init = function() {
 
         // Did not find saved data, load a pre-built scene
         if(data == null) {
-            editorUI.loadFromFile("data/scenes/TerrainScene.txt", function(data){
+            editorUI.loadFromFile("data/scenes/PhysicsDemoScene.txt", function(data){
                 self.load(data);
             });
         }
@@ -468,6 +485,7 @@ Editor.prototype.createObject = function(object, callback) {
 
             // Create mesh
             var mesh = new THREE.Mesh(geometry, material);
+            if(mesh.material.color) object.material.color = mesh.material.color.getHex();
             self.scene.add(mesh);
 
             // Create outline

@@ -1,0 +1,41 @@
+{
+    "metadata": {
+        "type": "Geometry",
+        "version": 3,
+        "faces": 2,
+        "materials": 1,
+        "uvs": 2,
+        "normals": 1,
+        "generator": "io_three",
+        "vertices": 4
+    },
+    "faces": [43,0,1,3,2,0,0,1,2,3,0,1,2,3,0,0,0,0],
+    "normals": [0,1,0],
+    "materials": [{
+        "mapDiffuseWrap": ["RepeatWrapping","RepeatWrapping"],
+        "shading": "lambert",
+        "transparent": false,
+        "mapDiffuseRepeat": [1,1],
+        "mapLightAnisotropy": 1,
+        "mapLightWrap": ["RepeatWrapping","RepeatWrapping"],
+        "DbgIndex": 0,
+        "mapDiffuse": "grass2.jpg",
+        "depthWrite": true,
+        "mapLight": "ao.png",
+        "depthTest": true,
+        "DbgName": "floor",
+        "colorDiffuse": [1,1,1],
+        "colorEmissive": [0,0,0],
+        "wireframe": false,
+        "mapLightRepeat": [1,1],
+        "colorAmbient": [1,1,1],
+        "blending": "NormalBlending",
+        "opacity": 1,
+        "DbgColor": 15658734,
+        "visible": true,
+        "mapDiffuseAnisotropy": 1
+    }],
+    "uvs": [[-12.8227,-12.8227,13.8227,-12.8227,13.8227,13.8227,-12.8227,13.8227],[0.0001,0.0001,0.9999,0.0001,0.9999,0.9999,0.0001,0.9999]],
+    "name": "Plane.001Geometry.4",
+    "vertices": [-305.901,1.3e-05,305.901,305.901,1.3e-05,305.901,-305.901,-1.3e-05,-305.901,305.901,-1.3e-05,-305.901]
+}

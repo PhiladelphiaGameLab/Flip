@@ -11,17 +11,17 @@ function InputHandler(viewport) {
     self.mouseButton = 0; // 1 = left | 2 = middle | 3 = right
     self.viewport = viewport;
 
-    var viewport = viewport.get(0);
-    viewport.ondrop = function(event) { self.onDrop(event); };
-    viewport.ondragover = function(event) { event.preventDefault(); };
-    viewport.onclick = function(event) { self.onClick(event); };
-    viewport.onmousedown = function(event) { self.onMouseDown(event); };
+    var viewportElem = viewport.get(0);
+    viewportElem.ondrop = function(event) { self.onDrop(event); };
+    viewportElem.ondragover = function(event) { event.preventDefault(); };
+    viewportElem.onclick = function(event) { self.onClick(event); };
+    viewportElem.onmousedown = function(event) { self.onMouseDown(event); };
     window.onmouseup = function(event) { self.onMouseUp(event); };
     window.onkeydown = function(event) { self.onKeyDown(event); };
     window.onkeyup = function(event) { self.onKeyUp(event); };
     window.onmousemove = function(event) { self.onMouseMove(event); };
-    viewport.oncontextmenu = function(event) { event.preventDefault();};
-    $(window).mousewheel(function(event) { self.onScroll(event); });
+    viewportElem.oncontextmenu = function(event) { event.preventDefault();};
+    viewport.mousewheel(function(event) { self.onScroll(event); });
 
 }
 
