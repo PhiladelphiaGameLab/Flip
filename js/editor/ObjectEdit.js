@@ -17,6 +17,8 @@ ObjectEdit.prototype.setData = function(data) {
     self.tag = data.tag;
     self.asset = data.asset;
     self.visible = data.visible;
+    self.castShadow = data.castShadow;
+    self.receiveShadow = data.receiveShadow;
     self.script = data.script;
     self.mesh = data.mesh;
     self.material = self.copyMaterialData(data.material);
@@ -47,6 +49,8 @@ ObjectEdit.prototype.getData = function() {
         tag: self.tag,
         asset: self.asset,
         visible: self.visible,
+        castShadow: self.castShadow,
+        receiveShadow: self.receiveShadow,
         script: self.script,
         mesh: self.mesh,
         material: self.copyMaterialData(self.material),
@@ -67,6 +71,8 @@ ObjectEdit.createFromAsset = function(asset) {
 
     // If the asset has a mesh, create the default material
     var material = (asset.mesh ? {color: 0xffffff} : null);
+    var castShadow = (asset.castShadow === undefined) ? true : asset.castShadow;
+    var receiveShadow = (asset.receiveShadow === undefined) ? true : asset.receiveShadow;
 
     var data = {
         name: asset.name,
@@ -74,6 +80,8 @@ ObjectEdit.createFromAsset = function(asset) {
         tag: asset.tag || "",
         asset: asset.name,
         visible: true,
+        castShadow: castShadow,
+        receiveShadow: receiveShadow,
         script: asset.script || null,
         mesh: asset.mesh || null,
         material: material,
@@ -115,7 +123,8 @@ ObjectEdit.prototype.copyLightData = function(light) {
     return {
         color: light.color,
         distance: light.distance || 0.0,
-        type: light.type
+        type: light.type,
+        castShadow: light.castShadow || false
     }
 }
 
@@ -187,6 +196,10 @@ ObjectEdit.prototype.updateVisual = function() {
         self.transformTarget.scale.fromArray(self.scale);
 
         if(self.mesh) {
+
+            self.visual.castShadow = self.castShadow;
+            self.visual.receiveShadow = self.receiveShadow;
+
             var materials = Utils.getMaterials(self.visual.material);
             for(var i = 0; i < materials.length; i++) {
                 var material = materials[i];
@@ -213,6 +226,7 @@ ObjectEdit.prototype.updateVisual = function() {
                 // Dir light treat their position as their direction, so convert rotation to position
                 var position = Utils.getDirLightPosition(self.rotation);
                 self.visual.position.copy(position);
+                self.visual.target.position.set(0, 0, 0);
             }
             
             self.visual.updateMatrixWorld();

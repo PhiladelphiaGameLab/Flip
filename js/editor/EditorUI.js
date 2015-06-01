@@ -366,7 +366,7 @@ EditorUI.prototype.clearLocalStorage = function() {
 
 EditorUI.prototype.saveToFile = function(data, filename) {
     var self = this;
-    var json = JSON.stringify(data);
+    var json = JSON.stringify(data, null, '\t');
     console.log(json);
     var blob = new Blob([json], {type: "text/plain;charset=" + document.characterSet});
     saveAs(blob, filename + ".txt");

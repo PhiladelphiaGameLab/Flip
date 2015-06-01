@@ -29,7 +29,11 @@ function PropertiesPane(editor) {
         this["Mass"] = 1.0;
 
         // Dir Light folder
-        this["LightColor"] = "#ffffff";
+        this["DirLightColor"] = "#ffffff";
+        this["Cast Shadow"] = false;
+
+        // Point Light folder
+        this["PointLightColor"] = "#ffffff";
         this["Distance"] = 10;
 
         // Settings folder
@@ -233,28 +237,47 @@ function PropertiesPane(editor) {
     });
 
 
-    // Light folder
-    var lightFolder = gui.addFolder("Light");
+    // Dir Light folder
+    var dirLightFolder = gui.addFolder("Directional Light");
     
     // Set color
-    var lightColorControl = lightFolder.addColor(controls, "LightColor").onChange(function(value){
+    var dirLightColorControl = dirLightFolder.addColor(controls, "DirLightColor").onChange(function(value){
         self.selectedObject.light.color = stringToColor(value);
         self.selectedObject.updateVisual();
     }).onFinishChange(function(value){
         editor.editObject(self.selectedObject);
     });
-    setControllerName(lightColorControl, "Color");
-    
+    setControllerName(dirLightColorControl, "Color");
+
     // Set cast shadow
-    var l
+    dirLightFolder.add(controls, "Cast Shadow").onFinishChange(function(value){
+        self.editor.setShadowCaster(self.selectedObject, value);
+        self.selectedObject.updateVisual();
+        self.editObject(object);
+
+    });
+
+
+    // Point Light folder
+    var pointLightFolder = gui.addFolder("Point Light");
+
+    // Set color
+    var pointLightColorControl = pointLightFolder.addColor(controls, "PointLightColor").onChange(function(value){
+        self.selectedObject.light.color = stringToColor(value);
+        self.selectedObject.updateVisual();
+    }).onFinishChange(function(value){
+        editor.editObject(self.selectedObject);
+    });
+    setControllerName(pointLightColorControl, "Color");
 
     // Set distance
-    var lightDistanceControl = lightFolder.add(controls, "Distance").min(0.01).onChange(function(value){
+    pointLightFolder.add(controls, "Distance").min(0.01).onChange(function(value){
         self.selectedObject.light.distance = value;
         self.selectedObject.updateVisual();
     }).onFinishChange(function(value){
         editor.editObject(self.selectedObject);
     });
+
 
     // Settings folder
     var settingsFolder = gui.addFolder("Settings");
@@ -316,9 +339,10 @@ function PropertiesPane(editor) {
     self.basicFolderVisual = $(basicFolder.domElement).parent();
     self.physicsFolder = physicsFolder;
     self.physicsFolderVisual = $(physicsFolder.domElement).parent();
-    self.lightFolder = lightFolder;
-    self.lightFolderVisual = $(lightFolder.domElement).parent();
-    self.lightDistanceControl = $(lightDistanceControl.__li);
+    self.dirLightFolder = dirLightFolder;
+    self.dirLightFolderVisual = $(dirLightFolder.domElement).parent();
+    self.pointLightFolder = pointLightFolder;
+    self.pointLightFolderVisual = $(pointLightFolder.domElement).parent();
     self.materialFolder = materialFolder;
     self.materialFolderVisual = $(materialFolder.domElement).parent();
     self.translateVisual = translateVisual;
@@ -345,13 +369,15 @@ PropertiesPane.prototype.showProperties = function(visible) {
     self.basicFolderVisual.toggle(visible);
     self.materialFolderVisual.toggle(visible);
     self.physicsFolderVisual.toggle(visible);
-    self.lightFolderVisual.toggle(visible);
+    self.dirLightFolderVisual.toggle(visible);
+    self.pointLightFolderVisual.toggle(visible);
 
     if(visible) {
         self.basicFolder.open();
         self.materialFolder.open();
         self.physicsFolder.open();
-        self.lightFolder.open();
+        self.dirLightFolder.open();
+        self.pointLightFolder.open();
     }
 };
 
@@ -405,13 +431,16 @@ PropertiesPane.prototype.updateSelectedObject = function() {
     if(object === null) return;
 
     var hasPhysics = object.physics !== null;
-    var hasLight = object.light !== null;
     var hasMesh = object.mesh !== null;
+    var hasLight = object.light !== null;
+    var hasDirLight = hasLight && object.light.type == "dir";
+    var hasPointLight = hasLight && object.light.type == "point";
 
     // Hide folders (but open later if applicable)
     self.physicsFolderVisual.hide();
-    self.lightFolderVisual.hide();
     self.materialFolderVisual.hide();
+    self.dirLightFolderVisual.hide();
+    self.pointLightFolderVisual.hide();
 
     // Update general properties
     self.controls["Name"] = object.name;
@@ -436,21 +465,19 @@ PropertiesPane.prototype.updateSelectedObject = function() {
         self.physicsFolderVisual.show();
     }
 
-    if(hasLight) {
+    if(hasDirLight) {
 
-        self.controls["LightColor"] = colorToString(object.light.color);
-        self.controls["Distance"] = object.light.distance;
-
-        var type = object.light.type;
-        if(type == "point") {
-            self.lightDistanceControl.show();
-        } else if(type == "dir") {
-            self.lightDistanceControl.hide();
-        }
-
-        self.lightFolderVisual.show();
+        self.controls["DirLightColor"] = colorToString(object.light.color);
+        self.controls["Cast Shadow"] = object.light.castShadow;
+        self.dirLightFolderVisual.show();
     }
 
+    if(hasPointLight) {
+        self.controls["PointLightColor"] = colorToString(object.light.color);
+        self.controls["Distance"] = object.light.distance;
+        self.pointLightFolderVisual.show();
+    }
+ 
     if(hasMesh) {
         // A mesh always has a material
         self.controls["MatColor"] = colorToString(object.material.color);

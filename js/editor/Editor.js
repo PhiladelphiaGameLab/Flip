@@ -25,8 +25,8 @@ function Editor(renderer, width, height) {
         {name:"Camera", icon:"img/camera.png", id:8, camera:{fov:70}},
 
         // Temp assets
-        {name:"Grass", icon:"img/cube.png", id:0, mesh:"data/assets/physics_demo/environment.json"},
-        {name:"Stones", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/stones.json"},
+        {name:"Grass", icon:"img/cube.png", id:0, mesh:"data/assets/physics_demo/environment.json", castShadow:false},
+        {name:"Stones", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/stones.json", castShadow:false, receiveShadow:false},
         {name:"Steel Plank", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/plank_steel.json"},
         {name:"Wood Plank", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/plank_wood.json"},
         {name:"Glass Plank", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/plank_glass.json"},
@@ -532,18 +532,9 @@ Editor.prototype.createObject = function(object, callback) {
         self.scene.add(light);
         self.scene.add(outline);
 
-        // Need to update all the materials when a new light is added
-        for(var i = 0; i < self.scene.children.length; i++) {
-            var material = self.scene.children[i].material;
-            if(!material) continue;
-            if(material.type == "MeshFaceMaterial") {
-                for(var j = 0; j < material.materials; j++) {
-                    material.materials[j].needsUpdate = true;
-                }
-            } else {
-                material.needsUpdate = true;
-            }
-        }
+        if(object.light.castShadow) self.setShadowCaster(object, true);
+
+        self.updateThreeJS();
 
         if(callback) callback(object);
     }
@@ -573,6 +564,12 @@ Editor.prototype.destroyObject = function(object) {
         self.raycastDetectors.splice(self.raycastDetectors.indexOf(object.raycastDetector), 1);
         self.scene.remove(object.raycastDetector); // Since the raycast detector is often the visual or outline, this step could be redundant
     }
+
+    // Turn off shadow mapping if the light casts shadows
+    if(object.light !== null && object.light.castShadow) {
+        self.enableShadowMap(false);
+    }
+
 };
 
 Editor.prototype.getUniqueId = function() {
@@ -928,4 +925,62 @@ Editor.prototype.setGridVisible = function(visible) {
     self.gridVisible = visible;
     self.grid.visible = visible;
     editorUI.updateSettings();
+}
+
+
+Editor.prototype.enableShadowMap = function(enabled) {
+    var self = this;
+
+    self.renderer.shadowMapEnabled = enabled;
+    self.renderer.shadowMapType = THREE.PCFShadowMap;
+    //self.renderer.shadowMapType = THREE.BasicShadowMap;
+    //self.renderer.shadowMapType = THREE.PCFSoftShadowMap;
+    self.updateThreeJS();
+
+}
+
+Editor.prototype.setShadowCaster = function(object, enabled) {
+    var self = this;
+
+    // Edit object
+    object.light.castShadow = enabled;
+
+    // TO-DO: handle multiple or none lights that shadow cast
+
+    var light = object.visual;
+    light.castShadow = enabled;
+    
+    //light.shadowCameraVisible = true;
+    light.shadowCameraNear = 50;
+    light.shadowCameraFar = 300;
+    // light.shadowCameraFov = 10;
+    
+    var shadowWidth = 100;
+    light.shadowCameraRight =  shadowWidth;
+    light.shadowCameraLeft = -shadowWidth;
+    light.shadowCameraTop =  shadowWidth;
+    light.shadowCameraBottom = -shadowWidth;
+    light.shadowBias = 0.0001;
+    light.shadowDarkness = 0.3;
+    light.shadowMapWidth = self.shadowMapSize;
+    light.shadowMapHeight = self.shadowMapSize;
+
+    self.enableShadowMap(enabled);
+}
+
+Editor.prototype.updateThreeJS = function() {
+    var self = this;
+
+    // Need to update all the materials when certain aspects of the renderer change, such as addings lights or enabling shadow mapping
+    for(var i = 0; i < self.scene.children.length; i++) {
+        var material = self.scene.children[i].material;
+        if(!material) continue;
+        if(material.type == "MeshFaceMaterial") {
+            for(var j = 0; j < material.materials; j++) {
+                material.materials[j].needsUpdate = true;
+            }
+        } else {
+            material.needsUpdate = true;
+        }
+    }
 }
