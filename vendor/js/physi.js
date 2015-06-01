@@ -1162,6 +1162,9 @@ window.Physijs = (function() {
 		}
 
 		this._physijs.type = 'sphere';
+		this._physijs.width = 1;
+		this._physijs.height = 1;
+		this._physijs.depth = 1;
 		this._physijs.radius = geometry.boundingSphere.radius;
 		this._physijs.mass = (typeof mass === 'undefined') ? (4/3) * Math.PI * Math.pow(this._physijs.radius, 3) : mass;
 	};

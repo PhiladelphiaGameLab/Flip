@@ -75,8 +75,8 @@ InputHandler.prototype.onDrop = function(event) {
 
 InputHandler.prototype.onClick = function(event) {
     if(this.mouseMoved) return;
-    var mouse = this.convertToScreenSpace(event.pageX, event.pageY);
-    this.target.onClick(mouse[0], mouse[1]);
+    var screenSpace = this.convertToScreenSpace(event.pageX, event.pageY);
+    this.target.onClick(screenSpace[0], screenSpace[1]);
 };
 
 InputHandler.prototype.onMouseDown = function(event) {
@@ -88,9 +88,16 @@ InputHandler.prototype.onMouseDown = function(event) {
     this.mouseButton = event.which;
     this.mouseDown = true;
 
-    this.mouseDownX = event.pageX;
-    this.mouseDownY = event.pageY;
+    var mouseX = event.pageX;
+    var mouseY = event.pageY;
+
+    this.mouseDownX = mouseX;
+    this.mouseDownY = mouseY;
     this.mouseMoved = false;
+
+    var screenSpace = this.convertToScreenSpace(mouseX, mouseY);
+
+    this.target.onMouseDown(screenSpace[0], screenSpace[1], this.mouseButton)
 };
 
 InputHandler.prototype.onMouseUp = function(event) {
@@ -112,15 +119,15 @@ InputHandler.prototype.onMouseMove = function(event) {
         event.preventDefault();
     }
 
-    
-
     var mouseMoveX = mouseX - this.mouseX;
     var mouseMoveY = mouseY - this.mouseY;
 
     this.mouseX = mouseX;
     this.mouseY = mouseY;
 
-    this.target.onMouseMove(mouseX, mouseY, mouseMoveX, mouseMoveY, this.mouseButton);
+    var screenSpace = this.convertToScreenSpace(mouseX, mouseY);
+
+    this.target.onMouseMove(screenSpace[0], screenSpace[1], mouseMoveX, mouseMoveY, this.mouseButton);
 };
 
 InputHandler.prototype.onScroll = function(event) {

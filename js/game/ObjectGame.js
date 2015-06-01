@@ -1,4 +1,4 @@
-function ObjectGame (data) {
+function ObjectGame (data, onLoad) {
 
     var self = this;
     self.name = "";
@@ -6,13 +6,21 @@ function ObjectGame (data) {
     self.visual = null; // ThreeJS object
     self.data = data
 
-    if(data == null) {
+    function loaded() {
+        game.addObject(self);
+        if(onLoad) onLoad(self);
         self.loaded();
+    }
+
+    if(data == null) {
+        loaded();
         return;
     }
 
     self.name = data.name;
     self.tag = data.tag;
+
+    
 
     // Load the ThreeJS mesh
     if(data.mesh !== null) {
@@ -45,8 +53,9 @@ function ObjectGame (data) {
             }
 
             // Set material
-            for(var i = 0; i < materials.length; i++) {
-                var material = materials[i];
+            var meshMaterials = Utils.getMaterials(material);
+            for(var i = 0; i < meshMaterials.length; i++) {
+                var material = meshMaterials[i];
                 material.color.setHex(data.material.color);
             }
 
@@ -57,8 +66,7 @@ function ObjectGame (data) {
             visual.castShadow = data.castShadow;
             visual.receiveShadow = data.receiveShadow;
             self.visual = visual;
-            self.loaded();
-
+            loaded();
         });
     }
     else if(data.light !== null) {
@@ -69,7 +77,7 @@ function ObjectGame (data) {
             visual.position.fromArray(data.position);
             visual.visible = data.visible;
             self.visual = visual;
-            self.loaded();
+            loaded();
 
         } else if(data.light.type == "dir") {
 
@@ -78,7 +86,7 @@ function ObjectGame (data) {
             visual.position.copy(position);
             visual.visible = data.visible;
             self.visual = visual;
-            self.loaded();
+            loaded();
         }
     }
     else { loaded(); }
@@ -86,7 +94,6 @@ function ObjectGame (data) {
 
 ObjectGame.prototype.loaded = function() {
     var self = this;
-    game.addObject(self);
 }
 
 ObjectGame.prototype.update = function() {
@@ -139,6 +146,9 @@ ObjectGame.prototype.setRotation = function(rotation) {
 
 // Input events
 ObjectGame.prototype.onClick = function(x, y) {
+}
+
+ObjectGame.prototype.onMouseDown = function(x, y, mouseButton) {
 }
 
 ObjectGame.prototype.onKeyPress = function(keyCode) {

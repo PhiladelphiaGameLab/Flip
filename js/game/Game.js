@@ -7,6 +7,8 @@ function Game(renderer, width, height, data) {
     self.renderer = renderer;
     self.scene = null;
     self.camera = null;
+    self.raycaster = null;
+    self.mouse = new THREE.Vector2();
     self.loader = null;
     self.cameraControls = null;
 
@@ -39,6 +41,10 @@ Game.prototype.start = function(data) {
 
     //self.scene = new THREE.Scene();
     self.scene = new Physijs.Scene();
+    self.scene.setGravity(new THREE.Vector3(0, -30, 0));
+
+    self.raycaster = new THREE.Raycaster();
+
     self.loader = new THREE.JSONLoader();
 
     // Create observer
@@ -225,6 +231,15 @@ Game.prototype.onClick = function(x, y) {
     }
 }
 
+Game.prototype.onMouseDown = function(x, y, mouseButton) {
+    var self = this;
+    // Call events on game objects
+    for(var i = 0; i < self.objects.length; i++) {
+        var object = self.objects[i];
+        object.onMouseDown(x, y, mouseButton);
+    }
+}
+
 Game.prototype.onKeyPress = function(keyCode, ctrl) {
     var self = this;
     // Call events on game objects
@@ -296,4 +311,12 @@ Game.prototype.setShadowCaster = function(light) {
 
     self.renderer.shadowMapEnabled = true;
     self.renderer.shadowMapType = THREE.PCFShadowMap;
+}
+
+Game.prototype.getPickingRay = function(x, y) {
+    var self = this;
+    self.mouse.x = x*2-1;
+    self.mouse.y = y*2-1;
+    self.raycaster.setFromCamera(self.mouse, self.camera);
+    return self.raycaster.ray;
 }

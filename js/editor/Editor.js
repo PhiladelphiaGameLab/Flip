@@ -702,6 +702,10 @@ Editor.prototype.onClick = function(x, y) {
     self.selectObject(selected);
 }
 
+Editor.prototype.onMouseDown = function(x, y, mouseButton) {
+    
+}
+
 Editor.prototype.onMouseMove = function(x, y, xmove, ymove, mouseButton) {
     var self = this;
     if(self.isCurrentlyTransforming) return;
@@ -756,19 +760,19 @@ Editor.prototype.onKeyDown = function(key, ctrl) {
     var self = this;
 
     if(key == 87) { // w
-        self.cameraControls.zoom(1);
+        self.cameraControls.zoom(1/3);
     }
 
     if(key == 65) { // a
-        self.cameraControls.pan(2, 0);
+        self.cameraControls.pan(1, 0);
     }
 
     if(key == 83) { // s
-        self.cameraControls.zoom(-1);
+        self.cameraControls.zoom(-1/3);
     }
 
     if(key == 68) { // d
-        self.cameraControls.pan(-2, 0);
+        self.cameraControls.pan(-1, 0);
     }
 }
 

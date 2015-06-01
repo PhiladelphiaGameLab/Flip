@@ -14,7 +14,14 @@
 			"material": {
 				"color": 16777215
 			},
-			"physics": null,
+			"physics": {
+				"enabled": true,
+				"type": "static",
+				"friction": 0.5,
+				"restitution": 0.5,
+				"shape": "cube",
+				"mass": 1
+			},
 			"light": null,
 			"camera": null,
 			"position": [
@@ -99,89 +106,25 @@
 			]
 		},
 		{
-			"name": "Wood Plank",
-			"id": 3,
-			"tag": "",
-			"asset": "Wood Plank",
-			"visible": true,
+			"name": "Aimer",
+			"id": 13,
+			"tag": "aimer",
+			"asset": "Aimer",
+			"visible": false,
 			"castShadow": true,
 			"receiveShadow": true,
 			"script": null,
-			"mesh": "data/assets/physics_demo/plank_wood.json",
+			"mesh": "data/assets/shapes/sphere.json",
 			"material": {
-				"color": 16777215
+				"color": 16711909
 			},
 			"physics": null,
 			"light": null,
 			"camera": null,
 			"position": [
-				-13,
-				27.324611339289234,
-				26.48294663902678
-			],
-			"rotation": [
-				0,
-				0,
-				0
-			],
-			"scale": [
-				1,
-				1,
-				1
-			]
-		},
-		{
-			"name": "Steel Plank",
-			"id": 4,
-			"tag": "",
-			"asset": "Steel Plank",
-			"visible": true,
-			"castShadow": true,
-			"receiveShadow": true,
-			"script": null,
-			"mesh": "data/assets/physics_demo/plank_steel.json",
-			"material": {
-				"color": 14047063
-			},
-			"physics": null,
-			"light": null,
-			"camera": null,
-			"position": [
-				-12.377645888381323,
-				29.290063740726445,
-				9.06663701333266
-			],
-			"rotation": [
-				0,
-				0,
-				0
-			],
-			"scale": [
-				1,
-				1,
-				1
-			]
-		},
-		{
-			"name": "Glass Plank",
-			"id": 6,
-			"tag": "",
-			"asset": "Glass Plank",
-			"visible": true,
-			"castShadow": true,
-			"receiveShadow": true,
-			"script": null,
-			"mesh": "data/assets/physics_demo/plank_glass.json",
-			"material": {
-				"color": 13421772
-			},
-			"physics": null,
-			"light": null,
-			"camera": null,
-			"position": [
-				-25.6562802380367,
-				17.455272049067496,
-				-6.7696540772696085
+				-140.25966977484367,
+				31.73534435299909,
+				58.26974550019561
 			],
 			"rotation": [
 				0,
@@ -196,7 +139,7 @@
 		},
 		{
 			"name": "Wood Box",
-			"id": 7,
+			"id": 14,
 			"tag": "",
 			"asset": "Wood Box",
 			"visible": true,
@@ -207,13 +150,20 @@
 			"material": {
 				"color": 16777215
 			},
-			"physics": null,
+			"physics": {
+				"enabled": true,
+				"type": "static",
+				"friction": 0.5,
+				"restitution": 0.5,
+				"shape": "cube",
+				"mass": 1
+			},
 			"light": null,
 			"camera": null,
 			"position": [
-				-27.77598320483921,
-				1.5501603425221901,
-				27.347957304671596
+				-28.63218254278059,
+				6.877837123908668,
+				9.110758575806233
 			],
 			"rotation": [
 				0,
@@ -227,57 +177,71 @@
 			]
 		},
 		{
-			"name": "Glass Box",
-			"id": 8,
+			"name": "Sphere",
+			"id": 15,
 			"tag": "",
-			"asset": "Glass Box",
+			"asset": "Sphere",
 			"visible": true,
 			"castShadow": true,
 			"receiveShadow": true,
 			"script": null,
-			"mesh": "data/assets/physics_demo/cube_glass.json",
+			"mesh": "data/assets/shapes/sphere.json",
+			"material": {
+				"color": 41983
+			},
+			"physics": {
+				"enabled": true,
+				"type": "dynamic",
+				"friction": 0.5,
+				"restitution": 0.5,
+				"shape": "sphere",
+				"mass": 4.977176669484361
+			},
+			"light": null,
+			"camera": null,
+			"position": [
+				-29.8847268418812,
+				13.491334396826048,
+				9.39617453237133
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"scale": [
+				2.0553823692054443,
+				2.0553823692054443,
+				2.0553823692054443
+			]
+		},
+		{
+			"name": "Cube",
+			"id": 16,
+			"tag": "",
+			"asset": "Cube",
+			"visible": false,
+			"castShadow": true,
+			"receiveShadow": true,
+			"script": null,
+			"mesh": "data/assets/shapes/cube.json",
 			"material": {
 				"color": 16777215
 			},
-			"physics": null,
-			"light": null,
-			"camera": null,
-			"position": [
-				-29.584009701181955,
-				44.586706187027964,
-				17.64992928081386
-			],
-			"rotation": [
-				0,
-				0,
-				0
-			],
-			"scale": [
-				1,
-				1,
-				1
-			]
-		},
-		{
-			"name": "Steel Ball",
-			"id": 9,
-			"tag": "",
-			"asset": "Steel Ball",
-			"visible": true,
-			"castShadow": true,
-			"receiveShadow": true,
-			"script": null,
-			"mesh": "data/assets/physics_demo/sphere_steel.json",
-			"material": {
-				"color": 13421772
+			"physics": {
+				"enabled": true,
+				"type": "static",
+				"friction": 0.5,
+				"restitution": 0.5,
+				"shape": "cube",
+				"mass": 1
 			},
-			"physics": null,
 			"light": null,
 			"camera": null,
 			"position": [
-				-44.00218755855225,
-				47.244497449122484,
-				4.60135052144737
+				-97.73937388330664,
+				20.020830621956748,
+				5.47829278722206
 			],
 			"rotation": [
 				0,
@@ -285,63 +249,38 @@
 				0
 			],
 			"scale": [
-				1,
-				1,
-				1
+				11.1,
+				23,
+				110.2
 			]
 		},
 		{
-			"name": "Steel Box",
-			"id": 10,
+			"name": "Cube-1",
+			"id": 17,
 			"tag": "",
-			"asset": "Steel Box",
-			"visible": true,
+			"asset": "Cube",
+			"visible": false,
 			"castShadow": true,
 			"receiveShadow": true,
 			"script": null,
-			"mesh": "data/assets/physics_demo/cube_steel.json",
-			"material": {
-				"color": 13421772
-			},
-			"physics": null,
-			"light": null,
-			"camera": null,
-			"position": [
-				-47.17429108883532,
-				44.72443927079622,
-				14.067191306208084
-			],
-			"rotation": [
-				0,
-				0,
-				0
-			],
-			"scale": [
-				1,
-				1,
-				1
-			]
-		},
-		{
-			"name": "Wood Ball",
-			"id": 11,
-			"tag": "",
-			"asset": "Wood Ball",
-			"visible": true,
-			"castShadow": true,
-			"receiveShadow": true,
-			"script": null,
-			"mesh": "data/assets/physics_demo/sphere_wood.json",
+			"mesh": "data/assets/shapes/cube.json",
 			"material": {
 				"color": 16777215
 			},
-			"physics": null,
+			"physics": {
+				"enabled": true,
+				"type": "static",
+				"friction": 0.5,
+				"restitution": 0.5,
+				"shape": "cube",
+				"mass": 1
+			},
 			"light": null,
 			"camera": null,
 			"position": [
-				-50.80612631225762,
-				45.070643062476464,
-				7.369583684944732
+				81.26353394853753,
+				20.020830621956748,
+				5.47829278722206
 			],
 			"rotation": [
 				0,
@@ -349,41 +288,87 @@
 				0
 			],
 			"scale": [
-				1,
-				1,
-				1
+				11.1,
+				23,
+				110.2
 			]
 		},
 		{
-			"name": "Glass Ball",
-			"id": 12,
+			"name": "Cube-2",
+			"id": 18,
 			"tag": "",
-			"asset": "Glass Ball",
-			"visible": true,
+			"asset": "Cube",
+			"visible": false,
 			"castShadow": true,
 			"receiveShadow": true,
 			"script": null,
-			"mesh": "data/assets/physics_demo/sphere_glass.json",
+			"mesh": "data/assets/shapes/cube.json",
 			"material": {
 				"color": 16777215
 			},
-			"physics": null,
+			"physics": {
+				"enabled": true,
+				"type": "static",
+				"friction": 0.5,
+				"restitution": 0.5,
+				"shape": "cube",
+				"mass": 1
+			},
 			"light": null,
 			"camera": null,
 			"position": [
-				-64.49597889176403,
-				58.51454558871095,
-				8.155905854686758
+				-0.03546547872740291,
+				19.516686971295513,
+				-74.43613324298488
 			],
 			"rotation": [
 				0,
-				0,
+				1.5707963267948966,
 				0
 			],
 			"scale": [
-				1,
-				1,
-				1
+				11.1,
+				23,
+				110.2
+			]
+		},
+		{
+			"name": "Cube-3",
+			"id": 19,
+			"tag": "",
+			"asset": "Cube",
+			"visible": false,
+			"castShadow": true,
+			"receiveShadow": true,
+			"script": null,
+			"mesh": "data/assets/shapes/cube.json",
+			"material": {
+				"color": 16777215
+			},
+			"physics": {
+				"enabled": true,
+				"type": "static",
+				"friction": 0.5,
+				"restitution": 0.5,
+				"shape": "cube",
+				"mass": 1
+			},
+			"light": null,
+			"camera": null,
+			"position": [
+				-0.03546547872740291,
+				19.516686971295513,
+				85.76725232758511
+			],
+			"rotation": [
+				0,
+				1.5707963267948966,
+				0
+			],
+			"scale": [
+				11.1,
+				23,
+				110.2
 			]
 		}
 	],
@@ -396,14 +381,14 @@
 	},
 	"editor": {
 		"cameraPos": [
-			-53.35476585993632,
-			60.0157472819437,
-			47.9181293024104
+			-97.12090589885803,
+			106.48186291883137,
+			-51.26194994785372
 		],
 		"cameraRot": [
-			-0.7976300692185,
-			-0.5631395517293813,
-			-0.5005876678356945,
+			-1.2919763894644836,
+			-0.6627788036402279,
+			-1.1353274165629323,
 			"XYZ"
 		],
 		"gridVisible": false

@@ -218,7 +218,9 @@ ObjectEdit.prototype.updateVisual = function() {
                     material.opacity = material.opacityOld;
                 } else {
                     material.transparent = true;
-                    material.opacity = material.opacityOld * 0.5;
+                    material.opacity = material.opacityOld * 0.4;
+                    self.visual.castShadow = false;
+                    self.visual.receiveShadow = false;
                 } 
             } 
         }

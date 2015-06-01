@@ -117,9 +117,28 @@ createShape = function( description ) {
 			break;
 
 		case 'sphere':
-			cache_key = 'sphere_' + description.radius;
+
+			var uniformScale = false;
+			if(description.width == description.height && description.width == description.depth) {
+				uniformScale = true;
+				description.radius *= description.width;
+				//console.log("UNIFORM SCALE");
+				cache_key = 'sphere_' + description.radius;
+			} else {
+				cache_key = 'sphere_' + description.width + '_' + description.height + '_' + description.depth;
+				//console.log("NON-UNIFORM SCALE");
+			}
+
 			if ( ( shape = getShapeFromCache( cache_key ) ) === null ) {
 				shape = new Ammo.btSphereShape( description.radius );
+
+				if(!uniformScale) {
+					_vec3_1.setX(description.width);
+					_vec3_1.setY(description.height);
+					_vec3_1.setZ(description.depth);
+					shape.setLocalScaling(_vec3_1);
+				}
+				
 				setShapeCache( cache_key, shape );
 			}
 			break;
