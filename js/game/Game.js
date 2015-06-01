@@ -35,7 +35,7 @@ function Game(renderer, width, height, data) {
 Game.prototype.start = function(data) {
     var self = this;
 
-    console.log("Loading game: " + data.name);
+    console.log("Loading game: " + data.sceneName);
 
     //self.scene = new THREE.Scene();
     self.scene = new Physijs.Scene();
@@ -170,7 +170,13 @@ Game.prototype.onViewResize = function(width, height) {
 Game.prototype.addObject = function(object) {
     var self = this;
 
-    if(object.visual) self.scene.add(object.visual);
+    if(object.visual) {
+        self.scene.add(object.visual);
+        if(object.data.light !== null && object.data.light.castShadow) {
+            self.setShadowCaster(object.visual);
+        }
+    }
+
     self.objects.push(object);
 
     if(object.tag == "player") {
@@ -265,4 +271,27 @@ Game.prototype.onScroll = function(scroll) {
         object.onScroll(scroll);
     }
 
+}
+
+Game.prototype.setShadowCaster = function(light) {
+    var self = this;
+
+    var shadowRes = 2048;
+    var shadowWidth = 100;
+    
+    light.castShadow = true;
+    //light.shadowCameraVisisble = true;
+    light.shadowCameraNear = 50;
+    light.shadowCameraFar = 300;    
+    light.shadowCameraRight =  shadowWidth;
+    light.shadowCameraLeft = -shadowWidth;
+    light.shadowCameraTop =  shadowWidth;
+    light.shadowCameraBottom = -shadowWidth;
+    light.shadowBias = 0.0001;
+    light.shadowDarkness = 0.3;
+    light.shadowMapWidth = shadowRes;
+    light.shadowMapHeight = shadowRes;
+
+    self.renderer.shadowMapEnabled = true;
+    self.renderer.shadowMapType = THREE.PCFShadowMap;
 }

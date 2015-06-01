@@ -58,8 +58,6 @@ function Editor(renderer, width, height) {
     self.raycaster = null;
     self.mouse = new THREE.Vector2();
 
-    self.shadowMapSize = 2048;
-
     self.skyboxCamera = null;
     self.skyboxScene = null;
     self.skyboxMesh = null;
@@ -955,6 +953,7 @@ Editor.prototype.setShadowCaster = function(object, enabled) {
     light.shadowCameraFar = 300;
     // light.shadowCameraFov = 10;
     
+    var shadowRes = 2048;
     var shadowWidth = 100;
     light.shadowCameraRight =  shadowWidth;
     light.shadowCameraLeft = -shadowWidth;
@@ -962,8 +961,8 @@ Editor.prototype.setShadowCaster = function(object, enabled) {
     light.shadowCameraBottom = -shadowWidth;
     light.shadowBias = 0.0001;
     light.shadowDarkness = 0.3;
-    light.shadowMapWidth = self.shadowMapSize;
-    light.shadowMapHeight = self.shadowMapSize;
+    light.shadowMapWidth = shadowRes;
+    light.shadowMapHeight = shadowRes;
 
     self.enableShadowMap(enabled);
 }

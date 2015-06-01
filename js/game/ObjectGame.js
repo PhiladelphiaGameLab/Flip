@@ -4,6 +4,7 @@ function ObjectGame (data) {
     self.name = "";
     self.tag = "";
     self.visual = null; // ThreeJS object
+    self.data = data
 
     if(data == null) {
         self.loaded();
@@ -18,6 +19,7 @@ function ObjectGame (data) {
         game.loader.load(data.mesh, function(geometry, materials) {
             
             var material = Utils.createMaterial(materials);
+            var visual = null;
 
             if(data.physics) {
 
@@ -31,8 +33,6 @@ function ObjectGame (data) {
                     data.physics.restitution
                 );
 
-                var visual = null;
-
                 if(shape == "sphere") {
                     visual = new Physijs.SphereMesh(geometry, physicsMat, mass);
                 } else if(shape == "cube") {
@@ -40,22 +40,19 @@ function ObjectGame (data) {
                 } else if(shape == "capsule") {
                     visual = new Physijs.CapsuleMesh(geometry, physicsMat, mass);
                 } 
-                
-                visual.position.fromArray(data.position);
-                visual.rotation.fromArray(data.rotation);
-                visual.scale.fromArray(data.scale);
-                visual.visible = data.visible;
-                self.visual = visual;
-                self.loaded();
             } else {
-                var visual = new THREE.Mesh(geometry, material);
-                visual.position.fromArray(data.position);
-                visual.rotation.fromArray(data.rotation);
-                visual.scale.fromArray(data.scale);
-                visual.visible = data.visible;
-                self.visual = visual;
-                self.loaded();
+                visual = new THREE.Mesh(geometry, material);
             }
+
+            visual.position.fromArray(data.position);
+            visual.rotation.fromArray(data.rotation);
+            visual.scale.fromArray(data.scale);
+            visual.visible = data.visible;
+            visual.castShadow = data.castShadow;
+            visual.receiveShadow = data.receiveShadow;
+            self.visual = visual;
+            self.loaded();
+
         });
     }
     else if(data.light !== null) {

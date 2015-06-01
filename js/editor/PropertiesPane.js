@@ -253,7 +253,7 @@ function PropertiesPane(editor) {
     dirLightFolder.add(controls, "Cast Shadow").onFinishChange(function(value){
         self.editor.setShadowCaster(self.selectedObject, value);
         self.selectedObject.updateVisual();
-        self.editObject(object);
+        editor.editObject(self.selectedObject);
 
     });
 
