@@ -70,7 +70,6 @@ ObjectEdit.prototype.getData = function() {
 ObjectEdit.createFromAsset = function(asset) {
 
     // If the asset has a mesh, create the default material
-    var material = (asset.mesh ? {color: 0xffffff} : null);
     var castShadow = (asset.castShadow === undefined) ? true : asset.castShadow;
     var receiveShadow = (asset.receiveShadow === undefined) ? true : asset.receiveShadow;
 
@@ -84,7 +83,7 @@ ObjectEdit.createFromAsset = function(asset) {
         receiveShadow: receiveShadow,
         script: asset.script || null,
         mesh: asset.mesh || null,
-        material: material,
+        material: asset.material || null,
         physics: asset.physics || null,
         light: asset.light || null,
         camera: asset.camera || null,
@@ -153,6 +152,13 @@ ObjectEdit.prototype.removePhysics = function() {
     self.physics = null;
 }
 
+ObjectEdit.prototype.addMaterial = function() {
+    var self = this;
+    self.material = {
+        color: 0xffffff
+    }
+}
+
 ObjectEdit.prototype.setVisual = function(visual, outline, raycastDetector, transformTarget) {
     var self = this;
     self.visual = visual; // Actual ThreeJS object being modified (mesh, light, etc)
@@ -163,6 +169,7 @@ ObjectEdit.prototype.setVisual = function(visual, outline, raycastDetector, tran
 
     self.visual.userData = self.id; // May not need this
     self.raycastDetector.userData = self.id;
+    self.data = self.getData(); // Used for undo/redo
 };
 
 // Called when the transform controls move the object

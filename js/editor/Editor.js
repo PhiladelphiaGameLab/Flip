@@ -11,22 +11,22 @@ function Editor(renderer, width, height) {
 
     // Assets in the library
     self.assets = [
-        {name:"MultiMat", icon:"img/cube.png", id:0, mesh:"data/assets/multimat/multimat.json"},
+        //{name:"MultiMat", icon:"img/cube.png", id:0, mesh:"data/assets/multimat/multimat.json"},
         {name:"Chair", icon:"img/cube.png", id:1, mesh:"data/assets/chair/chair.json"},
-        {name:"Skinning Simple", icon:"img/cube.png", id:2, mesh:"data/assets/skinning_simple/skinning_simple.js"},
+        //{name:"Skinning Simple", icon:"img/cube.png", id:2, mesh:"data/assets/skinning_simple/skinning_simple.js"},
         {name:"Cube", icon:"img/cube.png", id:3, mesh:"data/assets/shapes/cube.json"},
         {name:"Sphere", icon:"img/cube.png", id:4, mesh:"data/assets/shapes/sphere.json"},
-        {name:"Terrain", icon:"img/cube.png", id:5, mesh:"data/assets/terrain/terrain.json"},
+        //{name:"Terrain", icon:"img/cube.png", id:5, mesh:"data/assets/terrain/terrain.json"},
         {name:"Tree", icon:"img/cube.png", id:5, mesh:"data/assets/tree/tree.json"},
         {name:"Rock", icon:"img/cube.png", id:5, mesh:"data/assets/rock/rock.json"},
-        {name:"Player", icon:"img/cube.png", tag:"player", id:5, mesh:"data/assets/capsule/capsule.json"},
+        //{name:"Player", icon:"img/cube.png", tag:"player", id:5, mesh:"data/assets/capsule/capsule.json"},
         {name:"Point Light", icon:"img/light.png", id:6, light:{color:0xFFF000, distance:10, type:"point"}},
         {name:"Dir Light", icon:"img/light.png", id:7, light:{color:0xffffff, type:"dir"}},
-        {name:"Camera", icon:"img/camera.png", id:8, camera:{fov:70}},
+        //{name:"Camera", icon:"img/camera.png", id:8, camera:{fov:70}},
 
         // Temp assets
-        {name:"Grass", icon:"img/cube.png", id:0, mesh:"data/assets/physics_demo/environment.json", castShadow:false},
-        {name:"Stones", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/stones.json", castShadow:false, receiveShadow:false},
+        //{name:"Grass", icon:"img/cube.png", id:0, mesh:"data/assets/physics_demo/environment.json", castShadow:false},
+        //{name:"Stones", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/stones.json", castShadow:false, receiveShadow:false},
         {name:"Steel Plank", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/plank_steel.json"},
         {name:"Wood Plank", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/plank_wood.json"},
         {name:"Glass Plank", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/plank_glass.json"},
@@ -36,7 +36,7 @@ function Editor(renderer, width, height) {
         {name:"Steel Ball", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/sphere_steel.json"},
         {name:"Wood Ball", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/sphere_wood.json"},
         {name:"Glass Ball", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/sphere_glass.json"},
-
+        {name:"Aimer", icon:"img/cube.png", id:1, tag:"aimer", mesh:"data/assets/shapes/sphere.json"}
 
     ];
 
@@ -238,8 +238,6 @@ Editor.prototype.save = function() {
 
     var self = this;
 
-    console.log("saving scene");
-
     var sceneCameraPos = self.camera.position.toArray();
     var sceneCameraRot = self.camera.rotation.toArray();
 
@@ -271,6 +269,9 @@ Editor.prototype.save = function() {
 
     self.data = data;
     editorUI.saveToLocalStorage(data);
+
+    console.log("saving scene");
+    console.log(data);
 }
 
 Editor.prototype.getObjectByName = function(name) {
@@ -452,10 +453,14 @@ Editor.prototype.editObject = function(object) {
 };
 
 Editor.prototype.addObject = function(object, callback) {
-    var self = this;
+    var self = this;    
 
-    self.createObject(object, callback);
-    self.addAction("add", object.getData());
+    self.createObject(object, function(object){
+        // Add action after the object is created
+        self.addAction("add", object.getData());
+        // Now call original callback
+        if(callback) callback(object);
+    });
 };
 
 Editor.prototype.removeObject = function(object) {
@@ -483,7 +488,13 @@ Editor.prototype.createObject = function(object, callback) {
 
             // Create mesh
             var mesh = new THREE.Mesh(geometry, material);
-            if(mesh.material.color) object.material.color = mesh.material.color.getHex();
+
+            // If the object doesn't have a material yet, create one using the values in the json file
+            if(object.material === null) {
+                object.addMaterial();
+                object.material.color = mesh.material.color.getHex();
+            } 
+
             self.scene.add(mesh);
 
             // Create outline

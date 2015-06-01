@@ -56,6 +56,8 @@ Game.prototype.start = function(data) {
         // Look at the tag to see what type of object to create
         if(tag == "player") {
             object = new Player(objectData);
+        } else if(tag == "aimer"){
+            object = new Aimer(objectData);
         } else {
             object = new ObjectGame(objectData);
         }
@@ -278,7 +280,7 @@ Game.prototype.setShadowCaster = function(light) {
 
     var shadowRes = 2048;
     var shadowWidth = 100;
-    
+
     light.castShadow = true;
     //light.shadowCameraVisisble = true;
     light.shadowCameraNear = 50;

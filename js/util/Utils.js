@@ -19,6 +19,9 @@ function toDegrees (angle) {
 }
 
 function colorToString(c) {
+
+    if(c == 0) return "#000000";
+
     var val = c.toString(16);
     while(val.length < 6){
         val = "00" + val;

@@ -44,6 +44,12 @@ function ObjectGame (data) {
                 visual = new THREE.Mesh(geometry, material);
             }
 
+            // Set material
+            for(var i = 0; i < materials.length; i++) {
+                var material = materials[i];
+                material.color.setHex(data.material.color);
+            }
+
             visual.position.fromArray(data.position);
             visual.rotation.fromArray(data.rotation);
             visual.scale.fromArray(data.scale);
