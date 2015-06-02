@@ -40,7 +40,7 @@ EditorUI.prototype.init = function() {
         panes: [
             { collapsible: false, resizable: false, size: "50px"},
             { collapsible: false},
-            { collapsible: true, resizable: true, size: "200px"},
+            { collapsible: true, resizable: true, size: "110px"},
         ],
         resize: function(e) {self.onViewResize();}
     });
@@ -54,12 +54,16 @@ EditorUI.prototype.init = function() {
         resize: function(e) {self.onViewResize();}
     });
 
+    // Collapse code pane initially
+    var splitter = $("#horizontal").data("kendoSplitter");
+    splitter.collapse(".k-pane:first");
+
     var helpWindow = $("#help-window");
     if (!helpWindow.data("kendoWindow")) {
         helpWindow.kendoWindow({
             visible: false,
             animation: false,
-            width: "400px",
+            width: "500px",
             title: "Instructions",
             actions: [
                 "Close"
@@ -153,19 +157,15 @@ EditorUI.prototype.init = function() {
     });
 
     $("#help-button").click(function() {
-        var window = helpWindow.data("kendoWindow");
-        window.open();
-        var x = viewport.offset().left + viewport.innerWidth()/2 - helpWindow.innerWidth()/2;
-        var y = viewport.offset().top + 50;
-        helpWindow.parent().css("left", x);
-        helpWindow.parent().css("top", y);
-
+        self.openHelpWindow();
     })
 
     $("#puzzle-button").click(function() {
         if(self.inWorkspace) self.showCodeEditor();
         else self.showWorkspace();
     });
+
+    $("#puzzle-button").hide(); // Hide for now because it doesn't do anything
 
     $("#screen-cover").hide();
     self.setUndoRedo(false, false);
@@ -178,7 +178,7 @@ EditorUI.prototype.init = function() {
     self.editor = editor;
     self.renderer = renderer;
     self.inputHandler = inputHandler;
-
+    self.helpWindow = helpWindow;
     self.editor.init();
 };
 
@@ -222,6 +222,19 @@ EditorUI.prototype.onViewResize = function() {
     self.codeEditor.resize();
     self.editor.onViewResize(width, height);
     if(self.inGame) self.game.onViewResize(width, height);    
+};
+
+EditorUI.prototype.openHelpWindow = function() {
+    var self = this;
+    var helpWindow = self.helpWindow;
+    var viewport = self.viewport;
+    var window = helpWindow.data("kendoWindow");
+    window.open();
+    var x = viewport.offset().left + viewport.innerWidth()/2 - helpWindow.innerWidth()/2;
+    var y = viewport.offset().top + 50;
+    helpWindow.parent().css("left", x);
+    helpWindow.parent().css("top", y);
+
 };
 
 EditorUI.prototype.startGame = function() {

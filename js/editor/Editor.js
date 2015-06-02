@@ -20,7 +20,7 @@ function Editor(renderer, width, height) {
         {name:"Tree", icon:"img/cube.png", id:5, mesh:"data/assets/tree/tree.json"},
         {name:"Rock", icon:"img/cube.png", id:5, mesh:"data/assets/rock/rock.json"},
         //{name:"Player", icon:"img/cube.png", tag:"player", id:5, mesh:"data/assets/capsule/capsule.json"},
-        {name:"Point Light", icon:"img/light.png", id:6, light:{color:0xFFF000, distance:10, type:"point"}},
+        {name:"Point Light", icon:"img/light.png", id:6, light:{color:0xFFF000, distance:50, type:"point"}},
         {name:"Dir Light", icon:"img/light.png", id:7, light:{color:0xffffff, type:"dir"}},
         //{name:"Camera", icon:"img/camera.png", id:8, camera:{fov:70}},
 
@@ -132,6 +132,7 @@ Editor.prototype.init = function() {
 
         // Did not find saved data, load a pre-built scene
         if(data == null) {
+            editorUI.openHelpWindow();
             editorUI.loadFromFile("data/scenes/PhysicsDemoScene.txt", function(data){
                 self.load(data);
             });
@@ -251,7 +252,8 @@ Editor.prototype.save = function() {
         editor : {
             cameraPos : sceneCameraPos,
             cameraRot : sceneCameraRot,
-            gridVisible : self.gridVisible
+            gridVisible : self.gridVisible,
+            showInstructions : false,
         }
     };
 

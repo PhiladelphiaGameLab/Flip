@@ -336,6 +336,25 @@ body
     z-index: 10;
 }
 
+#loading-image {
+    //display: block;
+    //margin: auto;
+
+    position:absolute;
+    top:0;
+    bottom:0;
+    left:0;
+    right:0;
+    margin:auto;
+}
+
+#loading-text {
+    position:absolute;
+    width: 100%;
+    top: 53%;
+    text-align: center;
+}
+
 #vertical,
 #horizontal
 {
@@ -455,6 +474,20 @@ body
 
 .library-item:hover { 
     background-color: #444;
+}
+
+#help-startup-checkbox {
+    float:right;
+}
+
+#help-startup-checkbox-text {
+    margin-right: 3px;
+}
+
+#help-startup-checkbox input[type=checkbox] {
+    position: relative;
+    vertical-align: middle;
+    bottom: 1px;
 }
 
 
