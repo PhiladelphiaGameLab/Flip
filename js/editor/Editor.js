@@ -27,16 +27,16 @@ function Editor(renderer, width, height) {
         // Temp assets
         //{name:"Grass", icon:"img/cube.png", id:0, mesh:"data/assets/physics_demo/environment.json", castShadow:false},
         //{name:"Stones", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/stones.json", castShadow:false, receiveShadow:false},
-        {name:"Steel Plank", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/plank_steel.json"},
-        {name:"Wood Plank", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/plank_wood.json"},
-        {name:"Glass Plank", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/plank_glass.json"},
-        {name:"Steel Box", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/cube_steel.json"},
-        {name:"Wood Box", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/cube_wood.json"},
-        {name:"Glass Box", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/cube_glass.json"},
-        {name:"Steel Ball", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/sphere_steel.json"},
-        {name:"Wood Ball", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/sphere_wood.json"},
-        {name:"Glass Ball", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/sphere_glass.json"},
-        {name:"Aimer", icon:"img/cube.png", id:1, tag:"aimer", mesh:"data/assets/shapes/sphere.json"}
+        {name:"Steel Plank", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/plank_steel.json", physics:{enabled:true,type:"static",friction:0.2,restitution:0.9,shape:"cube",mass:1.0}},
+        {name:"Wood Plank", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/plank_wood.json", physics:{enabled:true,type:"dynamic",friction:1.0,restitution:0.5,shape:"cube",mass:3.0}},
+        //{name:"Glass Plank", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/plank_glass.json"},
+        {name:"Steel Box", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/cube_steel.json", physics:{enabled:true,type:"static",friction:0.2,restitution:0.9,shape:"cube",mass:1.0}},
+        {name:"Wood Box", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/cube_wood.json", physics:{enabled:true,type:"dynamic",friction:1.0,restitution:0.5,shape:"cube",mass:2.0}},
+        //{name:"Glass Box", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/cube_glass.json"},
+        {name:"Steel Ball", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/sphere_steel.json", physics:{enabled:true,type:"static",friction:0.2,restitution:0.9,shape:"sphere",mass:1.0}},
+        {name:"Wood Ball", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/sphere_wood.json", physics:{enabled:true,type:"dynamic",friction:1.0,restitution:0.5,shape:"sphere",mass:2.0}},
+        //{name:"Glass Ball", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/sphere_glass.json"},
+        //{name:"Aimer", icon:"img/cube.png", id:1, tag:"aimer", mesh:"data/assets/shapes/sphere.json"}
 
     ];
 
@@ -116,7 +116,7 @@ Editor.prototype.init = function() {
     self.setDefaultSettings();
 
     // Position camera
-    self.camera.position.set(-20, 15, 20);
+    self.camera.position.set(-40, 30, 40);
     self.cameraControls.setRotation(-0.76, -0.43);
 
     editorUI.populateLibrary(self.assets);
@@ -492,7 +492,9 @@ Editor.prototype.createObject = function(object, callback) {
             // If the object doesn't have a material yet, create one using the values in the json file
             if(object.material === null) {
                 object.addMaterial();
-                object.material.color = mesh.material.color.getHex();
+                if(material.color !== undefined) {
+                    object.material.color = mesh.material.color.getHex();
+                }
             } 
 
             self.scene.add(mesh);
@@ -703,7 +705,7 @@ Editor.prototype.onClick = function(x, y) {
 }
 
 Editor.prototype.onMouseDown = function(x, y, mouseButton) {
-    
+
 }
 
 Editor.prototype.onMouseMove = function(x, y, xmove, ymove, mouseButton) {

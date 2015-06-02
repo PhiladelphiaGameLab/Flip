@@ -41,7 +41,7 @@ Game.prototype.start = function(data) {
 
     //self.scene = new THREE.Scene();
     self.scene = new Physijs.Scene();
-    self.scene.setGravity(new THREE.Vector3(0, -30, 0));
+    self.scene.setGravity(new THREE.Vector3(0, -50, 0));
 
     self.raycaster = new THREE.Raycaster();
 

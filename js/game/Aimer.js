@@ -13,7 +13,7 @@ Aimer.prototype.loaded = function() {
     var lookAt = new THREE.Vector3(0,10,0);
     self.camera = new THREE.PerspectiveCamera(70, game.width / game.height, 1, 1000);
     self.cameraControls = new CameraControls(self.camera);
-    self.cameraControls.setThirdPerson(13, 6, 17, lookAt);
+    self.cameraControls.setThirdPerson(13, 6, 18, lookAt);
     self.cameraControls.limitRotation(-Math.PI/2, 0);
     game.setCamera(self.camera);
     self.cameraControls.rotate(0, 100);
@@ -38,10 +38,10 @@ Aimer.prototype.loaded = function() {
         physics : {
             enabled: true,
             type: "dynamic",
-            friction: 0.5,
+            friction: 1.0,
             restitution: 0.5,
             shape: "sphere",
-            mass: 4.977
+            mass: 1
         },
         light: null,
         camera: null,
@@ -68,7 +68,7 @@ Aimer.prototype.shoot = function(x, y) {
     self.ballData.position = origin.toArray();
     
     new ObjectGame(self.ballData, function(object) {
-        var impulse = ray.direction.multiplyScalar(500.0);
+        var impulse = ray.direction.multiplyScalar(150.0);
         object.visual.applyCentralImpulse(impulse);
 
     });
