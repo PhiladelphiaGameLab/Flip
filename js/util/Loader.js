@@ -62,12 +62,12 @@ Loader.prototype.loadMesh = function(filename, callback) {
             cacheData.loaded = true;
 
             // Call the callback on this
-            callback(geometry, material.clone());
+            callback(geometry, self.cloneMaterial(material));
 
             // Call the callbacks for all other objects created before this finished loading
             for(var i = 0; i < cacheData.callbacks.length; i++) {
                 var callbackCached = cacheData.callbacks[i];
-                callbackCached(geometry, material.clone());
+                callbackCached(geometry, self.cloneMaterial(material));
             }
         });
 
@@ -76,7 +76,7 @@ Loader.prototype.loadMesh = function(filename, callback) {
         // Check if the cache data is loaded. If not add the callback
         if(cacheData.loaded) {
             var geometry = cacheData.geometry;
-            var material = cacheData.material.clone();
+            var material = self.cloneMaterial(cacheData.material);
             callback(geometry, material);
         } else {
             cacheData.callbacks.push(callback);
@@ -120,6 +120,13 @@ Loader.prototype.createMaterial = function(materials) {
 
     return meshMaterial;
 };
+
+Loader.prototype.cloneMaterial = function(material) {
+    var newMaterial = material.clone();
+    newMaterial.transparentOld = material.transparentOld;
+    newMaterial.opacityOld = material.opacityOld;
+    return newMaterial;
+}
 
 Loader.prototype.dispose = function() {
 

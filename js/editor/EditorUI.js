@@ -125,25 +125,15 @@ EditorUI.prototype.init = function() {
     });
 
     $("#translate-button").click(function() {
-        UI.setModeRotate();
-        editor.setModeTranslate();
-        $("#translate-button").addClass("selected");
-        $("#rotate-button").removeClass("selected");
-        $("#scale-button").removeClass("selected");
+        self.setTransformMode(0);
     });
 
     $("#rotate-button").click(function() {
-        editor.setModeRotate();
-        $("#translate-button").removeClass("selected");
-        $("#rotate-button").addClass("selected");
-        $("#scale-button").removeClass("selected");
+        self.setTransformMode(1);
     });
 
     $("#scale-button").click(function() {
-        editor.setModeScale();
-        $("#translate-button").removeClass("selected");
-        $("#rotate-button").removeClass("selected");
-        $("#scale-button").addClass("selected");
+        self.setTransformMode(2);
     });
 
     $("#play-button").click(function() {
@@ -354,6 +344,26 @@ EditorUI.prototype.showCodeEditor = function() {
     $("#blockly-div").hide();
     self.inWorkspace = false;
     self.onViewResize();
+}
+
+EditorUI.prototype.setTransformMode = function(mode) {
+    var self = this;
+
+    if(mode == 0) { // translate
+        $("#translate-button").addClass("selected");
+        $("#rotate-button").removeClass("selected");
+        $("#scale-button").removeClass("selected");
+    } else if (mode == 1) { // rotate
+        $("#translate-button").removeClass("selected");
+        $("#rotate-button").addClass("selected");
+        $("#scale-button").removeClass("selected");
+    } else if(mode == 2) { // scale
+        $("#translate-button").removeClass("selected");
+        $("#rotate-button").removeClass("selected");
+        $("#scale-button").addClass("selected");
+    }
+
+    self.editor.setTransformMode(mode);
 }
 
 EditorUI.prototype.saveToLocalStorage = function(data) {

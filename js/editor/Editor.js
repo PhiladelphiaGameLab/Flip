@@ -732,20 +732,11 @@ Editor.prototype.onKeyPress = function(key, ctrl) {
     } else if(key == 46) { // DEL
         self.removeSelected();
     } else if(key == 49) { // 1
-        self.setModeTranslate();
-        $("#translate-button").addClass("selected");
-        $("#rotate-button").removeClass("selected");
-        $("#scale-button").removeClass("selected");
+        editorUI.setTransformMode(0);
     } else if(key == 50) { // 2
-        self.setModeRotate();
-        $("#translate-button").removeClass("selected");
-        $("#rotate-button").addClass("selected");
-        $("#scale-button").removeClass("selected");
+        editorUI.setTransformMode(1);
     } else if(key == 51) { // 3
-        self.setModeScale();
-        $("#translate-button").removeClass("selected");
-        $("#rotate-button").removeClass("selected");
-        $("#scale-button").addClass("selected");
+        editorUI.setTransformMode(2);
     } else if(key == 67) { // c
         self.copyObject();
     } else if(key == 86) { // v
@@ -822,32 +813,29 @@ Editor.prototype.removeSelected = function() {
     if(self.selected === null) return;
 
     self.removeObject(self.selected);
-}
+};
 
 Editor.prototype.duplicateSelected = function() {
     var self = this;
     if(self.selected === null) return;
 
     self.duplicateObject(self.selected);
-}
+};
 
-Editor.prototype.setModeTranslate = function() {
+Editor.prototype.setTransformMode = function(mode) {
     var self = this;
-    self.transformControls.setMode("translate");
-    self.transformControls.setSpace("world");
-}
 
-Editor.prototype.setModeRotate = function() {
-    var self = this;
-    self.transformControls.setMode("rotate");
-    self.transformControls.setSpace("world");
-}
-
-Editor.prototype.setModeScale = function() {
-    var self = this;
-    self.transformControls.setMode("scale");
-    self.transformControls.setSpace("local");
-}
+    if(mode == 0) { // translate
+        self.transformControls.setMode("translate");
+        self.transformControls.setSpace("world");
+    } else if (mode == 1) { // rotate
+        self.transformControls.setMode("rotate");
+        self.transformControls.setSpace("world");
+    } else if(mode == 2) { // scale
+        self.transformControls.setMode("scale");
+        self.transformControls.setSpace("local");
+    }
+};
 
 Editor.prototype.editScript = function(contents) {
     var self = this;
@@ -872,7 +860,7 @@ Editor.prototype.editScript = function(contents) {
         script.contents = contents;
         self.save();
     }
-}
+};
 
 Editor.prototype.setAmbientColor = function(color) {
     var self = this;
@@ -886,8 +874,7 @@ Editor.prototype.setBackgroundColor = function(color) {
     self.backgroundColor = color;
     self.renderer.setClearColor(color, 1);
     editorUI.updateSettings();
-
-}
+};
 
 Editor.prototype.setSkybox = function(skybox) {
     var self = this;
@@ -927,7 +914,7 @@ Editor.prototype.setSkybox = function(skybox) {
         self.renderer.autoClear = false;
         editorUI.updateSettings();
     });
-}
+};
 
 Editor.prototype.setGridVisible = function(visible) {
     var self = this;
@@ -935,7 +922,7 @@ Editor.prototype.setGridVisible = function(visible) {
     self.gridVisible = visible;
     self.grid.visible = visible;
     editorUI.updateSettings();
-}
+};
 
 
 Editor.prototype.enableShadowMap = function(enabled) {
@@ -947,7 +934,7 @@ Editor.prototype.enableShadowMap = function(enabled) {
     //self.renderer.shadowMapType = THREE.PCFSoftShadowMap;
     self.updateThreeJS();
 
-}
+};
 
 Editor.prototype.setShadowCaster = function(object, enabled) {
     var self = this;
@@ -988,7 +975,7 @@ Editor.prototype.setShadowCaster = function(object, enabled) {
     }
 
     self.enableShadowMap(enabled);
-}
+};
 
 Editor.prototype.updateThreeJS = function() {
     var self = this;
@@ -1005,4 +992,4 @@ Editor.prototype.updateThreeJS = function() {
             material.needsUpdate = true;
         }
     }
-}
+};
