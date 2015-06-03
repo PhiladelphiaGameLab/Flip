@@ -976,6 +976,17 @@ Editor.prototype.setShadowCaster = function(object, enabled) {
     light.shadowMapWidth = shadowRes;
     light.shadowMapHeight = shadowRes;
 
+    // Stop other lights from casting shadows
+    if(enabled) {
+        for(var i = 0; i < self.objects.length; i++) {
+            var other = self.objects[i];
+            if(other == object) continue; // This object
+            if(other.light === null) continue; // Not a light
+            other.light.castShadow = false;
+            other.visual.castShadow = false;
+        }
+    }
+
     self.enableShadowMap(enabled);
 }
 
