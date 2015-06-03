@@ -21,6 +21,7 @@ function EditorUI() {
     self.game = null;
     self.renderer = null;
     self.inputHandler = null;
+    self.loader = null;
     self.inGame = false;
 
     self.disableEdit = false;
@@ -80,9 +81,11 @@ EditorUI.prototype.init = function() {
     renderer.setSize(width, height);
     viewport.append(renderer.domElement);
 
+    // Create loader
+    var loader = new Loader();
 
     // Create editor
-    var editor = new Editor(renderer, width, height);
+    var editor = new Editor(renderer, width, height, loader);
 
     // Input handler
     var inputHandler = new InputHandler(viewport);
@@ -177,6 +180,7 @@ EditorUI.prototype.init = function() {
     self.workspace = workspace;
     self.editor = editor;
     self.renderer = renderer;
+    self.loader = loader;
     self.inputHandler = inputHandler;
     self.helpWindow = helpWindow;
     self.editor.init();
@@ -190,11 +194,18 @@ EditorUI.prototype.load = function() {
     self.loaded = true;
     self.onViewResize();
     self.animate();
-    $("#loading-cover").hide();
+    $("#loading-cover").hide();    
 };
 
 EditorUI.prototype.animate = function() {
     var self = this;
+
+    // console.log(
+    //     self.renderer.info.memory.geometries,
+    //     self.renderer.info.memory.programs,
+    //     self.renderer.info.memory.textures
+    // );
+
     requestAnimationFrame(self.animate.bind(self));
 
     self.inputHandler.update();
@@ -206,8 +217,6 @@ EditorUI.prototype.animate = function() {
         self.editor.update();
         self.editor.render();
     }
-
-    self.inputHandler.update();
 }
 
 EditorUI.prototype.onViewResize = function() {
@@ -242,7 +251,7 @@ EditorUI.prototype.startGame = function() {
     console.log("starting game");
     var width = self.viewport.innerWidth();
     var height = self.viewport.innerHeight();
-    self.game = new Game(self.renderer, width, height, self.editor.data);
+    self.game = new Game(self.renderer, width, height, self.loader, self.editor.data);
     self.inputHandler.target = game;
     self.inGame = true;
     $("#screen-cover").show();

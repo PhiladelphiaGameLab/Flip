@@ -14,6 +14,7 @@ function GameUI() {
 
     self.viewport = null;
     self.renderer = null;
+    self.loader = null;
     self.inputHanadler = null;
     self.game = null;
     self.loaded = false;
@@ -38,7 +39,10 @@ GameUI.prototype.init = function() {
     renderer.setSize(width, height);
     viewport.append(renderer.domElement);
     
-    game = new Game(renderer, width, height, data);
+    // Create loader
+    var loader = new Loader();
+
+    game = new Game(renderer, width, height, loader, data);
     inputHandler = new InputHandler(viewport);
     inputHandler.target = game;
 
@@ -46,6 +50,7 @@ GameUI.prototype.init = function() {
 
     self.viewport = viewport;
     self.renderer = renderer;
+    self.loader = loader;
     self.inputHandler = inputHandler;
     self.game = game;
     self.loaded = true;

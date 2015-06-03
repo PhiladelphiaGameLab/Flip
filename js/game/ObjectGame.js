@@ -24,9 +24,8 @@ function ObjectGame (data, onLoad) {
 
     // Load the ThreeJS mesh
     if(data.mesh !== null) {
-        game.loader.load(data.mesh, function(geometry, materials) {
+        game.loader.loadMesh(data.mesh, function(geometry, material) {
             
-            var material = Utils.createMaterial(materials);
             var visual = null;
 
             if(data.physics) {

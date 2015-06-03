@@ -1,4 +1,4 @@
-function Editor(renderer, width, height) {
+function Editor(renderer, width, height, loader) {
     var self = this;
     
     self.isCurrentlyTransforming = false;
@@ -25,7 +25,7 @@ function Editor(renderer, width, height) {
         //{name:"Camera", icon:"img/camera.png", id:8, camera:{fov:70}},
 
         // Temp assets
-        //{name:"Grass", icon:"img/cube.png", id:0, mesh:"data/assets/physics_demo/environment.json", castShadow:false},
+        {name:"Grass", icon:"img/cube.png", id:0, mesh:"data/assets/physics_demo/environment.json", castShadow:false},
         //{name:"Stones", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/stones.json", castShadow:false, receiveShadow:false},
         {name:"Steel Plank", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/plank_steel.json", physics:{enabled:true,type:"static",friction:0.2,restitution:0.9,shape:"cube",mass:1.0}},
         {name:"Wood Plank", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/plank_wood.json", physics:{enabled:true,type:"dynamic",friction:1.0,restitution:0.5,shape:"cube",mass:3.0}},
@@ -49,8 +49,8 @@ function Editor(renderer, width, height) {
     self.width = width;
     self.height = height;
     self.renderer = renderer;
+    self.loader = loader;
     self.scene = null;
-    self.loader = null;
     self.camera = null;
     self.ambientLight = null;
     self.cameraControls = null;
@@ -61,6 +61,7 @@ function Editor(renderer, width, height) {
     self.skyboxCamera = null;
     self.skyboxScene = null;
     self.skyboxMesh = null;
+    self.skyboxTexture = null;
     self.skyboxEnabled = false;
     self.skybox = "none"; // Name
     self.skyboxUrl = "";
@@ -87,8 +88,6 @@ Editor.prototype.init = function() {
 
     self.ambientLight = new THREE.AmbientLight( 0x404040 );
     self.scene.add(self.ambientLight);
-
-    self.loader = new THREE.JSONLoader();
 
     // Skybox
     self.skyboxCamera = new THREE.PerspectiveCamera( 70, self.width / self.height, 1, 1000 );
@@ -273,7 +272,6 @@ Editor.prototype.save = function() {
     editorUI.saveToLocalStorage(data);
 
     console.log("saving scene");
-    console.log(data);
 }
 
 Editor.prototype.getObjectByName = function(name) {
@@ -484,22 +482,17 @@ Editor.prototype.createObject = function(object, callback) {
 
     // Load the ThreeJS mesh
     if(object.mesh !== null) {
-        self.loader.load(object.mesh, function(geometry, materials) {
+        self.loader.loadMesh(object.mesh, function(geometry, material) {
 
-            var material = Utils.createMaterial(materials);
-
-            // Create mesh
             var mesh = new THREE.Mesh(geometry, material);
+            self.scene.add(mesh);
 
-            // If the object doesn't have a material yet, create one using the values in the json file
             if(object.material === null) {
                 object.addMaterial();
                 if(material.color !== undefined) {
                     object.material.color = mesh.material.color.getHex();
                 }
             } 
-
-            self.scene.add(mesh);
 
             // Create outline
             var outline = new THREE.BoxHelper(mesh, 0x00ffff);
@@ -926,9 +919,9 @@ Editor.prototype.setSkybox = function(skybox) {
         path + 'pz' + format, path + 'nz' + format
     ];
 
-    // TO-DO: does threejs cache the image in case you load the same skybox again?
-    var skyboxTexture = THREE.ImageUtils.loadTextureCube(urls, undefined, function(texture){
-        self.skyboxMesh.material.uniforms["tCube"].value = skyboxTexture;
+    self.loader.loadTextureCube(urls, function(texture) {
+        self.skyboxTexture = texture;
+        self.skyboxMesh.material.uniforms["tCube"].value = self.skyboxTexture;
         self.skybox = skybox;
         self.skyboxEnabled = true;
         self.renderer.autoClear = false;

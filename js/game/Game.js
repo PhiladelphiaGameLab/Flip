@@ -1,15 +1,16 @@
 // global variable for ease of use
 var game = null;
+var physicsScene = null; // Physics scene should only be instantiated once
 
-function Game(renderer, width, height, data) {
+function Game(renderer, width, height, loader, data) {
     var self = this;
 
     self.renderer = renderer;
+    self.loader = loader;
     self.scene = null;
     self.camera = null;
     self.raycaster = null;
     self.mouse = new THREE.Vector2();
-    self.loader = null;
     self.cameraControls = null;
 
     self.objectsLoaded = 0;
@@ -20,17 +21,15 @@ function Game(renderer, width, height, data) {
     self.skyboxCamera = null;
     self.skyboxScene = null;
     self.skyboxMesh = null;
+    self.skyboxTexture = null;
 
     self.width = width;
     self.height = height;
-    self.active = false; // Whether the game is running or not
 
-    self.player = null;
     self.objects = [];
 
     game = this;
-
-    game.start(data);
+    self.start(data);
 }
 
 
@@ -40,12 +39,16 @@ Game.prototype.start = function(data) {
     console.log("Loading game: " + data.sceneName);
 
     //self.scene = new THREE.Scene();
-    self.scene = new Physijs.Scene();
+
+    if(physicsScene === null) {
+        physicsScene = new Physijs.Scene();
+    }
+        
+    self.scene = physicsScene;
+    self.scene.onSimulationResume();
     self.scene.setGravity(new THREE.Vector3(0, -50, 0));
 
     self.raycaster = new THREE.Raycaster();
-
-    self.loader = new THREE.JSONLoader();
 
     // Create observer
     var observer = new Observer();
@@ -97,41 +100,58 @@ Game.prototype.start = function(data) {
             path + 'pz' + format, path + 'nz' + format
         ];
 
-        // TO-DO: does threejs cache the image in case you load the same skybox again?
-        var skyboxTexture = THREE.ImageUtils.loadTextureCube(urls);
-        self.skyboxCamera = new THREE.PerspectiveCamera( 70, self.width / self.height, 1, 1000 );
-        self.skyboxScene = new THREE.Scene();
-        self.skyboxEnabled = true;
-        self.renderer.autoClear = false;
+        self.loader.loadTextureCube(urls, function(texture) {
+           
+            self.skyboxTexture = texture;
+            self.skyboxCamera = new THREE.PerspectiveCamera( 70, self.width / self.height, 1, 1000 );
+            self.skyboxScene = new THREE.Scene();
+            self.skyboxEnabled = true;
+            self.renderer.autoClear = false;
 
-        var shader = THREE.ShaderLib[ "cube" ];
-        shader.uniforms["tCube"].value = skyboxTexture;
-        var skyboxMat = new THREE.ShaderMaterial({
-            fragmentShader: shader.fragmentShader,
-            vertexShader: shader.vertexShader,
-            uniforms: shader.uniforms,
-            depthWrite: false,
-            side: THREE.BackSide
+            var shader = THREE.ShaderLib[ "cube" ];
+            shader.uniforms["tCube"].value = self.skyboxTexture;
+            var skyboxMat = new THREE.ShaderMaterial({
+                fragmentShader: shader.fragmentShader,
+                vertexShader: shader.vertexShader,
+                uniforms: shader.uniforms,
+                depthWrite: false,
+                side: THREE.BackSide
+            });
+
+            self.skyboxMesh = new THREE.Mesh( new THREE.BoxGeometry( 100, 100, 100 ), skyboxMat );
+            self.skyboxScene.add(self.skyboxMesh);
         });
-
-        self.skyboxMesh = new THREE.Mesh( new THREE.BoxGeometry( 100, 100, 100 ), skyboxMat );
-        self.skyboxScene.add(self.skyboxMesh);
     }
-    
-
-    self.active = true;
 }
 
 Game.prototype.stop = function() {
     var self = this;
 
-    // Remove all references to the game so it can be properly garbage collected
-    self.camera = null;
-    self.scene = null;
-    self.loader = null;
+    for(var i = 0; i < self.scene.children.length; i++) {
+        var object = self.scene.children[i];
+
+        // If the object is a light with a shadow map, dispose it
+        if(object.shadowMap) {
+            object.shadowMap.dispose();
+        }
+    }
+
+    // Remove all children from scene
+    while(self.scene.children.length > 0) {
+        var object = self.scene.children[0];
+        self.scene.remove(object);
+    }
+
+    if(self.skyboxEnabled) {
+        self.skyboxMesh.geometry.dispose();
+        self.skyboxMesh.material.dispose();
+        // No need to dispose texture because it is shared in the Editor scene
+    }
+
+    // Unsetting the global variable should cause everything the game to garbage collect
+    game = null;
 
     // Stop game loop
-    self.active = false;
     $(".game-script").remove(); // Remove user-created scripts from the DOM
 }
 
@@ -162,8 +182,6 @@ Game.prototype.onViewResize = function(width, height) {
 
     self.width = width;
     self.height = height;
-
-    if(!self.active) return;
 
     self.camera.aspect = width / height;
     self.camera.updateProjectionMatrix();
