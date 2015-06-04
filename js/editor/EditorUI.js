@@ -55,10 +55,6 @@ EditorUI.prototype.init = function() {
         resize: function(e) {self.onViewResize();}
     });
 
-    // Collapse code pane initially
-    var splitter = $("#horizontal").data("kendoSplitter");
-    splitter.collapse(".k-pane:first");
-
     var helpWindow = $("#help-window");
     if (!helpWindow.data("kendoWindow")) {
         helpWindow.kendoWindow({
@@ -72,10 +68,11 @@ EditorUI.prototype.init = function() {
         });
     }
 
+
     // Create renderer
     var viewport = $("#view-pane");
-    var width = viewport.innerWidth();
-    var height = viewport.innerHeight();
+    var width = viewport.width();
+    var height = viewport.height();
     var renderer = new THREE.WebGLRenderer();
     renderer.setPixelRatio(window.devicePixelRatio);
     renderer.setSize(width, height);
@@ -174,16 +171,36 @@ EditorUI.prototype.init = function() {
     self.inputHandler = inputHandler;
     self.helpWindow = helpWindow;
     self.editor.init();
+
+    $("#library-pane").mCustomScrollbar({
+        scrollInertia:0,
+        theme:"light"
+    });
+    
+    $("#properties-pane").mCustomScrollbar({
+        scrollInertia:0,
+        theme:"light",
+        callbacks:{
+            onOverflowY: function(){self.resizePropertiesPane();},
+            onOverflowYNone: function(){self.resizePropertiesPane();}
+        }
+    });
 };
 
 EditorUI.prototype.load = function() {
     var self = this;
     self.showCodeEditor();
+
+    // Collapse code pane initially
+    var splitter = $("#horizontal").data("kendoSplitter");
+    splitter.collapse(".k-pane:first");
+
     self.selectObject(null);
     self.propertiesPane.openSettings();
     self.loaded = true;
     self.onViewResize();
     self.animate();
+
     $("#loading-cover").hide();    
 };
 
@@ -213,15 +230,21 @@ EditorUI.prototype.onViewResize = function() {
     var self = this;
     if(!self.loaded) return;
 
-    var width = self.viewport.innerWidth();
-    var height = self.viewport.innerHeight();
+    var width = self.viewport.width();
+    var height = self.viewport.height();
     self.renderer.setSize(width, height);
     self.workspace.resize();
-    self.propertiesPane.resize($("#properties-pane").innerWidth());
+    
+    self.resizePropertiesPane();
     self.codeEditor.resize();
     self.editor.onViewResize(width, height);
     if(self.inGame) self.game.onViewResize(width, height);    
 };
+
+EditorUI.prototype.resizePropertiesPane = function() {
+    var self = this;
+    self.propertiesPane.resize($("#properties-pane .mCSB_container").width());
+}
 
 EditorUI.prototype.openHelpWindow = function() {
     var self = this;
@@ -229,7 +252,7 @@ EditorUI.prototype.openHelpWindow = function() {
     var viewport = self.viewport;
     var window = helpWindow.data("kendoWindow");
     window.open();
-    var x = viewport.offset().left + viewport.innerWidth()/2 - helpWindow.innerWidth()/2;
+    var x = viewport.offset().left + viewport.width()/2 - helpWindow.outerWidth()/2;
     var y = viewport.offset().top + 50;
     helpWindow.parent().css("left", x);
     helpWindow.parent().css("top", y);
@@ -239,8 +262,8 @@ EditorUI.prototype.openHelpWindow = function() {
 EditorUI.prototype.startGame = function() {
     var self = this;
     console.log("starting game");
-    var width = self.viewport.innerWidth();
-    var height = self.viewport.innerHeight();
+    var width = self.viewport.width();
+    var height = self.viewport.height();
     self.game = new Game(self.renderer, width, height, self.loader, self.editor.data);
     self.inputHandler.target = game;
     self.inGame = true;

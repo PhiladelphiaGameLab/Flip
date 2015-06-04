@@ -259,7 +259,6 @@ li.cr.has-slider .c input {
     color: inherit !important;
 }
 
-
 /* ACE custom styles */
 
 .ace_gutter {
@@ -306,6 +305,12 @@ li.cr.has-slider .c input {
 .blocklyScrollbarKnob {
     fill: #666666 !important;
 }
+
+
+/* Scrollbar styles */
+
+.mCSB_inside > .mCSB_container{ margin-right: 15px; }
+
 
 html,
 body
@@ -402,7 +407,9 @@ body
 
 #properties-pane {
     overflow-x: hidden;
+    overflow: hidden;
 }
+
 
 #play-button {
     z-index: 9;
@@ -474,6 +481,11 @@ body
 
 .library-item:hover { 
     background-color: #444;
+}
+
+#library-pane {
+    overflow: hidden;
+
 }
 
 #help-startup-checkbox {
