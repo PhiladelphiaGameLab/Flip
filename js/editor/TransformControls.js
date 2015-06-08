@@ -969,7 +969,22 @@
             scope.dispatchEvent( objectChangeEvent );
 
             editor.isCurrentlyTransforming = true;
-            editor.selected.updateFromVisual();
+
+            var object = editor.selected;
+
+            object.data.position[0] = object.visual.position.x;
+            object.data.position[1] = object.visual.position.y;
+            object.data.position[2] = object.visual.position.z;
+
+            object.data.rotation[0] = object.visual.rotation.x;
+            object.data.rotation[1] = object.visual.rotation.y;
+            object.data.rotation[2] = object.visual.rotation.z;
+
+            object.data.scale[0] = object.visual.scale.x;
+            object.data.scale[1] = object.visual.scale.y;
+            object.data.scale[2] = object.visual.scale.z;
+
+            object.updateObject();
             editorUI.updateSelectedObject();
 
         }

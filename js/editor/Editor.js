@@ -1,50 +1,45 @@
+var editor = null;
+
 function Editor(renderer, width, height, loader) {
     var self = this;
-    
-    self.isCurrentlyTransforming = false;
-    self.copiedObjectData = null;
-
-    // Undo/redo
-    self.actionStack = [];
-    self.actionStackPos = -1;
-    self.actionLimit = 20;
 
     // Assets in the library
     self.assets = [
-        //{name:"MultiMat", icon:"img/cube.png", id:0, mesh:"data/assets/multimat/multimat.json"},
-        {name:"Chair", icon:"img/cube.png", id:1, mesh:"data/assets/chair/chair.json"},
-        //{name:"Skinning Simple", icon:"img/cube.png", id:2, mesh:"data/assets/skinning_simple/skinning_simple.js"},
-        {name:"Cube", icon:"img/cube.png", id:3, mesh:"data/assets/shapes/cube.json"},
-        {name:"Sphere", icon:"img/cube.png", id:4, mesh:"data/assets/shapes/sphere.json"},
-        //{name:"Terrain", icon:"img/cube.png", id:5, mesh:"data/assets/terrain/terrain.json"},
-        {name:"Tree", icon:"img/cube.png", id:5, mesh:"data/assets/tree/tree.json"},
-        {name:"Rock", icon:"img/cube.png", id:5, mesh:"data/assets/rock/rock.json"},
-        //{name:"Player", icon:"img/cube.png", tag:"player", id:5, mesh:"data/assets/capsule/capsule.json"},
-        {name:"Point Light", icon:"img/light.png", id:6, light:{color:0xFFF000, distance:50, type:"point"}},
-        {name:"Dir Light", icon:"img/light.png", id:7, light:{color:0xffffff, type:"dir"}},
-        //{name:"Camera", icon:"img/camera.png", id:8, camera:{fov:70}},
+        {name:"Chair", icon:"img/cube.png", mesh:"data/assets/chair/chair.json"},
+        {name:"Cube", icon:"img/cube.png", mesh:"data/assets/shapes/cube.json"},
+        {name:"Sphere", icon:"img/cube.png", imesh:"data/assets/shapes/sphere.json"},
+        {name:"Tree", icon:"img/cube.png", mesh:"data/assets/tree/tree.json"},
+        {name:"Rock", icon:"img/cube.png", mesh:"data/assets/rock/rock.json"},
+        {name:"Point Light", icon:"img/light.png", light:{color:0xFFF000, distance:50, type:"point"}},
+        {name:"Dir Light", icon:"img/light.png", light:{color:0xffffff, type:"dir"}},
 
-        // Temp assets
-        {name:"Grass", icon:"img/cube.png", id:0, mesh:"data/assets/physics_demo/environment.json", castShadow:false},
-        //{name:"Stones", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/stones.json", castShadow:false, receiveShadow:false},
-        {name:"Steel Plank", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/plank_steel.json", physics:{enabled:true,type:"static",friction:0.2,restitution:0.9,shape:"cube",mass:1.0}},
-        {name:"Wood Plank", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/plank_wood.json", physics:{enabled:true,type:"dynamic",friction:1.0,restitution:0.5,shape:"cube",mass:3.0}},
-        //{name:"Glass Plank", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/plank_glass.json"},
-        {name:"Steel Box", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/cube_steel.json", physics:{enabled:true,type:"static",friction:0.2,restitution:0.9,shape:"cube",mass:1.0}},
-        {name:"Wood Box", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/cube_wood.json", physics:{enabled:true,type:"dynamic",friction:1.0,restitution:0.5,shape:"cube",mass:2.0}},
-        //{name:"Glass Box", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/cube_glass.json"},
-        {name:"Steel Ball", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/sphere_steel.json", physics:{enabled:true,type:"static",friction:0.2,restitution:0.9,shape:"sphere",mass:1.0}},
-        {name:"Wood Ball", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/sphere_wood.json", physics:{enabled:true,type:"dynamic",friction:1.0,restitution:0.5,shape:"sphere",mass:2.0}},
-        //{name:"Glass Ball", icon:"img/cube.png", id:1, mesh:"data/assets/physics_demo/sphere_glass.json"},
-        //{name:"Aimer", icon:"img/cube.png", id:1, tag:"aimer", mesh:"data/assets/shapes/sphere.json"}
+        // Physics Demo Assets
+        {name:"Grass", icon:"img/cube.png", mesh:"data/assets/physics_demo/environment.json", castShadow:false},
+        {name:"Steel Plank", icon:"img/cube.png", mesh:"data/assets/physics_demo/plank_steel.json", physics:{enabled:true,type:"static",friction:0.2,restitution:0.9,shape:"cube",mass:1.0}},
+        {name:"Wood Plank", icon:"img/cube.png", mesh:"data/assets/physics_demo/plank_wood.json", physics:{enabled:true,type:"dynamic",friction:1.0,restitution:0.5,shape:"cube",mass:3.0}},
+        {name:"Steel Box", icon:"img/cube.png", mesh:"data/assets/physics_demo/cube_steel.json", physics:{enabled:true,type:"static",friction:0.2,restitution:0.9,shape:"cube",mass:1.0}},
+        {name:"Wood Box", icon:"img/cube.png", mesh:"data/assets/physics_demo/cube_wood.json", physics:{enabled:true,type:"dynamic",friction:1.0,restitution:0.5,shape:"cube",mass:2.0}},
+        {name:"Steel Ball", icon:"img/cube.png", mesh:"data/assets/physics_demo/sphere_steel.json", physics:{enabled:true,type:"static",friction:0.2,restitution:0.9,shape:"sphere",mass:1.0}},
+        {name:"Wood Ball", icon:"img/cube.png", mesh:"data/assets/physics_demo/sphere_wood.json", physics:{enabled:true,type:"dynamic",friction:1.0,restitution:0.5,shape:"sphere",mass:2.0}},
+       
+        //{name:"Glass Ball", icon:"img/cube.png", mesh:"data/assets/physics_demo/sphere_glass.json"},
+        //{name:"Aimer", icon:"img/cube.png", tag:"aimer", mesh:"data/assets/shapes/sphere.json"}
+        //{name:"MultiMat", icon:"img/cube.png", mesh:"data/assets/multimat/multimat.json"},
+        //{name:"Skinning Simple", icon:"img/cube.png", mesh:"data/assets/skinning_simple/skinning_simple.js"},
+        //{name:"Terrain", icon:"img/cube.png", mesh:"data/assets/terrain/terrain.json"},
+        //{name:"Player", icon:"img/cube.png", tag:"player", mesh:"data/assets/capsule/capsule.json"},
+        //{name:"Camera", icon:"img/camera.png", camera:{fov:70}},
+        //{name:"Stones", icon:"img/cube.png", mesh:"data/assets/physics_demo/stones.json", castShadow:false, receiveShadow:false},
+        //{name:"Glass Plank", icon:"img/cube.png", mesh:"data/assets/physics_demo/plank_glass.json"},
+        //{name:"Glass Box", icon:"img/cube.png", mesh:"data/assets/physics_demo/cube_glass.json"},
 
     ];
 
     self.objects = []; // Objects in the scene
     self.raycastDetectors = []; // ThreeJS objects. Need this array for doing raycasting.
-    self.scripts = []; // Scripts used by objects. Each object stores a reference to one of these, or null.
+    self.scripts = []; // Scripts used by objects. Each object may store a reference to one of these
 
-    self.objectId = 0; // Used to assign id's to new objects
+    self.objectId = 0; // Used to assign unique id's to new objects
 
     self.width = width;
     self.height = height;
@@ -57,6 +52,10 @@ function Editor(renderer, width, height, loader) {
     self.transformControls = null;
     self.raycaster = null;
     self.mouse = new THREE.Vector2();
+    self.undoHandler = new UndoHandler(self);
+
+    self.isCurrentlyTransforming = false; // TransformControls
+    self.copiedObjectData = null;
 
     self.skyboxCamera = null;
     self.skyboxScene = null;
@@ -65,6 +64,7 @@ function Editor(renderer, width, height, loader) {
     self.skyboxEnabled = false;
     self.skybox = "none"; // Name
     self.skyboxUrl = "";
+
     self.ambientColor = 0x000000;
     self.backgroundColor = 0x000000;
     self.grid = null;
@@ -72,7 +72,9 @@ function Editor(renderer, width, height, loader) {
     self.sceneName = "My Scene";
 
     self.selected = null; // The currently selected object
-    self.data = null; // Stores the game data
+    self.sceneData = null; // Stores the scene data, updated after every change
+
+    editor = self;
 }
 
 Editor.prototype.init = function() {
@@ -130,7 +132,7 @@ Editor.prototype.init = function() {
         if(data) self.load(data);
 
         // Did not find saved data, load a pre-built scene
-        if(data == null) {
+        if(data === null) {
             editorUI.openHelpWindow();
             editorUI.loadFromFile("data/scenes/PhysicsDemoScene.txt", function(data){
                 self.load(data);
@@ -138,10 +140,6 @@ Editor.prototype.init = function() {
         }
     });
 };
-
-Editor.prototype.loaded = function() {
-    self.load(data);
-}
 
 Editor.prototype.setDefaultSettings = function() {
     var self = this;
@@ -179,7 +177,6 @@ Editor.prototype.update = function() {
     var self = this;
 }
 
-// Do not call directly. Call clearScene instead
 Editor.prototype.clear = function() {
     var self = this;
     self.setDefaultSettings();
@@ -188,60 +185,42 @@ Editor.prototype.clear = function() {
     }
 }
 
-Editor.prototype.fixData = function(data) {
-    // This is a helper function that lets you fix the data in case you made any changes to the json format
-
-    // // Create objects
-    // for(var i = 0; i < data.objects.length; i++) {
-    //     var objData = data.objects[i];
-    //     if(objData.mesh !== null) objData.material = {color:0xffffff};
-    //     else objData.material = null;
-    // }
-}
-
-Editor.prototype.load = function(data) {
+Editor.prototype.load = function(sceneData) {
     // Assume that scene is empty when you load.
 
     var self = this;
-    if(data === null) return;
+    if(sceneData === null) return;
 
-    self.fixData(data);
+    console.log(sceneData);
+    self.sceneData = sceneData;
+    self.sceneName = sceneData.sceneName;
+    console.log("loading scene:", sceneData.sceneName);
 
-    console.log(data);
-    self.data = data;
-    self.sceneName = data.sceneName;
-    console.log("loading scene:", data.sceneName);
-
-    self.scripts = data.scripts; // TO-DO: is it ok not to deep copy?
+    self.scripts = sceneData.scripts; // TO-DO: is it ok not to deep copy?
 
     // Create objects
-    for(var i = 0; i < data.objects.length; i++) {
-        var object = new ObjectEdit(data.objects[i]);
-        self.createObject(object);
+    for(var i = 0; i < sceneData.objects.length; i++) {
+        self.createObject(sceneData.objects[i]);
     }
 
     // Set camera position and rotation
     //self.camera.position.fromArray(data.editor.cameraPos);
     //self.camera.rotation.fromArray(data.editor.cameraRot);
 
-    self.setBackgroundColor(data.backgroundColor);
-    self.setAmbientColor(data.ambientColor);
-    self.setSkybox(data.skybox.name);
-    self.setGridVisible(data.editor.gridVisible);
+    self.setBackgroundColor(sceneData.backgroundColor);
+    self.setAmbientColor(sceneData.ambientColor);
+    self.setSkybox(sceneData.skybox.name);
+    self.setGridVisible(sceneData.editor.gridVisible);
 }
 
 Editor.prototype.save = function() {
     
-    // TO-DO: it may be overkill to call getData() on every object like this when only 1 object is affected at a time
-    // An alternative is to keep a save-state variable and modify it when actions occur and for undo/redo
-    // Once we have saving to a server, this whole process may need to be rethought
-
     var self = this;
 
     var sceneCameraPos = self.camera.position.toArray();
     var sceneCameraRot = self.camera.rotation.toArray();
 
-    var data = {
+    var sceneData = {
         sceneName : self.sceneName,
         objects : [],
         scripts : [],
@@ -251,25 +230,24 @@ Editor.prototype.save = function() {
         editor : {
             cameraPos : sceneCameraPos,
             cameraRot : sceneCameraRot,
-            gridVisible : self.gridVisible,
-            showInstructions : false,
+            gridVisible : self.gridVisible
         }
     };
 
     for(var i = 0; i < self.objects.length; i++) {
 
         var object = self.objects[i];
-        data.objects.push(object.getData());
+        sceneData.objects.push(object.getData());
 
         // If there is a script attached to this object, save it
-        if(object.script !== null) {
-            var script = self.getScriptByName(object.script);
-            data.scripts.push(script);
+        if(object.data.script !== null) {
+            var script = self.getScriptByName(object.data.script);
+            sceneData.scripts.push(script);
         }
     }
 
-    self.data = data;
-    editorUI.saveToLocalStorage(data);
+    self.sceneData = sceneData;
+    editorUI.saveToLocalStorage(sceneData);
 
     console.log("saving scene");
 }
@@ -278,7 +256,7 @@ Editor.prototype.getObjectByName = function(name) {
     var self = this;
 
     for (var i = 0; i < self.objects.length; i++) {
-        if(self.objects[i].name == name) {
+        if(self.objects[i].data.name == name) {
             return self.objects[i];
         }
     }
@@ -289,7 +267,7 @@ Editor.prototype.getObjectById = function(id) {
     var self = this;
 
     for (var i = 0; i < self.objects.length; i++) {
-        if(self.objects[i].id == id) {
+        if(self.objects[i].data.id == id) {
             return self.objects[i];
         }
     }
@@ -318,261 +296,79 @@ Editor.prototype.getScriptByName = function(name) {
     return null;
 }
 
-Editor.prototype.hasUndos = function() {
-    var self = this;
-    return (self.actionStackPos != -1);
-};
-
-Editor.prototype.hasRedos = function() {
-    var self = this;
-    return (self.actionStackPos != self.actionStack.length - 1);
-};
-
-Editor.prototype.doAction = function(action, reverse) {
-    var self = this;
-
-    if(action.type == "edit") {
-
-        if(reverse) {
-            var object = self.getObjectByName(action.data.name);
-            object.setData(action.data.oldData);
-        } else {
-            var object = self.getObjectByName(action.data.name);
-            object.setData(action.data.newData);
-        }
-
-    } else if(action.type == "add") {
-
-        if(reverse) {
-            var object = self.getObjectByName(action.data.name);
-            self.destroyObject(object);
-        } else {
-            var object = new ObjectEdit(action.data);
-            self.createObject(object);
-        }
-
-    } else if(action.type == "remove") {
-
-        if(reverse) {
-            var object = new ObjectEdit(action.data);
-            self.createObject(object);
-        } else {
-            var object = self.getObjectByName(action.data.name);
-            self.destroyObject(object);
-        }
-
-    } else if(action.type == "clear") {
-
-        if(reverse) {
-            self.load(action.data);
-        } else {
-            self.clear();
-        }
-    }
-}
-
-Editor.prototype.undoAction = function() {
-    var self = this;
-
-    if (!self.hasUndos()) return;
-    var action = self.actionStack[self.actionStackPos];
-    self.actionStackPos--;
-    
-    self.doAction(action, true);
-
-    editorUI.setUndoRedo(self.hasUndos(), self.hasRedos());
-    self.save();
-    editorUI.updateSelectedObject();
-
-    console.log("Undo action: " + action.type);
-};
-
-Editor.prototype.redoAction = function() {
-    var self = this;
-
-    if (!self.hasRedos()) return;
-    self.actionStackPos++;
-    var action = self.actionStack[self.actionStackPos];
-
-    self.doAction(action, false);
-
-    editorUI.setUndoRedo(self.hasUndos(), self.hasRedos());
-    self.save();
-    editorUI.updateSelectedObject();
-
-    console.log("Redo action: " + action.type);
-};
-
-Editor.prototype.addAction = function(actionType, actionData) {
-    var self = this;
-
-    var action = {
-        type: actionType,
-        data: actionData,
-    }
-
-    // Remove the redo states
-    self.actionStack.splice(self.actionStackPos + 1, self.actionStack.length);
-
-    // Push action
-    self.actionStack.push(action);
-    self.actionStackPos++;
-            
-    // Don't let the stack get too big. Remove oldest.
-    if (self.actionStack.length > self.actionLimit){
-        self.actionStack.shift();
-        self.actionStackPos--;
-    }
-
-    editorUI.setUndoRedo(true, false);
-    self.save();
-    editorUI.updateSelectedObject();
-
-    console.log("Add action " + action.type);
-};
-
-
 Editor.prototype.clearScene = function() {
     var self = this;
     self.clear();
-    self.addAction("clear", self.data);
+    self.undoHandler.clearScene(self.sceneData);
 }
 
 Editor.prototype.editObject = function(object) {
-    
-    // TO-DO: is it a good idea for the edit action to save the the entire state of the object,
-    // or should the edit action only contain the property name, old value, and current value?
-
     var self = this;
-
-    // Save the old state of the object and the new state of the object
-    var newData = object.getData();
-    var oldData = object.data;
-    self.addAction("edit", {name:object.name, newData:newData, oldData:oldData});
-    object.data = newData;
+    self.undoHandler.editObject(object);
 };
 
-Editor.prototype.addObject = function(object, callback) {
+Editor.prototype.addObject = function(data, callback) {
     var self = this;    
 
-    self.createObject(object, function(object){
-        // Add action after the object is created
-        self.addAction("add", object.getData());
-        // Now call original callback
+    self.createObject(data, function(object) {
+        self.undoHandler.addObject(object);
         if(callback) callback(object);
     });
 };
 
 Editor.prototype.removeObject = function(object) {
     var self = this;
-
     self.destroyObject(object);
-    self.addAction("remove", object.getData());
+    self.undoHandler.removeObject(object);
 };
 
-// Do not call directly. Call addObject instead
-Editor.prototype.createObject = function(object, callback) {
+Editor.prototype.createObject = function(data, callback) {
     var self = this;
-
-    self.objects.push(object);
 
     // Always set objectId to be higher than any object's id
     // For example when you load a scene the objects already have id's, so objects created after should have higher id's.
-    self.objectId = Math.max(self.objectId, object.id+1);
+    self.objectId = Math.max(self.objectId, data.id+1);
 
-    // Load the ThreeJS mesh
-    if(object.mesh !== null) {
-        self.loader.loadMesh(object.mesh, function(geometry, material) {
+    new ObjectEdit(data, function(object){
+        self.objects.push(object);
+        self.scene.add(object.object3js);
+        self.raycastDetectors.push(object.visual);
 
-            var mesh = new THREE.Mesh(geometry, material);
-            self.scene.add(mesh);
-
-            if(object.material === null) {
-                object.addMaterial();
-                if(material.color !== undefined) {
-                    object.material.color = mesh.material.color.getHex();
-                }
-            } 
-
-            // Create outline
-            var outline = new THREE.BoxHelper(mesh, 0x00ffff);
-            outline.visible = false;
-            self.scene.add(outline);
-
-            // Create raycast detector (which is the mesh)
-            var raycastDetector = mesh;
-            self.raycastDetectors.push(raycastDetector);
-
-            // Transform target
-            var transformTarget = mesh;
-
-            object.setVisual(mesh, outline, raycastDetector, transformTarget);
-            if(callback) callback(object);
-
-        } );
-    }
-    else if(object.light !== null) {
-
-        var light, outline, raycastDetector, transformTarget;
-
-        if(object.light.type == "point") {
-
-            light = new THREE.PointLight();
-            light.distance = 10;
-            outline = new THREE.PointLightHelper(light, 0.5);
-            raycastDetector = outline;
-            transformTarget = light;
-
-        } else if(object.light.type == "dir") {
-
-            light = new THREE.DirectionalLight();
-            outline = new THREE.DirectionalLightHelper(light, 1);
-            outline.matrix = new THREE.Matrix4();
-            outline.matrixAutoUpdate = true;
-            raycastDetector = outline.lightPlane;
-            transformTarget = outline;
+        if(object.data.light) {
+            self.scene.add(object.visual);
+            self.updateThreeJS(); // Need to update the scene when a new light is created
         }
 
-        self.raycastDetectors.push(raycastDetector);
-        object.setVisual(light, outline, raycastDetector, transformTarget);
-        self.scene.add(light);
-        self.scene.add(outline);
-
-        if(object.light.castShadow) self.setShadowCaster(object, true);
-
-        self.updateThreeJS();
-
         if(callback) callback(object);
-    }
-};
+    });
 
-// Do not call directly. Call removeObject instead
+}
+
 Editor.prototype.destroyObject = function(object) {
     var self = this;
 
     self.selectObject(null); // Deselect before destroying
 
+    object.dispose();
+
     // Remove object
     self.objects.splice(self.objects.indexOf(object), 1);
 
-    // Remove visual
+    // Remove ThreeJS object
+    if(object.object3js) {
+        self.scene.remove(object.object3js);
+    }
+
     if(object.visual) {
+        // Visual may be the same as object (like for meshes), so this step might be redundant
         self.scene.remove(object.visual);
-    }
 
-    // Remove outline
-    if(object.outline) {
-        self.scene.remove(object.outline);
-    }
-
-    // Remove raycast detector
-    if(object.raycastDetector) {
-        self.raycastDetectors.splice(self.raycastDetectors.indexOf(object.raycastDetector), 1);
-        self.scene.remove(object.raycastDetector); // Since the raycast detector is often the visual or outline, this step could be redundant
+        // Remove from raycast detector list
+        self.raycastDetectors.splice(self.raycastDetectors.indexOf(object.visual), 1);
     }
 
     // Turn off shadow mapping if the light casts shadows
-    if(object.light !== null && object.light.castShadow) {
+    if(object.data.light && object.data.light.castShadow) {
         self.enableShadowMap(false);
     }
 
@@ -639,8 +435,7 @@ Editor.prototype.pasteObject = function() {
         var data = self.copiedObjectData;
         data.id = self.getUniqueId();
         data.name = self.getUniqueName(data.name);
-        var object = new ObjectEdit(data);
-        self.addObject(object, self.selectObject.bind(self));
+        self.addObject(data, self.selectObject.bind(self));
     }
 };
 
@@ -653,8 +448,7 @@ Editor.prototype.duplicateObject = function(object) {
     data.position[0] = 0;
     data.position[1] = 0;
     data.position[2] = 0;
-    var object = new ObjectEdit(data);
-    self.addObject(object);
+    self.addObject(data, self.selectObject.bind(self));
 };
 
 Editor.prototype.createAsset = function(assetName, x, y, z) {
@@ -662,21 +456,20 @@ Editor.prototype.createAsset = function(assetName, x, y, z) {
 
     var asset = self.getAssetByName(assetName);
     if(asset == null) return;
-    var data = ObjectEdit.createFromAsset(asset);
+
+    var data = Utils.clone(asset);
     data.id = self.getUniqueId();
     data.name = self.getUniqueName(assetName);
-    data.position[0] = x || 0; // x,y,z params are optional
-    data.position[1] = y || 0;
-    data.position[2] = z || 0;
-    var object = new ObjectEdit(data);
-    self.addObject(object);
+    data.assetName = asset.name;
+    data.position = [x || 0, y || 0, z || 0]; // x,y,z are optional, so default to 0 is they don't exist
+
+    self.addObject(data, self.selectObject.bind(self));
 };
 
 Editor.prototype.dropAsset = function(assetName, x, y) {
     var self = this;
 
     var position = self.unprojectMousePosition(x, y);
-
     self.createAsset(assetName, position.x, position.y, position.z);
 };
 
@@ -688,7 +481,7 @@ Editor.prototype.onClick = function(x, y) {
     // Get the selected object
     self.mouse.x = x*2-1;
     self.mouse.y = y*2-1;
-    self.raycaster.setFromCamera( self.mouse, self.camera );                
+    self.raycaster.setFromCamera( self.mouse, self.camera );
     var intersections = self.raycaster.intersectObjects( self.raycastDetectors );
     if (intersections.length > 0) {
         var mesh = intersections[0].object;
@@ -777,18 +570,15 @@ Editor.prototype.selectObject = function(object) {
 
     // Unselect previous object
     if(self.selected) {
-        //self.selected.outline.visible = false;
         self.scene.remove(self.transformControls);
-        self.transformControls.detach(self.selected.transformTarget);
+        self.transformControls.detach(self.selected.visual);
     }
 
     // Select object
     if(object) {
-        self.transformControls.attach(object.transformTarget);
+        console.log("selected: " + object.data.id);
+        self.transformControls.attach(object.visual);
         self.scene.add(self.transformControls);
-        // Only show outline on invisible objects
-        //object.outline.visible = true;
-        //object.outline.visible = !object.visible;
     }
 
     self.selected = object;
@@ -842,21 +632,21 @@ Editor.prototype.editScript = function(contents) {
     var object = self.selected;
     if(object === null) return;
 
-    if(object.script === null) {
+    if(object.data.script === null) {
 
         if(contents.length > 0) {
             // Create new script. Use the id of the object to make the script name
             var scriptObj = {
-                name:"script" + object.id,
+                name:"script" + object.data.id,
                 contents:contents
             };
 
             self.scripts.push(scriptObj);
-            object.script = scriptObj.name;
+            object.data.script = scriptObj.name;
             self.save();
         }
     } else {
-        var script = self.getScriptByName(object.script);
+        var script = self.getScriptByName(object.data.script);
         script.contents = contents;
         self.save();
     }
@@ -939,42 +729,22 @@ Editor.prototype.enableShadowMap = function(enabled) {
 Editor.prototype.setShadowCaster = function(object, enabled) {
     var self = this;
 
-    // Edit object
-    object.light.castShadow = enabled;
+    self.enableShadowMap(enabled);
 
-    // TO-DO: handle multiple or none lights that shadow cast
-
-    var light = object.visual;
-    light.castShadow = enabled;
-    
-    //light.shadowCameraVisible = true;
-    light.shadowCameraNear = 50;
-    light.shadowCameraFar = 300;
-    // light.shadowCameraFov = 10;
-    
-    var shadowRes = 2048;
-    var shadowWidth = 100;
-    light.shadowCameraRight =  shadowWidth;
-    light.shadowCameraLeft = -shadowWidth;
-    light.shadowCameraTop =  shadowWidth;
-    light.shadowCameraBottom = -shadowWidth;
-    light.shadowBias = 0.0001;
-    light.shadowDarkness = 0.3;
-    light.shadowMapWidth = shadowRes;
-    light.shadowMapHeight = shadowRes;
-
-    // Stop other lights from casting shadows
-    if(enabled) {
-        for(var i = 0; i < self.objects.length; i++) {
-            var other = self.objects[i];
-            if(other == object) continue; // This object
-            if(other.light === null) continue; // Not a light
-            other.light.castShadow = false;
-            other.visual.castShadow = false;
+    // Loop over other lights
+    for(var i = 0; i < self.objects.length; i++) {
+        var other = self.objects[i];
+        if(other == object) continue; // This object
+        if(other.data.light === null) continue; // Not a light
+        
+        if(enabled) {
+            // Turn off other lights
+            other.data.light.castShadow = false;
+            other.object3js.castShadow = false;
+        } else if(other.data.light.castShadow) {
+            self.enableShadowMap(true);
         }
     }
-
-    self.enableShadowMap(enabled);
 };
 
 Editor.prototype.updateThreeJS = function() {

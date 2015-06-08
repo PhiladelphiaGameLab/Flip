@@ -18,7 +18,7 @@ Aimer.prototype.loaded = function() {
     game.setCamera(self.camera);
     self.cameraControls.rotate(0, 100);
 
-    self.visual.visible = false;
+    self.object3js.visible = false;
 
     // Create shootable ball
     // TO-DO: probably better to reference an asset and call the createFromAsset function
@@ -69,7 +69,7 @@ Aimer.prototype.shoot = function(x, y) {
     
     new ObjectGame(self.ballData, function(object) {
         var impulse = ray.direction.multiplyScalar(150.0);
-        object.visual.applyCentralImpulse(impulse);
+        object.object3js.applyCentralImpulse(impulse);
 
     });
 }

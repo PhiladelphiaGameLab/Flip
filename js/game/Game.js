@@ -58,7 +58,7 @@ Game.prototype.start = function(data) {
     if(self.objectsToLoad == 0) self.loadFinished();
     for(var i = 0; i < data.objects.length; i++) {
 
-        var objectData = data.objects[i];
+        var objectData = Utils.unpackData(data.objects[i]);
         var tag = objectData.tag;
         var object = null;
 
@@ -196,10 +196,10 @@ Game.prototype.onViewResize = function(width, height) {
 Game.prototype.addObject = function(object) {
     var self = this;
 
-    if(object.visual) {
-        self.scene.add(object.visual);
-        if(object.data.light !== null && object.data.light.castShadow) {
-            self.setShadowCaster(object.visual);
+    if(object.object3js) {
+        self.scene.add(object.object3js);
+        if(object.data.light && object.data.light.castShadow) {
+            self.setShadowCaster(object.object3js);
         }
     }
 

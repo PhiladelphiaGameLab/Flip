@@ -1,15 +1,13 @@
 function ObjectGame (data, onLoad) {
 
     var self = this;
-    self.name = "";
-    self.tag = "";
-    self.visual = null; // ThreeJS object
-    self.data = data
+    self.object3js = null; // ThreeJS object
+    self.data = data;
 
     function loaded() {
         game.addObject(self);
+        self.loaded(); // Handled by subclasses
         if(onLoad) onLoad(self);
-        self.loaded();
     }
 
     if(data == null) {
@@ -20,13 +18,11 @@ function ObjectGame (data, onLoad) {
     self.name = data.name;
     self.tag = data.tag;
 
-    
-
     // Load the ThreeJS mesh
     if(data.mesh !== null) {
         game.loader.loadMesh(data.mesh, function(geometry, material) {
             
-            var visual = null;
+            var object3js = null;
 
             if(data.physics) {
 
@@ -41,14 +37,14 @@ function ObjectGame (data, onLoad) {
                 );
 
                 if(shape == "sphere") {
-                    visual = new Physijs.SphereMesh(geometry, physicsMat, mass);
+                    object3js = new Physijs.SphereMesh(geometry, physicsMat, mass);
                 } else if(shape == "cube") {
-                    visual = new Physijs.BoxMesh(geometry, physicsMat, mass);
+                    object3js = new Physijs.BoxMesh(geometry, physicsMat, mass);
                 } else if(shape == "capsule") {
-                    visual = new Physijs.CapsuleMesh(geometry, physicsMat, mass);
+                    object3js = new Physijs.CapsuleMesh(geometry, physicsMat, mass);
                 } 
             } else {
-                visual = new THREE.Mesh(geometry, material);
+                object3js = new THREE.Mesh(geometry, material);
             }
 
             // Set material
@@ -58,13 +54,13 @@ function ObjectGame (data, onLoad) {
                 material.color.setHex(data.material.color);
             }
 
-            visual.position.fromArray(data.position);
-            visual.rotation.fromArray(data.rotation);
-            visual.scale.fromArray(data.scale);
-            visual.visible = data.visible;
-            visual.castShadow = data.castShadow;
-            visual.receiveShadow = data.receiveShadow;
-            self.visual = visual;
+            object3js.position.fromArray(data.position);
+            object3js.rotation.fromArray(data.rotation);
+            object3js.scale.fromArray(data.scale);
+            object3js.visible = data.visible;
+            object3js.castShadow = data.castShadow;
+            object3js.receiveShadow = data.receiveShadow;
+            self.object3js = object3js;
             loaded();
         });
     }
@@ -72,19 +68,19 @@ function ObjectGame (data, onLoad) {
 
         if(data.light.type == "point") {
 
-            var visual = new THREE.PointLight(data.light.color, 1.0, data.light.distance);
-            visual.position.fromArray(data.position);
-            visual.visible = data.visible;
-            self.visual = visual;
+            var object3js = new THREE.PointLight(data.light.color, 1.0, data.light.distance);
+            object3js.position.fromArray(data.position);
+            object3js.visible = data.visible;
+            self.object3js = object3js;
             loaded();
 
         } else if(data.light.type == "dir") {
 
-            var visual = new THREE.DirectionalLight(data.light.color, 1.0);
+            var object3js = new THREE.DirectionalLight(data.light.color, 1.0);
             var position = Utils.getDirLightPosition(data.rotation);
-            visual.position.copy(position);
-            visual.visible = data.visible;
-            self.visual = visual;
+            object3js.position.copy(position);
+            object3js.visible = data.visible;
+            self.object3js = object3js;
             loaded();
         }
     }
@@ -101,16 +97,16 @@ ObjectGame.prototype.update = function() {
 
 ObjectGame.prototype.getPosition = function() {
     var self = this;
-    if(!self.visual) return null;
+    if(!self.object3js) return null;
 
-    return self.visual.position.clone(); // Make a copy in case it's not safe to return the vector directly
+    return self.object3js.position.clone(); // Make a copy in case it's not safe to return the vector directly
 };
 
 ObjectGame.prototype.move = function(x, y, z) {
     var self = this;
-    if(!self.visual) return;
+    if(!self.object3js) return;
 
-    var pos = self.visual.position;
+    var pos = self.object3js.position;
     self.setPosition(pos.x + x, pos.y + y, pos.z + z);
 }
 
@@ -121,26 +117,26 @@ ObjectGame.prototype.moveVector = function(vector) {
 
 ObjectGame.prototype.setPosition = function(x, y, z) {
     var self = this;
-    if(!self.visual) return;
+    if(!self.object3js) return;
 
-    self.visual.position.set(x, y, z);
-    self.visual.__dirtyPosition = true; // For physijs purposes
+    self.object3js.position.set(x, y, z);
+    self.object3js.__dirtyPosition = true; // For physijs purposes
 };
 
 ObjectGame.prototype.getRotation = function() {
     var self = this;
-    if(!self.visual) return null;
+    if(!self.object3js) return null;
 
-    return self.visual.rotation.clone(); // Make a copy in case it's not safe to return the vector directly
+    return self.object3js.rotation.clone(); // Make a copy in case it's not safe to return the vector directly
 
 };
 
 ObjectGame.prototype.setRotation = function(rotation) {
     var self = this;
-    if(!self.visual) return;
+    if(!self.object3js) return;
 
-    self.visual.rotation.copy(rotation);
-    self.visual.__dirtyRotation = true;
+    self.object3js.rotation.copy(rotation);
+    self.object3js.__dirtyRotation = true;
 };
 
 // Input events

@@ -44,7 +44,7 @@ function PropertiesPane(editor) {
         this["Grid Visible"] = true;
         this["Clear Scene"] = function() { editor.clearScene() };
         this["Clear Saved Data"] = function() { editorUI.clearLocalStorage(); };
-        this["Save To File"] = function() { editorUI.saveToFile(editor.data, editor.sceneName)};
+        this["Save To File"] = function() { editorUI.saveToFile(editor.sceneData, editor.sceneName)};
     };
 
     var controls = new Controls();
@@ -82,95 +82,94 @@ function PropertiesPane(editor) {
     // Set name
     basicFolder.add(controls, "Name").onFinishChange(function(value){
 
-        if(value == self.selectedObject.name) return;
+        if(value == self.selectedObject.data.name) return;
 
         if(editor.isNameUnique(value)) {
-            self.selectedObject.name = value;
-            self.selectedObject.updateVisual();
+            self.selectedObject.data.name = value;
             editor.editObject(self.selectedObject);
         } else {
             alert("The name " + value + " is already taken");
-            self.controls["Name"] = self.selectedObject.name;
+            self.controls["Name"] = self.selectedObject.data.name;
             self.refreshUI();
         }
     });
 
     // Set x
     var xControl = basicFolder.add(controls, "x").onChange(function(value){
-        self.selectedObject.position[0] = value;
-        self.selectedObject.updateVisual();
+        self.selectedObject.data.position[0] = value;
+        self.selectedObject.updateObject();
     }).onFinishChange(function(value){
         editor.editObject(self.selectedObject);
     });
 
     // Set y
     var yControl = basicFolder.add(controls, "y").onChange(function(value){
-        self.selectedObject.position[1] = value;
-        self.selectedObject.updateVisual();
+        self.selectedObject.data.position[1] = value;
+        self.selectedObject.updateObject();
     }).onFinishChange(function(value){
         editor.editObject(self.selectedObject);
     });
 
     // Set z
     var zControl = basicFolder.add(controls, "z").onChange(function(value){
-        self.selectedObject.position[2] = value;
-        self.selectedObject.updateVisual();
+        self.selectedObject.data.position[2] = value;
+        self.selectedObject.updateObject();
     }).onFinishChange(function(value){
         editor.editObject(self.selectedObject);
     });
 
     // Set rx
     var rxControl = basicFolder.add(controls, "rx").onChange(function(value){
-        self.selectedObject.rotation[0] = toRadians(value);
-        self.selectedObject.updateVisual();
+        self.selectedObject.data.rotation[0] = toRadians(value);
+        self.selectedObject.updateObject();
     }).onFinishChange(function(value){
         editor.editObject(self.selectedObject);
     });
 
     // Set ry
     var ryControl = basicFolder.add(controls, "ry").onChange(function(value){
-        self.selectedObject.rotation[1] = toRadians(value);
-        self.selectedObject.updateVisual();
+        self.selectedObject.data.rotation[1] = toRadians(value);
+        self.selectedObject.updateObject();
     }).onFinishChange(function(value){
         editor.editObject(self.selectedObject);
     });
 
     // Set rz
     var rzControl = basicFolder.add(controls, "rz").onChange(function(value){
-        self.selectedObject.rotation[2] = toRadians(value);
-        self.selectedObject.updateVisual();
+        self.selectedObject.data.rotation[2] = toRadians(value);
+        self.selectedObject.updateObject();
     }).onFinishChange(function(value){
         editor.editObject(self.selectedObject);
     });
 
     // Set sx
     var sxControl = basicFolder.add(controls, "sx").min(0.01).onChange(function(value){
-        self.selectedObject.scale[0] = value;
-        self.selectedObject.updateVisual();
+        self.selectedObject.data.scale[0] = value;
+        self.selectedObject.updateObject();
     }).onFinishChange(function(value){
         editor.editObject(self.selectedObject);
     });
 
     // Set sy
     var syControl = basicFolder.add(controls, "sy").min(0.01).onChange(function(value){
-        self.selectedObject.scale[1] = value;
-        self.selectedObject.updateVisual();
+        self.selectedObject.data.scale[1] = value;
+        self.selectedObject.updateObject();
     }).onFinishChange(function(value){
         editor.editObject(self.selectedObject);
     });
 
     // Set sz
     var szControl = basicFolder.add(controls, "sz").min(0.01).onChange(function(value){
-        self.selectedObject.scale[2] = value;
-        self.selectedObject.updateVisual();
+        self.selectedObject.data.scale[2] = value;
+        self.selectedObject.updateObject();
     }).onFinishChange(function(value){
         editor.editObject(self.selectedObject);
     });
 
     // Set visible
     basicFolder.add(controls, "Visible").onFinishChange(function(value){
-        self.selectedObject.visible = value;
-        self.selectedObject.updateVisual();
+        self.selectedObject.data.visible = value;
+        self.selectedObject.updateObject();
         editor.editObject(self.selectedObject);
     });
 
@@ -194,8 +193,8 @@ function PropertiesPane(editor) {
 
     //Set Material Color
     var matColorControl = materialFolder.addColor(controls,"MatColor").onChange(function(value){
-        self.selectedObject.material.color = stringToColor(value);
-        self.selectedObject.updateVisual();
+        self.selectedObject.data.material.color = stringToColor(value);
+        self.selectedObject.updateObject();
     }).onFinishChange(function(value){
         editor.editObject(self.selectedObject);
     });
@@ -208,31 +207,31 @@ function PropertiesPane(editor) {
 
     // Set type
     physicsFolder.add(controls, "Type", ["static", "dynamic"]).onFinishChange(function(value){
-        self.selectedObject.physics.type = value;
+        self.selectedObject.data.physics.type = value;
         editor.editObject(self.selectedObject);
     });
     
     // Set friction
     physicsFolder.add(controls, "Friction", 0, 1, 0.5).onFinishChange(function(value){
-        self.selectedObject.physics.friction = value;
+        self.selectedObject.data.physics.friction = value;
         editor.editObject(self.selectedObject);
     });
     
     // Set restitution
     physicsFolder.add(controls, "Restitution", 0, 1, 0.5).onFinishChange(function(value){
-        self.selectedObject.physics.restitution = value;
+        self.selectedObject.data.physics.restitution = value;
         editor.editObject(self.selectedObject);
     });
     
     // Set shape
     physicsFolder.add(controls, "Shape", ["sphere", "cube", "capsule"]).onFinishChange(function(value){
-        self.selectedObject.physics.shape = value;
+        self.selectedObject.data.physics.shape = value;
         editor.editObject(self.selectedObject);
     });
     
     // Set mass
     physicsFolder.add(controls, "Mass", 0, 10, 1).onFinishChange(function(value){
-        self.selectedObject.physics.mass = value;
+        self.selectedObject.data.physics.mass = value;
         editor.editObject(self.selectedObject);
     });
 
@@ -242,8 +241,8 @@ function PropertiesPane(editor) {
     
     // Set color
     var dirLightColorControl = dirLightFolder.addColor(controls, "DirLightColor").onChange(function(value){
-        self.selectedObject.light.color = stringToColor(value);
-        self.selectedObject.updateVisual();
+        self.selectedObject.data.light.color = stringToColor(value);
+        self.selectedObject.updateObject();
     }).onFinishChange(function(value){
         editor.editObject(self.selectedObject);
     });
@@ -251,10 +250,9 @@ function PropertiesPane(editor) {
 
     // Set cast shadow
     dirLightFolder.add(controls, "Cast Shadow").onFinishChange(function(value){
-        self.editor.setShadowCaster(self.selectedObject, value);
-        self.selectedObject.updateVisual();
+        self.selectedObject.data.light.castShadow = value;
+        self.selectedObject.updateObject();
         editor.editObject(self.selectedObject);
-
     });
 
 
@@ -263,8 +261,8 @@ function PropertiesPane(editor) {
 
     // Set color
     var pointLightColorControl = pointLightFolder.addColor(controls, "PointLightColor").onChange(function(value){
-        self.selectedObject.light.color = stringToColor(value);
-        self.selectedObject.updateVisual();
+        self.selectedObject.data.light.color = stringToColor(value);
+        self.selectedObject.updateObject();
     }).onFinishChange(function(value){
         editor.editObject(self.selectedObject);
     });
@@ -272,8 +270,8 @@ function PropertiesPane(editor) {
 
     // Set distance
     pointLightFolder.add(controls, "Distance").min(0.01).onChange(function(value){
-        self.selectedObject.light.distance = value;
-        self.selectedObject.updateVisual();
+        self.selectedObject.data.light.distance = value;
+        self.selectedObject.updateObject();
     }).onFinishChange(function(value){
         editor.editObject(self.selectedObject);
     });
@@ -430,11 +428,11 @@ PropertiesPane.prototype.updateSelectedObject = function() {
     var object = self.selectedObject;
     if(object === null) return;
 
-    var hasPhysics = object.physics !== null;
-    var hasMesh = object.mesh !== null;
-    var hasLight = object.light !== null;
-    var hasDirLight = hasLight && object.light.type == "dir";
-    var hasPointLight = hasLight && object.light.type == "point";
+    var hasPhysics = object.data.physics !== null;
+    var hasMesh = object.data.mesh !== null;
+    var hasLight = object.data.light !== null;
+    var hasDirLight = hasLight && object.data.light.type == "dir";
+    var hasPointLight = hasLight && object.data.light.type == "point";
 
     // Hide folders (but open later if applicable)
     self.physicsFolderVisual.hide();
@@ -443,44 +441,44 @@ PropertiesPane.prototype.updateSelectedObject = function() {
     self.pointLightFolderVisual.hide();
 
     // Update general properties
-    self.controls["Name"] = object.name;
-    self.controls["x"] = object.position[0];
-    self.controls["y"] = object.position[1];
-    self.controls["z"] = object.position[2];
-    self.controls["rx"] = toDegrees(object.rotation[0]);
-    self.controls["ry"] = toDegrees(object.rotation[1]);
-    self.controls["rz"] = toDegrees(object.rotation[2]);
-    self.controls["sx"] = object.scale[0];
-    self.controls["sy"] = object.scale[1];
-    self.controls["sz"] = object.scale[2];
-    self.controls["Visible"] = object.visible;
+    self.controls["Name"] = object.data.name;
+    self.controls["x"] = object.data.position[0];
+    self.controls["y"] = object.data.position[1];
+    self.controls["z"] = object.data.position[2];
+    self.controls["rx"] = toDegrees(object.data.rotation[0]);
+    self.controls["ry"] = toDegrees(object.data.rotation[1]);
+    self.controls["rz"] = toDegrees(object.data.rotation[2]);
+    self.controls["sx"] = object.data.scale[0];
+    self.controls["sy"] = object.data.scale[1];
+    self.controls["sz"] = object.data.scale[2];
+    self.controls["Visible"] = object.data.visible;
     self.controls["Physics"] = hasPhysics;
 
     if(hasPhysics) {
-        self.controls["Type"] = object.physics.type;
-        self.controls["Friction"] = object.physics.friction;
-        self.controls["Restitution"] = object.physics.restitution;
-        self.controls["Shape"] = object.physics.shape;
-        self.controls["Mass"] = object.physics.mass;
+        self.controls["Type"] = object.data.physics.type;
+        self.controls["Friction"] = object.data.physics.friction;
+        self.controls["Restitution"] = object.data.physics.restitution;
+        self.controls["Shape"] = object.data.physics.shape;
+        self.controls["Mass"] = object.data.physics.mass;
         self.physicsFolderVisual.show();
     }
 
     if(hasDirLight) {
 
-        self.controls["DirLightColor"] = colorToString(object.light.color);
-        self.controls["Cast Shadow"] = object.light.castShadow;
+        self.controls["DirLightColor"] = colorToString(object.data.light.color);
+        self.controls["Cast Shadow"] = object.data.light.castShadow;
         self.dirLightFolderVisual.show();
     }
 
     if(hasPointLight) {
-        self.controls["PointLightColor"] = colorToString(object.light.color);
-        self.controls["Distance"] = object.light.distance;
+        self.controls["PointLightColor"] = colorToString(object.data.light.color);
+        self.controls["Distance"] = object.data.light.distance;
         self.pointLightFolderVisual.show();
     }
  
     if(hasMesh) {
         // A mesh always has a material
-        self.controls["MatColor"] = colorToString(object.material.color);
+        self.controls["MatColor"] = colorToString(object.data.material.color);
         self.materialFolderVisual.show();
     }
 

@@ -41,7 +41,7 @@ Utils.getMaterials = function(material) {
     } else {
         return [material];
     }
-}
+};
 
 Utils.getDirLightPosition = function(rotation) {
     var euler = new THREE.Euler(rotation[0], rotation[1], rotation[2], 'XYZ');
@@ -49,4 +49,112 @@ Utils.getDirLightPosition = function(rotation) {
     position.applyEuler(euler).normalize();
     position.multiplyScalar(200.0); // Add extra position for increasing shadow casting region
     return position;
-}
+};
+
+Utils.clone = function(data) {
+    return JSON.parse(JSON.stringify(data));
+};
+
+// Convert from the packed format to the unpacked format
+Utils.unpackData = function(data) {
+
+    var clone = {};
+
+    clone.name = data.name;
+    clone.id = data.id;
+    clone.asset = data.asset;
+    clone.tag = data.tag || "";
+
+    clone.visible = (data.visible === undefined) ? true : data.visible;
+    clone.castShadow = (data.castShadow === undefined) ? true : data.castShadow;
+    clone.receiveShadow = (data.receiveShadow === undefined) ? true : data.receiveShadow;
+
+    clone.script = data.script || null;
+    clone.mesh = data.mesh || null;
+
+    clone.material = null;
+    if(data.material) clone.material = {
+        color: data.material.color
+    };
+
+    clone.physics = null;
+    if(data.physics) clone.physics = {
+        type: data.physics.type,
+        friction: data.physics.friction,
+        restitution: data.physics.restitution,
+        shape: data.physics.shape,
+        mass : data.physics.mass
+    };
+
+    clone.light = null;
+    if(data.light) clone.light = {
+        color: data.light.color,
+        distance: data.light.distance || 50.0,
+        type: data.light.type,
+        castShadow: data.light.castShadow || false
+    };
+
+    clone.camera = null;
+    if(data.camera) clone.camera = {
+        fov: data.camera.fov
+    };
+
+    clone.position = data.position ? [data.position[0], data.position[1], data.position[2]] : [0,0,0];
+    clone.rotation = data.rotation ? [data.rotation[0], data.rotation[1], data.rotation[2]] : [0,0,0];
+    clone.scale = data.scale ? [data.scale[0], data.scale[1], data.scale[2]] : [1,1,1];
+
+    return clone;
+};
+
+// Convert from the unpacked format to the packed format
+Utils.packData = function(data) {
+
+    // Make a deep copy of the data. Trim out any unused variables to save space
+    // TO-DO: save to a more packed format, like an array
+
+    var clone = {};
+
+    clone.name = data.name;
+    clone.id = data.id;
+    clone.asset = data.asset;
+
+    if(data.tag != "") clone.tag = data.tag;
+
+    if(!data.visible) clone.visible = data.visible;
+    if(!data.castShadow) clone.castShadow = data.castShadow;
+    if(!data.receiveShadow) clone.receiveShadow = data.receiveShadow;
+    if(data.script) clone.script = data.script;
+    if(data.mesh) clone.mesh = data.mesh;
+
+    if(data.material) clone.material = {
+        color: data.material.color
+    };
+
+    if(data.physics) clone.physics = {
+        type: data.physics.type,
+        friction: data.physics.friction,
+        restitution: data.physics.restitution,
+        shape: data.physics.shape,
+        mass : data.physics.mass
+    };
+
+    if(data.light){
+        clone.light = {
+            color: data.light.color,
+            type: data.light.type
+        };
+
+        if(data.light.castShadow) clone.light.castShadow = true;
+        if(data.light.type == "point") clone.light.distance = data.light.distance;
+    }
+
+    if(data.camera) clone.camera = {
+        fov: data.camera.fov
+    };
+
+    clone.position = [data.position[0], data.position[1], data.position[2]];
+    clone.rotation = [data.rotation[0], data.rotation[1], data.rotation[2]];
+    clone.scale = [data.scale[0], data.scale[1], data.scale[2]];
+
+    return clone;
+};

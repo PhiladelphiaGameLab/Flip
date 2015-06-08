@@ -8,7 +8,6 @@ $(window).load(function() {
     editorUI.load();
 });
 
-
 function EditorUI() {
 
     var self = this;
@@ -110,11 +109,11 @@ EditorUI.prototype.init = function() {
 
     // Bind events to buttons
     $("#undo-button").click(function() {
-        editor.undoAction();
+        editor.undoHandler.undoAction();
     });
 
     $("#redo-button").click(function() {
-        editor.redoAction();
+        editor.undoHandler.redoAction();
     });
 
     $("#remove-button").click(function() {
@@ -264,7 +263,7 @@ EditorUI.prototype.startGame = function() {
     console.log("starting game");
     var width = self.viewport.width();
     var height = self.viewport.height();
-    self.game = new Game(self.renderer, width, height, self.loader, self.editor.data);
+    self.game = new Game(self.renderer, width, height, self.loader, self.editor.sceneData);
     self.inputHandler.target = game;
     self.inGame = true;
     $("#screen-cover").show();
@@ -313,7 +312,7 @@ EditorUI.prototype.selectObject = function(object) {
         if(!self.inWorkspace) $("#code-editor").show();
 
         // Show script in code editor pane
-        if(object.script === null) {
+        if(object.data.script === null) {
             self.codeEditor.getSession().setValue("");
         } else {
             var scriptRef = object.script;
