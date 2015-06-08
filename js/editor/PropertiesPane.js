@@ -290,7 +290,7 @@ function PropertiesPane(editor) {
 
         if(validName) {
             editor.sceneName = value;
-            editor.save();
+            editor.editSceneSettings();
         } else {
             alert("Invalid name");
             self.controls["Scene Name"] = editor.sceneName;
@@ -302,26 +302,26 @@ function PropertiesPane(editor) {
     settingsFolder.addColor(controls, "Ambient Color").onChange(function(value){
         editor.setAmbientColor(stringToColor(value));
     }).onFinishChange(function(value){
-        editor.save();
+        editor.editSceneSettings();
     });
 
     // Background color
     settingsFolder.addColor(controls, "Background Color").onChange(function(value){
         editor.setBackgroundColor(stringToColor(value));
     }).onFinishChange(function(value){
-        editor.save();
+        editor.editSceneSettings();
     });
 
     // Skybox
     settingsFolder.add(controls, "Skybox", ["none", "clouds"]).onFinishChange(function(value){
         editor.setSkybox(value);
-        editor.save();
+        editor.editSceneSettings();
     });
 
     // Grid
     settingsFolder.add(controls, "Grid Visible").onFinishChange(function(value){
         editor.setGridVisible(value);
-        editor.save();
+        editor.editSceneSettings();
     });
 
     settingsFolder.add(controls, "Clear Scene");

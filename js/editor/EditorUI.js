@@ -180,8 +180,7 @@ EditorUI.prototype.init = function() {
         scrollInertia:0,
         theme:"light",
         callbacks:{
-            onOverflowY: function(){self.resizePropertiesPane();},
-            onOverflowYNone: function(){self.resizePropertiesPane();}
+            onUpdate: function(){self.resizePropertiesPane();},
         }
     });
 };
@@ -242,7 +241,24 @@ EditorUI.prototype.onViewResize = function() {
 
 EditorUI.prototype.resizePropertiesPane = function() {
     var self = this;
-    self.propertiesPane.resize($("#properties-pane .mCSB_container").width());
+
+    var pane = $("#properties-pane");
+    var container = pane.find(".mCSB_container").first();
+
+    // Resize scrollbar container to fit the pane, this prevents the color input box from being clipped
+    var paneHeight = pane.height();
+    var containerHeight = container.height();
+    var spacing = paneHeight - containerHeight;
+
+    if(paneHeight > containerHeight) {
+        container.css("padding-bottom", spacing + "px");
+    } else {
+        container.css("padding-bottom", "0");
+    }
+    
+    var width = container.width();
+
+    self.propertiesPane.resize(width);
 }
 
 EditorUI.prototype.openHelpWindow = function() {

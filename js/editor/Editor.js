@@ -114,8 +114,6 @@ Editor.prototype.init = function() {
     self.scene.add(grid);
     self.grid = grid;
 
-    self.setDefaultSettings();
-
     // Position camera
     self.camera.position.set(-40, 30, 40);
     self.cameraControls.setRotation(-0.76, -0.43);
@@ -125,17 +123,25 @@ Editor.prototype.init = function() {
     //editorUI.clearLocalStorage();
     //editorUI.loadFromFile("data/scenes/TerrainScene.txt", function(data){self.load(data);});
 
-    // Load scene
+
+    // This gets called after the scene data is retrieved below
+    function loadScene(data) {
+        self.load(data, function(){
+            self.save(); // Save the scene right after loading it
+        });
+    }
+
+    // Load scene data
     editorUI.loadFromLocalStorage(function(data){
 
-        // Found saved data, load it
-        if(data) self.load(data);
+        // Found saved data in local storage, load scene
+        if(data) loadScene(data);
 
         // Did not find saved data, load a pre-built scene
         if(data === null) {
             editorUI.openHelpWindow();
             editorUI.loadFromFile("data/scenes/PhysicsDemoScene.txt", function(data){
-                self.load(data);
+                loadScene(data);
             });
         }
     });
@@ -185,22 +191,26 @@ Editor.prototype.clear = function() {
     }
 }
 
-Editor.prototype.load = function(sceneData) {
-    // Assume that scene is empty when you load.
+Editor.prototype.load = function(sceneData, callback) {
 
     var self = this;
     if(sceneData === null) return;
+
+    self.clear(); // Clears the scene if there's anything in it
 
     console.log(sceneData);
     self.sceneData = sceneData;
     self.sceneName = sceneData.sceneName;
     console.log("loading scene:", sceneData.sceneName);
 
-    self.scripts = sceneData.scripts; // TO-DO: is it ok not to deep copy?
+    var objectsLoaded = 0;
+    var objectsToLoad = sceneData.objects.length;
+    var skyboxLoaded = false;
 
-    // Create objects
-    for(var i = 0; i < sceneData.objects.length; i++) {
-        self.createObject(sceneData.objects[i]);
+    function checkLoaded() {
+        if(objectsLoaded == objectsToLoad && skyboxLoaded) {
+            if(callback) callback();
+        }
     }
 
     // Set camera position and rotation
@@ -209,8 +219,21 @@ Editor.prototype.load = function(sceneData) {
 
     self.setBackgroundColor(sceneData.backgroundColor);
     self.setAmbientColor(sceneData.ambientColor);
-    self.setSkybox(sceneData.skybox.name);
     self.setGridVisible(sceneData.editor.gridVisible);
+    self.setSkybox(sceneData.skybox.name, function(){
+        skyboxLoaded = true;
+        checkLoaded();
+    });
+
+    self.scripts = sceneData.scripts; // TO-DO: is it ok not to deep copy?
+
+    // Create objects
+    for(var i = 0; i < objectsToLoad; i++) {
+        self.createObject(sceneData.objects[i], function(object){
+            objectsLoaded++;
+            checkLoaded();
+        });
+    }
 }
 
 Editor.prototype.save = function() {
@@ -250,6 +273,8 @@ Editor.prototype.save = function() {
     editorUI.saveToLocalStorage(sceneData);
 
     console.log("saving scene");
+
+    return sceneData;
 }
 
 Editor.prototype.getObjectByName = function(name) {
@@ -300,6 +325,11 @@ Editor.prototype.clearScene = function() {
     var self = this;
     self.clear();
     self.undoHandler.clearScene(self.sceneData);
+}
+
+Editor.prototype.editSceneSettings = function() {
+    var self = this;
+    self.undoHandler.editScene();
 }
 
 Editor.prototype.editObject = function(object) {
@@ -519,9 +549,9 @@ Editor.prototype.onKeyPress = function(key, ctrl) {
     var self = this;
 
     if(key == 90) { // z
-        self.undoAction();
+        self.undoHandler.undoAction();
     } else if(key == 89) { // y
-        self.redoAction();
+        self.undoHandler.redoAction();
     } else if(key == 46) { // DEL
         self.removeSelected();
     } else if(key == 49) { // 1
@@ -576,7 +606,6 @@ Editor.prototype.selectObject = function(object) {
 
     // Select object
     if(object) {
-        console.log("selected: " + object.data.id);
         self.transformControls.attach(object.visual);
         self.scene.add(self.transformControls);
     }
@@ -666,7 +695,7 @@ Editor.prototype.setBackgroundColor = function(color) {
     editorUI.updateSettings();
 };
 
-Editor.prototype.setSkybox = function(skybox) {
+Editor.prototype.setSkybox = function(skybox, callback) {
     var self = this;
 
     // Disable skybox
@@ -676,6 +705,7 @@ Editor.prototype.setSkybox = function(skybox) {
         self.skybox = skybox;
         self.skyboxUrl = "";
         editorUI.updateSettings();
+        if(callback) callback();
         return;
     }
 
@@ -703,6 +733,7 @@ Editor.prototype.setSkybox = function(skybox) {
         self.skyboxEnabled = true;
         self.renderer.autoClear = false;
         editorUI.updateSettings();
+        if(callback) callback();
     });
 };
 

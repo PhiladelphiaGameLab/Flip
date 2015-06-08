@@ -59,6 +59,14 @@ UndoHandler.prototype.doAction = function(action, reverse) {
         } else {
             editor.clear();
         }
+    
+    } else if(action.type == "scene") {
+
+        if(reverse) {
+            editor.load(action.data.oldData);
+        } else {
+            editor.load(action.data.newData);
+        }
     }
 }
 
@@ -125,24 +133,38 @@ UndoHandler.prototype.addAction = function(actionType, actionData) {
 UndoHandler.prototype.editObject = function(object) {
     var self = this;
 
-    // Save the old state of the object and the new state of the object
-    var newData = object.getData();
-    var oldData = object.oldData;
-    self.addAction("edit", {name:object.data.name, newData:newData, oldData:oldData});
-    object.oldData = newData;
+    // // Save the old state of the object and the new state of the object
+    // var newData = object.getData();
+    // var oldData = object.oldData;
+    // self.addAction("edit", {name:object.data.name, newData:newData, oldData:oldData});
+    // object.oldData = newData;
+    self.editScene();
 };
 
 UndoHandler.prototype.addObject = function(object) {
     var self = this;
-    self.addAction("add", object.getData());
+    // self.addAction("add", object.getData());
+    self.editScene();
 }
 
 UndoHandler.prototype.removeObject = function(object) {
     var self = this;
-    self.addAction("remove", object.getData());
+    // self.addAction("remove", object.getData());
+    self.editScene();
 }
 
 UndoHandler.prototype.clearScene = function(sceneData) {
     var self = this;
-    self.addAction("clear", sceneData);
+    // self.addAction("clear", sceneData);
+    self.editScene();
+}
+
+UndoHandler.prototype.editScene = function() {
+    var self = this;
+    var editor = self.editor;
+
+    var oldData = editor.sceneData;
+    var newData = editor.save();
+
+    self.addAction("scene", {newData:newData, oldData:oldData});
 }
