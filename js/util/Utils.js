@@ -71,6 +71,9 @@ Utils.unpackData = function(data) {
 
     clone.script = data.script || null;
     clone.mesh = data.mesh || null;
+    
+    clone.particle = data.particle || false;
+    clone.particlemesh = data.particlemesh || null;
 
     clone.material = null;
     if(data.material) clone.material = {
@@ -125,6 +128,9 @@ Utils.packData = function(data) {
     if(!data.receiveShadow) clone.receiveShadow = data.receiveShadow;
     if(data.script) clone.script = data.script;
     if(data.mesh) clone.mesh = data.mesh;
+
+    if(data.particle) clone.particle = data.particle;
+    if(data.particle) clone.particlemesh = data.particlemesh;
 
     if(data.material) clone.material = {
         color: data.material.color

@@ -84,6 +84,18 @@ function ObjectGame (data, onLoad) {
             loaded();
         }
     }
+    else if (data.particle) {
+
+            var object3js = self.data.particlemesh;
+            object3js.position.fromArray(data.position);
+            object3js.rotation.fromArray(data.rotation);
+            object3js.scale.fromArray(data.scale);
+            object3js.visible = data.visible;
+            object3js.castShadow = data.castShadow;
+            object3js.receiveShadow = data.receiveShadow;
+            self.object3js = object3js;
+            loaded();
+    }
     else { loaded(); }
 }
 
@@ -93,6 +105,9 @@ ObjectGame.prototype.loaded = function() {
 
 ObjectGame.prototype.update = function() {
     var self = this;
+    var dt = clock.getDelta();   
+    self.createExplosion(dt);
+    
 };
 
 ObjectGame.prototype.getPosition = function() {
@@ -138,6 +153,18 @@ ObjectGame.prototype.setRotation = function(rotation) {
     self.object3js.rotation.copy(rotation);
     self.object3js.__dirtyRotation = true;
 };
+
+ObjectGame.prototype.createExplosion = function(time) {
+    var self = this;
+    for (var i= 0;i< particleGroupArray.length ;i++)
+    {
+        var p =particleGroupArray[i];
+        p.tick( time );
+        p.triggerPoolEmitter( 1, (0,0,0) );
+    }
+            
+}
+
 
 // Input events
 ObjectGame.prototype.onClick = function(x, y) {

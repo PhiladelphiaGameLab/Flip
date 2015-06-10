@@ -1,10 +1,14 @@
-function ObjectEdit (data, callback) {
-    var self = this;
+//changes for particle system
+var clock = new THREE.Clock();
+var particleGroupArray = []; // keep track of total particle groups in the scene
 
+function ObjectEdit (data, callback) {
+    var self = this; 
     self.object3js = null; // ThreeJS object
     self.visual = null; // Visual representation of the object. For meshes this is the object itself, for lights this is the outline. Used for raycast detection.
     self.data = null;
     self.oldData = null; // Used for undo/redo
+    
 
     self.setData(data);
 
@@ -66,6 +70,16 @@ function ObjectEdit (data, callback) {
             
         }
     }
+    //check if it is a particle system 
+    else if (self.data.particle){
+
+            self.data.particlemesh  = self.initParticles();   
+            self.object3js = self.data.particlemesh;
+            self.visual = self.data.particlemesh;
+            loaded();
+
+
+    }
 
     // Called once the object loads
     function loaded() {
@@ -75,7 +89,15 @@ function ObjectEdit (data, callback) {
         if(callback) callback(self);
     }
 }
-
+ObjectEdit.prototype.createExplosion = function(time) {
+            var self = this;
+        for (var i= 0;i< particleGroupArray.length ;i++) {
+            var p =particleGroupArray[i];
+            p.tick( time );
+            p.triggerPoolEmitter( 1, (0,0,0) );
+        }
+            
+}
 ObjectEdit.prototype.setData = function(data) {
     var self = this;
 
@@ -180,6 +202,9 @@ ObjectEdit.prototype.updateObject = function() {
             light.castShadow = castShadow;
             editor.setShadowCaster(self, castShadow && visible);
         }
+    } 
+    if(self.data.particle) {
+
     }    
 };
 
@@ -189,4 +214,43 @@ ObjectEdit.prototype.dispose = function() {
         self.visual.geometry.dispose();
         self.visual.material.dispose();
     }
+}
+
+ObjectEdit.prototype.update = function() {
+
+            var self = this;
+            var dt = clock.getDelta();   
+            self.createExplosion(dt);
+
+ 
+}
+//Initialize particles
+ObjectEdit.prototype.initParticles = function() {
+
+            var self = this;  
+            var emitterSettings = {
+            type: 'sphere',
+            positionSpread: new THREE.Vector3(10, 10, 10),
+            radius: 1,
+            speed: 50,
+            sizeStart: 30,
+            sizeStartSpread: 30,
+            sizeEnd: 0,
+            opacityStart: 1,
+            opacityEnd: 0,
+            colorStart: new THREE.Color('yellow'),
+            colorStartSpread: new THREE.Vector3(0, 10, 0),
+            colorEnd: new THREE.Color('red'),
+            particleCount: 300,
+            alive: 0,
+            duration: 0.05
+            };  
+            var particleGroup = new SPE.Group({
+            texture: THREE.ImageUtils.loadTexture('img/spark.png'),
+            maxAge: 1.0,
+            blending: THREE.AdditiveBlending
+            });
+            particleGroup.addPool( 10, emitterSettings, false );
+            particleGroupArray.push(particleGroup);
+            return particleGroup.mesh;
 }

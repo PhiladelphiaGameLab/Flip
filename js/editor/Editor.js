@@ -33,6 +33,9 @@ function Editor(renderer, width, height, loader) {
         //{name:"Glass Plank", icon:"img/cube.png", mesh:"data/assets/physics_demo/plank_glass.json"},
         //{name:"Glass Box", icon:"img/cube.png", mesh:"data/assets/physics_demo/cube_glass.json"},
 
+        //Particle System
+        {name:"Particle System", icon:"img/cube.png", particle:true, particlemesh:null}
+
     ];
 
     self.objects = []; // Objects in the scene
@@ -106,6 +109,9 @@ Editor.prototype.init = function() {
 
     self.skyboxMesh = new THREE.Mesh( new THREE.BoxGeometry( 100, 100, 100 ), skyboxMat );
     self.skyboxScene.add(self.skyboxMesh);
+
+   
+
 
     // Grid
     var grid = new THREE.GridHelper( 200, 10 );
@@ -181,6 +187,13 @@ Editor.prototype.render = function() {
 
 Editor.prototype.update = function() {
     var self = this;
+    for(var i = 0; i < self.objects.length; i++) {
+        var object = self.objects[i];
+        if(object.object3js instanceof THREE.PointCloud) {
+            object.update();
+        }
+    }
+
 }
 
 Editor.prototype.clear = function() {
@@ -195,7 +208,6 @@ Editor.prototype.load = function(sceneData, callback) {
 
     var self = this;
     if(sceneData === null) return;
-
     self.clear(); // Clears the scene if there's anything in it
 
     console.log(sceneData);
@@ -400,6 +412,11 @@ Editor.prototype.destroyObject = function(object) {
     // Turn off shadow mapping if the light casts shadows
     if(object.data.light && object.data.light.castShadow) {
         self.enableShadowMap(false);
+    }
+    
+    if(object.data.particlemesh) {
+        //Empty all the particle groups in the editor window
+        object.data.particlemesh = null;
     }
 
 };

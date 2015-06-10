@@ -59,6 +59,7 @@ Game.prototype.start = function(data) {
     for(var i = 0; i < data.objects.length; i++) {
 
         var objectData = Utils.unpackData(data.objects[i]);
+        
         var tag = objectData.tag;
         var object = null;
 
@@ -69,6 +70,7 @@ Game.prototype.start = function(data) {
             object = new Aimer(objectData);
         } else {
             object = new ObjectGame(objectData);
+            
         }
     }
 
@@ -126,7 +128,6 @@ Game.prototype.start = function(data) {
 
 Game.prototype.stop = function() {
     var self = this;
-
     for(var i = 0; i < self.scene.children.length; i++) {
         var object = self.scene.children[i];
 
@@ -173,7 +174,11 @@ Game.prototype.update = function() {
     if(!self.loaded) return;
 
     for(var i = 0; i < self.objects.length; i++) {
-        self.objects[i].update();
+        var object = self.objects[i];
+        object.update();
+        if(object.object3js instanceof THREE.PointCloud) {
+        object.update();
+        }
     }
 }
 
