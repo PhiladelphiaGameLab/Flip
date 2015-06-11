@@ -22,4 +22,4 @@ Workspace.prototype.resize = function() {
     // Position blocklyDiv over blocklyArea.
     this.blocklyDiv.css({"left": left + "px", "top": top + "px", "width": width + "px", "height": height + "px"});
     Blockly.svgResize(this.workspace);
-}
+};

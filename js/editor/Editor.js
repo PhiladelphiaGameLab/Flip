@@ -3,38 +3,6 @@ var editor = null;
 function Editor(renderer, width, height, loader) {
     var self = this;
 
-    // Assets in the library
-    self.assets = [
-        {name:"Chair", icon:"img/cube.png", mesh:"data/assets/chair/chair.json"},
-        {name:"Cube", icon:"img/cube.png", mesh:"data/assets/shapes/cube.json"},
-        {name:"Sphere", icon:"img/cube.png", imesh:"data/assets/shapes/sphere.json"},
-        {name:"Tree", icon:"img/cube.png", mesh:"data/assets/tree/tree.json"},
-        {name:"Rock", icon:"img/cube.png", mesh:"data/assets/rock/rock.json"},
-        {name:"Point Light", icon:"img/light.png", light:{color:0xFFF000, distance:50, type:"point"}},
-        {name:"Dir Light", icon:"img/light.png", light:{color:0xffffff, type:"dir"}},
-
-        // Physics Demo Assets
-        {name:"Grass", icon:"img/cube.png", mesh:"data/assets/physics_demo/environment.json", castShadow:false},
-        {name:"Steel Plank", icon:"img/cube.png", mesh:"data/assets/physics_demo/plank_steel.json", physics:{enabled:true,type:"static",friction:0.2,restitution:0.9,shape:"cube",mass:1.0}},
-        {name:"Wood Plank", icon:"img/cube.png", mesh:"data/assets/physics_demo/plank_wood.json", physics:{enabled:true,type:"dynamic",friction:1.0,restitution:0.5,shape:"cube",mass:3.0}},
-        {name:"Steel Box", icon:"img/cube.png", mesh:"data/assets/physics_demo/cube_steel.json", physics:{enabled:true,type:"static",friction:0.2,restitution:0.9,shape:"cube",mass:1.0}},
-        {name:"Wood Box", icon:"img/cube.png", mesh:"data/assets/physics_demo/cube_wood.json", physics:{enabled:true,type:"dynamic",friction:1.0,restitution:0.5,shape:"cube",mass:2.0}},
-        {name:"Steel Ball", icon:"img/cube.png", mesh:"data/assets/physics_demo/sphere_steel.json", physics:{enabled:true,type:"static",friction:0.2,restitution:0.9,shape:"sphere",mass:1.0}},
-        {name:"Wood Ball", icon:"img/cube.png", mesh:"data/assets/physics_demo/sphere_wood.json", physics:{enabled:true,type:"dynamic",friction:1.0,restitution:0.5,shape:"sphere",mass:2.0}},
-       
-        //{name:"Glass Ball", icon:"img/cube.png", mesh:"data/assets/physics_demo/sphere_glass.json"},
-        //{name:"Aimer", icon:"img/cube.png", tag:"aimer", mesh:"data/assets/shapes/sphere.json"}
-        //{name:"MultiMat", icon:"img/cube.png", mesh:"data/assets/multimat/multimat.json"},
-        //{name:"Skinning Simple", icon:"img/cube.png", mesh:"data/assets/skinning_simple/skinning_simple.js"},
-        //{name:"Terrain", icon:"img/cube.png", mesh:"data/assets/terrain/terrain.json"},
-        //{name:"Player", icon:"img/cube.png", tag:"player", mesh:"data/assets/capsule/capsule.json"},
-        //{name:"Camera", icon:"img/camera.png", camera:{fov:70}},
-        //{name:"Stones", icon:"img/cube.png", mesh:"data/assets/physics_demo/stones.json", castShadow:false, receiveShadow:false},
-        //{name:"Glass Plank", icon:"img/cube.png", mesh:"data/assets/physics_demo/plank_glass.json"},
-        //{name:"Glass Box", icon:"img/cube.png", mesh:"data/assets/physics_demo/cube_glass.json"},
-
-    ];
-
     self.objects = []; // Objects in the scene
     self.raycastDetectors = []; // ThreeJS objects. Need this array for doing raycasting.
     self.scripts = []; // Scripts used by objects. Each object may store a reference to one of these
@@ -118,7 +86,7 @@ Editor.prototype.init = function() {
     self.camera.position.set(-40, 30, 40);
     self.cameraControls.setRotation(-0.76, -0.43);
 
-    editorUI.populateLibrary(self.assets);
+    editorUI.populateLibrary(Assets.assets);
 
     //editorUI.clearLocalStorage();
     //editorUI.loadFromFile("data/scenes/TerrainScene.txt", function(data){self.load(data);});
@@ -153,7 +121,7 @@ Editor.prototype.setDefaultSettings = function() {
     self.setBackgroundColor(0x97a7b2);
     self.setSkybox("none");
     self.setGridVisible(true);
-}
+};
 
 Editor.prototype.onViewResize = function(width, height) {
     var self = this;
@@ -177,11 +145,11 @@ Editor.prototype.render = function() {
 
     self.renderer.render(self.scene, self.camera);
     self.transformControls.update();
-}
+};
 
 Editor.prototype.update = function() {
     var self = this;
-}
+};
 
 Editor.prototype.clear = function() {
     var self = this;
@@ -189,7 +157,7 @@ Editor.prototype.clear = function() {
     while(self.objects.length > 0) {
         self.destroyObject(self.objects[0]);
     }
-}
+};
 
 Editor.prototype.load = function(sceneData, callback) {
 
@@ -234,7 +202,7 @@ Editor.prototype.load = function(sceneData, callback) {
             checkLoaded();
         });
     }
-}
+};
 
 Editor.prototype.save = function() {
     
@@ -275,7 +243,7 @@ Editor.prototype.save = function() {
     console.log("saving scene");
 
     return sceneData;
-}
+};
 
 Editor.prototype.getObjectByName = function(name) {
     var self = this;
@@ -299,17 +267,6 @@ Editor.prototype.getObjectById = function(id) {
     return null;
 };
 
-Editor.prototype.getAssetByName = function(name) {
-    var self = this;
-
-    for (var i = 0; i < self.assets.length; i++) {
-        if(self.assets[i].name == name) {
-            return self.assets[i];
-        }
-    }
-    return null;
-};
-
 Editor.prototype.getScriptByName = function(name) {
     var self = this;
 
@@ -319,18 +276,18 @@ Editor.prototype.getScriptByName = function(name) {
         }
     }
     return null;
-}
+};
 
 Editor.prototype.clearScene = function() {
     var self = this;
     self.clear();
     self.undoHandler.clearScene(self.sceneData);
-}
+};
 
 Editor.prototype.editSceneSettings = function() {
     var self = this;
     self.undoHandler.editScene();
-}
+};
 
 Editor.prototype.editObject = function(object) {
     var self = this;
@@ -372,7 +329,7 @@ Editor.prototype.createObject = function(data, callback) {
         if(callback) callback(object);
     });
 
-}
+};
 
 Editor.prototype.destroyObject = function(object) {
     var self = this;
@@ -408,13 +365,13 @@ Editor.prototype.getUniqueId = function() {
     // objectId is updated in createObject()
     var self = this;
     return self.objectId;
-}
+};
 
 Editor.prototype.isNameUnique = function(name) {
     var self = this;
     var object = self.getObjectByName(name);
     return object === null;
-}
+};
 
 Editor.prototype.getUniqueName = function(name) {
     var self = this;
@@ -448,7 +405,7 @@ Editor.prototype.getUniqueName = function(name) {
 
     return name;
     //var regex = /\.0*([0-9]+)$/gm;
-}
+};
 
 Editor.prototype.copyObject = function() {
     var self = this;
@@ -484,7 +441,7 @@ Editor.prototype.duplicateObject = function(object) {
 Editor.prototype.createAsset = function(assetName, x, y, z) {
     var self = this;
 
-    var asset = self.getAssetByName(assetName);
+    var asset = Assets.getAssetByName(assetName);
     if(asset == null) return;
 
     var data = Utils.clone(asset);
@@ -520,11 +477,11 @@ Editor.prototype.onClick = function(x, y) {
     }
 
     self.selectObject(selected);
-}
+};
 
 Editor.prototype.onMouseDown = function(x, y, mouseButton) {
 
-}
+};
 
 Editor.prototype.onMouseMove = function(x, y, xmove, ymove, mouseButton) {
     var self = this;
@@ -536,12 +493,12 @@ Editor.prototype.onMouseMove = function(x, y, xmove, ymove, mouseButton) {
     } else if(mouseButton == 3) { // right button
         self.cameraControls.pan(xmove, ymove);
     }
-}
+};
 
 Editor.prototype.onScroll = function(scroll) {
     var self = this;
     self.cameraControls.zoom(scroll);
-}
+};
 
 Editor.prototype.onKeyPress = function(key, ctrl) {
     // TO-DO: ctrl-z doesn't work now because sometimes the code editor takes focus for no reason
@@ -585,7 +542,7 @@ Editor.prototype.onKeyDown = function(key, ctrl) {
     if(key == 68) { // d
         self.cameraControls.pan(-1, 0);
     }
-}
+};
 
 Editor.prototype.selectObject = function(object) {
 
@@ -661,6 +618,9 @@ Editor.prototype.editScript = function(contents) {
     var object = self.selected;
     if(object === null) return;
 
+    // Format contents
+    contents = contents.replaceAll("\r\n", "\n");
+
     if(object.data.script === null) {
 
         if(contents.length > 0) {
@@ -686,7 +646,7 @@ Editor.prototype.setAmbientColor = function(color) {
     self.ambientColor = color;
     self.ambientLight.color.setHex(color);
     editorUI.updateSettings();
-}
+};
 
 Editor.prototype.setBackgroundColor = function(color) {
     var self = this;

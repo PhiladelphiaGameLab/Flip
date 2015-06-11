@@ -22,14 +22,13 @@ function InputHandler(viewport) {
     window.onmousemove = function(event) { self.onMouseMove(event); };
     viewportElem.oncontextmenu = function(event) { event.preventDefault();};
     viewport.mousewheel(function(event) { self.onScroll(event); });
-
 }
 
 InputHandler.prototype.update = function(event) {
     for(var key in this.pressedKeys) {
         this.target.onKeyDown(key);
     }
-}
+};
 
 InputHandler.prototype.onKeyUp = function(event) {
     delete this.pressedKeys[event.keyCode];
@@ -50,8 +49,7 @@ InputHandler.prototype.onKeyDown = function(event) {
 InputHandler.prototype.isKeyDown = function(key) {
     var isDown = this.pressedKeys[key] !== undefined;
     return isDown;
-
-}
+};
 
 // Return mouse position in [0,1] range relative to bottom-left of viewport (screen space)
 InputHandler.prototype.convertToScreenSpace = function(pageX, pageY) {

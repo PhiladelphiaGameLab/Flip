@@ -1,12 +1,11 @@
-function Aimer(data) {
-    var self = this;
-    ObjectGame.call(self, data);
+function Aimer(object) {
+    Script.call(this, object);
 }
 
-Aimer.prototype = Object.create(ObjectGame.prototype);
+Aimer.prototype = Object.create(Script.prototype);
 Aimer.prototype.constructor = Aimer;
 
-Aimer.prototype.loaded = function() {
+Aimer.prototype.init = function() {
     var self = this;
     
     // Create camera attached to aimer
@@ -18,44 +17,30 @@ Aimer.prototype.loaded = function() {
     game.setCamera(self.camera);
     self.cameraControls.rotate(0, 100);
 
-    self.object3js.visible = false;
+    //self.object.object3js.visible = false;
 
     // Create shootable ball
     // TO-DO: probably better to reference an asset and call the createFromAsset function
+    
     self.ballData = {
         name: "ball",
-        id: 0,
-        tag: "",
-        asset: "Sphere",
-        visible: true,
-        castShadow: true,
-        receiveShadow: true,
-        script: null,
         mesh: "data/assets/shapes/sphere.json",
         material : {
             color: 41983
         },
         physics : {
-            enabled: true,
             type: "dynamic",
             friction: 1.0,
             restitution: 0.5,
             shape: "sphere",
             mass: 1
         },
-        light: null,
-        camera: null,
-        position: [0,0,0],
-        rotation: [0,0,0],
-        scale: [2,2,2],
-    };
-
-    ObjectGame.prototype.loaded.call(self);
+        scale: [2,2,2]
+    }
 };
 
 Aimer.prototype.update = function() {
     var self = this;
-    ObjectGame.prototype.update.call(self);
 };
 
 Aimer.prototype.shoot = function(x, y) {
@@ -72,7 +57,7 @@ Aimer.prototype.shoot = function(x, y) {
         object.object3js.applyCentralImpulse(impulse);
 
     });
-}
+};
 
 Aimer.prototype.onClick = function(x, y) {
     var self = this;
@@ -86,7 +71,7 @@ Aimer.prototype.onMouseDown = function(x, y, mouseButton) {
     if(mouseButton == 3) {
         self.shoot(x, y);
     }
-}
+};
 
 Aimer.prototype.onMouseDrag = function(x, y, xmove, ymove) {
     var self = this;
@@ -117,4 +102,4 @@ Aimer.prototype.onKeyDown = function(keyCode) {
 Aimer.prototype.onScroll = function(scroll) {
     var self = this;
     self.cameraControls.zoom(scroll);
-}
+};

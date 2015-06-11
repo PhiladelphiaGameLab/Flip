@@ -68,7 +68,7 @@ UndoHandler.prototype.doAction = function(action, reverse) {
             editor.load(action.data.newData);
         }
     }
-}
+};
 
 UndoHandler.prototype.undoAction = function() {
     var self = this;
@@ -145,19 +145,19 @@ UndoHandler.prototype.addObject = function(object) {
     var self = this;
     // self.addAction("add", object.getData());
     self.editScene();
-}
+};
 
 UndoHandler.prototype.removeObject = function(object) {
     var self = this;
     // self.addAction("remove", object.getData());
     self.editScene();
-}
+};
 
 UndoHandler.prototype.clearScene = function(sceneData) {
     var self = this;
     // self.addAction("clear", sceneData);
     self.editScene();
-}
+};
 
 UndoHandler.prototype.editScene = function() {
     var self = this;
@@ -167,4 +167,4 @@ UndoHandler.prototype.editScene = function() {
     var newData = editor.save();
 
     self.addAction("scene", {newData:newData, oldData:oldData});
-}
+};

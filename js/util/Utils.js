@@ -35,6 +35,24 @@ function stringToColor(c) {
     else return c; 
 }
 
+// String format function using {0}, {1}, and so on
+// First, checks if it isn't implemented yet.
+if (!String.prototype.format) {
+  String.prototype.format = function() {
+    var args = arguments;
+    return this.replace(/{(\d+)}/g, function(match, number) { 
+      return typeof args[number] != 'undefined'
+        ? args[number]
+        : match
+      ;
+    });
+  };
+}
+
+String.prototype.replaceAll = function(a, b) {
+    return this.split(a).join(b);
+};
+
 Utils.getMaterials = function(material) {
     if(material.type == "MeshFaceMaterial") {
         return material.materials;
@@ -57,6 +75,8 @@ Utils.clone = function(data) {
 
 // Convert from the packed format to the unpacked format
 Utils.unpackData = function(data) {
+
+    if(data === null) return null;
 
     var clone = {};
 
@@ -157,4 +177,75 @@ Utils.packData = function(data) {
     clone.scale = [data.scale[0], data.scale[1], data.scale[2]];
 
     return clone;
+};
+
+Utils.formatScript = function(code, className) {
+
+    // Convert to the proper format for top-level functions and variables
+    //
+    // function:
+    //
+    //      function update(message) { ... }
+    //      ScriptClass.prototype.update = function(message) { ... }
+    //
+    // member variable:
+    //
+    //      var count = 0;
+    //      ScriptClass.prototype.count = 0;
+
+    var final = code;
+    var result = jslint(code);
+    //console.log(result);
+    
+    // Member functions
+    for(var i = 0; i < result.functions.length; i++) {
+
+        var f = result.functions[i];
+        var level = f.level;
+        var name = f.name.id;
+        var sig = f.signature;
+
+        if(level !== 1) continue; // Only format top-level functions
+        
+        // Get the function header to be replaced
+        var header = "function " + name;
+        var headerStart = final.indexOf(header);
+        var headerEnd = final.indexOf(")", headerStart) + 1;
+        header = final.substring(headerStart, headerEnd);
+
+        // Create the new header
+        var newHeader = "ScriptClass.prototype." + name + " = function" + sig;
+
+        // Replace in the code
+        final = final.replace(header, newHeader);
+    }
+
+    // Member variables
+    for(var i = 0; i < result.global.live.length; i++) {
+
+        // Get variable name
+        var member = result.global.live[i].id;
+
+        var header = "var " + member;
+        var newHeader = "ScriptClass.prototype." + member;
+
+        final = final.replace(header, newHeader);
+    }
+
+    var classHeader = [
+        "function ScriptClass(object) {",
+        "    Script.call(this, object);",
+        "}",
+        "ScriptClass.prototype = Object.create(Script.prototype);",
+        "ScriptClass.prototype.constructor = ScriptClass;"
+    ].join("\n");
+
+    final = classHeader + "\n" + final;
+    
+    // Replace the fake name with the actual name of the script
+    final = final.replaceAll("ScriptClass", className);
+
+    //console.log(final);
+
+    return final;
 };

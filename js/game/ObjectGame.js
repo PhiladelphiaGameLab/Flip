@@ -2,12 +2,20 @@ function ObjectGame (data, onLoad) {
 
     var self = this;
     self.object3js = null; // ThreeJS object
+    self.script = null;
+
+    var data = Utils.unpackData(data);
     self.data = data;
 
     function loaded() {
-        game.addObject(self);
-        self.loaded(); // Handled by subclasses
-        if(onLoad) onLoad(self);
+
+        // Add a short timer before being loaded.
+        // This allows scripts to be initialized if they are added after the object is created 
+        window.setTimeout(function(){
+            game.addObject(self);
+            self.loaded(); // Handled by subclasses
+            if(onLoad) onLoad(self);
+        }, 10);
     }
 
     if(data == null) {
@@ -17,6 +25,11 @@ function ObjectGame (data, onLoad) {
 
     self.name = data.name;
     self.tag = data.tag;
+
+    // Create the script
+    if(data.script !== null) {
+        self.script = new window[data.script](self);
+    }
 
     // Load the ThreeJS mesh
     if(data.mesh !== null) {
@@ -89,10 +102,14 @@ function ObjectGame (data, onLoad) {
 
 ObjectGame.prototype.loaded = function() {
     var self = this;
-}
+
+    if(self.script !== null) self.script.init();
+};
 
 ObjectGame.prototype.update = function() {
     var self = this;
+
+    if(self.script !== null) self.script.update();
 };
 
 ObjectGame.prototype.getPosition = function() {
@@ -108,12 +125,12 @@ ObjectGame.prototype.move = function(x, y, z) {
 
     var pos = self.object3js.position;
     self.setPosition(pos.x + x, pos.y + y, pos.z + z);
-}
+};
 
 ObjectGame.prototype.moveVector = function(vector) {
     var self = this;
     self.move(vector.x, vector.y, vector.z);
-}
+};
 
 ObjectGame.prototype.setPosition = function(x, y, z) {
     var self = this;
@@ -138,25 +155,3 @@ ObjectGame.prototype.setRotation = function(rotation) {
     self.object3js.rotation.copy(rotation);
     self.object3js.__dirtyRotation = true;
 };
-
-// Input events
-ObjectGame.prototype.onClick = function(x, y) {
-}
-
-ObjectGame.prototype.onMouseDown = function(x, y, mouseButton) {
-}
-
-ObjectGame.prototype.onKeyPress = function(keyCode) {
-}
-
-ObjectGame.prototype.onKeyDown = function(keyCode) {
-}
-
-ObjectGame.prototype.onMouseDrag = function(x, y, xmove, ymove) {
-}
-
-ObjectGame.prototype.onMouseMove = function(x, y, xmove, ymove) {
-}
-
-ObjectGame.prototype.onScroll = function(scroll) {
-}

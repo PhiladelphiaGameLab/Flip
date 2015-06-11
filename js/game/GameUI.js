@@ -54,9 +54,7 @@ GameUI.prototype.init = function() {
     self.inputHandler = inputHandler;
     self.game = game;
     self.loaded = true;
-
-
-}
+};
 
 GameUI.prototype.load = function() {
     var self = this;
@@ -70,7 +68,7 @@ GameUI.prototype.animate = function() {
     self.inputHandler.update();
     self.game.update();
     self.game.render();
-}
+};
 
 GameUI.prototype.onViewResize = function() {
     var self = this;
@@ -78,7 +76,7 @@ GameUI.prototype.onViewResize = function() {
     var height = self.viewport.innerHeight();
     self.renderer.setSize(width, height);
     self.game.onViewResize(width, height);
-}
+};
 
 
 GameUI.prototype.loadFromLocalStorage = function() {
@@ -89,4 +87,4 @@ GameUI.prototype.loadFromLocalStorage = function() {
 
     var data = JSON.parse(json);
     return data;
-}
+};

@@ -14,7 +14,7 @@ Loader.prototype.loadTexture = function(filename, callback) {
         self.textureCache[filename] = texture;
     }
     return texture;
-}
+};
 
 Loader.prototype.loadTextureCube = function(filenames, callback) {
     var self = this;
@@ -27,8 +27,7 @@ Loader.prototype.loadTextureCube = function(filenames, callback) {
     } else {
         callback(texture);
     }
-    
-}
+};
 
 Loader.prototype.loadMesh = function(filename, callback) {
     var self = this;
@@ -126,7 +125,7 @@ Loader.prototype.cloneMaterial = function(material) {
     newMaterial.transparentOld = material.transparentOld;
     newMaterial.opacityOld = material.opacityOld;
     return newMaterial;
-}
+};
 
 Loader.prototype.dispose = function() {
 

@@ -73,7 +73,7 @@ CameraControls.prototype.setZoom = function(zoom) {
     var viewDir = vector.set(0, 0, -1).applyQuaternion(self.camera.quaternion);
     var position = viewDir.multiplyScalar(4.0 * zoom).add(self.lookAt);
     self.camera.position.copy(position);
-}
+};
 
 CameraControls.prototype.zoom = function(zoom) {
     var self = this;
@@ -119,4 +119,4 @@ CameraControls.prototype.limitRotation = function(minAngle, maxAngle) {
     var self = this;
     self.minAngle = minAngle;
     self.maxAngle = maxAngle;
-}
+};

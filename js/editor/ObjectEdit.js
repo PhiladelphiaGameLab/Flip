@@ -74,7 +74,7 @@ function ObjectEdit (data, callback) {
         self.oldData = self.getData();
         if(callback) callback(self);
     }
-}
+};
 
 ObjectEdit.prototype.setData = function(data) {
     var self = this;
@@ -82,7 +82,7 @@ ObjectEdit.prototype.setData = function(data) {
     self.data = Utils.unpackData(data);
     self.oldData = Utils.unpackData(data); // Weird
     self.updateObject();
-}
+};
 
 ObjectEdit.prototype.getData = function() {
 
@@ -99,12 +99,12 @@ ObjectEdit.prototype.addPhysics = function() {
         shape: "cube",
         mass : 1.0
     };
-}
+};
 
 ObjectEdit.prototype.removePhysics = function() {
     var self = this;
     self.data.physics = null;
-}
+};
 
 
 ObjectEdit.prototype.updateObject = function() {
@@ -189,4 +189,4 @@ ObjectEdit.prototype.dispose = function() {
         self.visual.geometry.dispose();
         self.visual.material.dispose();
     }
-}
+};

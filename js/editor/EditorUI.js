@@ -102,6 +102,7 @@ EditorUI.prototype.init = function() {
         if(self.disableEdit) return;
         var contents = codeEditor.getSession().getValue();
         editor.editScript(contents);
+        console.log("edit script");
     });
 
     // Create Blockly workspace
@@ -189,9 +190,9 @@ EditorUI.prototype.load = function() {
     var self = this;
     self.showCodeEditor();
 
-    // Collapse code pane initially
-    var splitter = $("#horizontal").data("kendoSplitter");
-    splitter.collapse(".k-pane:first");
+    //// Collapse code pane initially
+    //var splitter = $("#horizontal").data("kendoSplitter");
+    //splitter.collapse(".k-pane:first");
 
     self.selectObject(null);
     self.propertiesPane.openSettings();
@@ -222,7 +223,7 @@ EditorUI.prototype.animate = function() {
         self.editor.update();
         self.editor.render();
     }
-}
+};
 
 EditorUI.prototype.onViewResize = function() {
     var self = this;
@@ -259,7 +260,7 @@ EditorUI.prototype.resizePropertiesPane = function() {
     var width = container.width();
 
     self.propertiesPane.resize(width);
-}
+};
 
 EditorUI.prototype.openHelpWindow = function() {
     var self = this;
@@ -285,7 +286,7 @@ EditorUI.prototype.startGame = function() {
     $("#screen-cover").show();
     $("#play-button").attr("src", "img/stop.png")
     $("#help-window").data("kendoWindow").close();
-}
+};
 
 EditorUI.prototype.stopGame = function() {
     var self = this;
@@ -296,7 +297,7 @@ EditorUI.prototype.stopGame = function() {
     self.game = null;
     $("#screen-cover").hide();
     $("#play-button").attr("src", "img/play.png")
-}
+};
 
 EditorUI.prototype.populateLibrary = function(assets) {
     var self = this;
@@ -327,17 +328,19 @@ EditorUI.prototype.selectObject = function(object) {
         
         if(!self.inWorkspace) $("#code-editor").show();
 
+        self.disableEdit = true; // Prevents saving the script when you initially open it
+
         // Show script in code editor pane
         if(object.data.script === null) {
             self.codeEditor.getSession().setValue("");
         } else {
-            var scriptRef = object.script;
+            var scriptRef = object.data.script;
             var script = self.editor.getScriptByName(scriptRef);
             var contents = script.contents;
-            self.disableEdit = true; // Prevents saving the script when you initially open it
             self.codeEditor.getSession().setValue(contents);
-            self.disableEdit = false;
         }
+
+        self.disableEdit = false;
     }
 
     self.propertiesPane.selectObject(object);
@@ -382,7 +385,7 @@ EditorUI.prototype.showCodeEditor = function() {
     $("#blockly-div").hide();
     self.inWorkspace = false;
     self.onViewResize();
-}
+};
 
 EditorUI.prototype.setTransformMode = function(mode) {
     var self = this;
@@ -402,7 +405,7 @@ EditorUI.prototype.setTransformMode = function(mode) {
     }
 
     self.editor.setTransformMode(mode);
-}
+};
 
 EditorUI.prototype.saveToLocalStorage = function(data) {
     var self = this;
@@ -454,4 +457,4 @@ EditorUI.prototype.loadFromFile = function(filename, callback) {
         alert("Could not find file");
         callback(null);
     });
-}
+};

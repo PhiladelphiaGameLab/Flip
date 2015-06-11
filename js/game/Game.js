@@ -51,33 +51,31 @@ Game.prototype.start = function(data) {
     self.raycaster = new THREE.Raycaster();
 
     // Create observer
-    var observer = new Observer();
+    var observer = new ObjectGame(null);
+    observer.script = new Observer(observer);
+    //observer.script = new Aimer(observer);
+
+    // Load scripts
+    for(var i = 0; i < data.scripts.length; i++) {
+
+        // Get the script and format it
+        var script = data.scripts[i];
+        var code = script.contents;
+        var name = script.name;
+        var scriptFormatted = Utils.formatScript(code, name);
+
+        // Add script tag to DOG
+        var scriptDom = document.createElement("script");
+        scriptDom.innerHTML = scriptFormatted;
+        scriptDom.className = "game-script";
+        document.body.appendChild(scriptDom);
+    }
 
     // Load objects
     self.objectsToLoad = data.objects.length;
     if(self.objectsToLoad == 0) self.loadFinished();
     for(var i = 0; i < data.objects.length; i++) {
-
-        var objectData = Utils.unpackData(data.objects[i]);
-        var tag = objectData.tag;
-        var object = null;
-
-        // Look at the tag to see what type of object to create
-        if(tag == "player") {
-            object = new Player(objectData);
-        } else if(tag == "aimer"){
-            object = new Aimer(objectData);
-        } else {
-            object = new ObjectGame(objectData);
-        }
-    }
-
-    // Load scripts
-    for(var i = 0; i < data.scripts.length; i++) {
-        var script = document.createElement("script");
-        script.innerHTML = data.scripts[i].contents;
-        script.className = "game-script";
-        document.body.appendChild(script);
+        var object = new ObjectGame(data.objects[i]);
     }
 
     // Set ambient color
@@ -122,7 +120,7 @@ Game.prototype.start = function(data) {
             self.skyboxScene.add(self.skyboxMesh);
         });
     }
-}
+};
 
 Game.prototype.stop = function() {
     var self = this;
@@ -153,7 +151,7 @@ Game.prototype.stop = function() {
 
     // Stop game loop
     $(".game-script").remove(); // Remove user-created scripts from the DOM
-}
+};
 
 Game.prototype.render = function() {
     var self = this;
@@ -166,7 +164,7 @@ Game.prototype.render = function() {
 
     self.renderer.render(self.scene, self.camera);
     self.scene.simulate();
-}
+};
 
 Game.prototype.update = function() {
     var self = this;
@@ -175,7 +173,7 @@ Game.prototype.update = function() {
     for(var i = 0; i < self.objects.length; i++) {
         self.objects[i].update();
     }
-}
+};
 
 Game.prototype.onViewResize = function(width, height) {
     var self = this;
@@ -213,13 +211,13 @@ Game.prototype.addObject = function(object) {
     if(self.objectsLoaded == self.objectsToLoad) {
         self.loadFinished();
     }
-}
+};
 
 Game.prototype.setCamera = function(camera) {
     var self = this;
     self.camera = camera;
     self.scene.add(camera);
-}
+};
 
 Game.prototype.loadFinished = function() {
     var self = this;
@@ -237,7 +235,7 @@ Game.prototype.loadFinished = function() {
             material.needsUpdate = true;
         }
     }
-}
+};
 
 // User Input events
 Game.prototype.onClick = function(x, y) {
@@ -245,36 +243,40 @@ Game.prototype.onClick = function(x, y) {
     // Call events on game objects
     for(var i = 0; i < self.objects.length; i++) {
         var object = self.objects[i];
-        object.onClick(x, y);
+        if(object.script)
+            object.script.onClick(x, y);
     }
-}
+};
 
 Game.prototype.onMouseDown = function(x, y, mouseButton) {
     var self = this;
     // Call events on game objects
     for(var i = 0; i < self.objects.length; i++) {
         var object = self.objects[i];
-        object.onMouseDown(x, y, mouseButton);
+        if(object.script)
+            object.script.onMouseDown(x, y, mouseButton);
     }
-}
+};
 
 Game.prototype.onKeyPress = function(keyCode, ctrl) {
     var self = this;
     // Call events on game objects
     for(var i = 0; i < self.objects.length; i++) {
         var object = self.objects[i];
-        object.onKeyPress(keyCode);
+        if(object.script)
+            object.script.onKeyPress(keyCode);
     }
-}
+};
 
 Game.prototype.onKeyDown = function(keyCode, ctrl) {
     var self = this;
     // Call events on game objects
     for(var i = 0; i < self.objects.length; i++) {
         var object = self.objects[i];
-        object.onKeyDown(keyCode);
+        if(object.script)
+            object.script.onKeyDown(keyCode);
     }
-}
+};
 
 Game.prototype.onMouseMove = function(x, y, xmove, ymove, mouseButton) {
     var self = this;
@@ -286,27 +288,30 @@ Game.prototype.onMouseMove = function(x, y, xmove, ymove, mouseButton) {
         // Call events on game objects
         for(var i = 0; i < self.objects.length; i++) {
             var object = self.objects[i];
-            object.onMouseDrag(x, y, xmove, ymove);
+            if(object.script)
+                object.script.onMouseDrag(x, y, xmove, ymove);
         }
 
     } else if(mouseButton == 0) { // No mouse down
 
         for(var i = 0; i < self.objects.length; i++) {
             var object = self.objects[i];
-            object.onMouseMove(x, y, xmove, ymove);
+            if(object.script)
+                object.script.onMouseMove(x, y, xmove, ymove);
         }
     }
-}
+};
 
 Game.prototype.onScroll = function(scroll) {
     var self = this;
     
     for(var i = 0; i < self.objects.length; i++) {
         var object = self.objects[i];
-        object.onScroll(scroll);
+        if(object.script)
+            object.script.onScroll(scroll);
     }
 
-}
+};
 
 Game.prototype.setShadowCaster = function(light) {
     var self = this;
@@ -329,7 +334,7 @@ Game.prototype.setShadowCaster = function(light) {
 
     self.renderer.shadowMapEnabled = true;
     self.renderer.shadowMapType = THREE.PCFShadowMap;
-}
+};
 
 Game.prototype.getPickingRay = function(x, y) {
     var self = this;
@@ -337,4 +342,4 @@ Game.prototype.getPickingRay = function(x, y) {
     self.mouse.y = y*2-1;
     self.raycaster.setFromCamera(self.mouse, self.camera);
     return self.raycaster.ray;
-}
+};

@@ -17,7 +17,7 @@ Player.prototype.loaded = function() {
     //self.object3js.visible = false;
 
     ObjectGame.prototype.loaded.call(self);
-}
+};
 
 Player.prototype.update = function() {
     var self = this;
@@ -32,15 +32,12 @@ Player.prototype.update = function() {
 
 Player.prototype.onClick = function(x, y) {
     // Throw ball
-
-
-
-}
+};
 
 Player.prototype.onMouseDrag = function(x, y, xmove, ymove) {
     var self = this;
     self.cameraControls.rotate(xmove, ymove);
-}
+};
 
 Player.prototype.onKeyDown = function(keyCode) {
     var self = this;
@@ -65,4 +62,4 @@ Player.prototype.onKeyDown = function(keyCode) {
     if(keyCode == 68) { // d
         self.moveVector(rightDir.multiplyScalar(speed));
     }
-}
+};
