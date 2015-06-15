@@ -627,11 +627,16 @@ window.Physijs = (function() {
 		var i, j, offset, object, object2, id1, id2,
 			collisions = {}, normal_offsets = {};
 
+		//console.log(data);
+		//console.log(data[1]);
+
 		// Build collision manifest
 		for ( i = 0; i < data[1]; i++ ) {
 			offset = 2 + i * COLLISIONREPORT_ITEMSIZE;
 			object = data[ offset ];
 			object2 = data[ offset + 1 ];
+
+			//console.log(object, object2);
 
 			normal_offsets[ object + '-' + object2 ] = offset + 2;
 			normal_offsets[ object2 + '-' + object ] = -1 * ( offset + 2 );

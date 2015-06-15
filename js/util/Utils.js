@@ -195,6 +195,7 @@ Utils.formatScript = function(code, className) {
 
     var final = code;
     var result = jslint(code);
+    var hasOnCollide = false;
     //console.log(result);
     
     // Member functions
@@ -207,6 +208,10 @@ Utils.formatScript = function(code, className) {
 
         if(level !== 1) continue; // Only format top-level functions
         
+        if(name === "onCollide") {
+            hasOnCollide = true;
+        }
+
         // Get the function header to be replaced
         var header = "function " + name;
         var headerStart = final.indexOf(header);
@@ -237,13 +242,15 @@ Utils.formatScript = function(code, className) {
         "    Script.call(this, object);",
         "}",
         "ScriptClass.prototype = Object.create(Script.prototype);",
-        "ScriptClass.prototype.constructor = ScriptClass;"
+        "ScriptClass.prototype.constructor = ScriptClass;",
+        "ScriptClass.prototype.hasOnCollide = {hasOnCollide};"
     ].join("\n");
 
     final = classHeader + "\n" + final;
     
     // Replace the fake name with the actual name of the script
     final = final.replaceAll("ScriptClass", className);
+    final = final.replaceAll("{hasOnCollide}", hasOnCollide.toString());
 
     //console.log(final);
 

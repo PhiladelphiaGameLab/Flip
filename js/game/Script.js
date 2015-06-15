@@ -2,6 +2,7 @@ function Script (object) {
 
     var self = this;
     self.object = object;
+    if(object.loaded) self.init(); // If script was added after the object was loaded, initialize now
 }
 
 Script.prototype.init = function() {
@@ -29,4 +30,7 @@ Script.prototype.onMouseMove = function(x, y, xmove, ymove) {
 };
 
 Script.prototype.onScroll = function(scroll) {
+};
+
+Script.prototype.onCollide = function(otherObject, relativeVelocity, relativeRotation, contactNormal) {
 };

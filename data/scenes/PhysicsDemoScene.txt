@@ -84,32 +84,6 @@
 			]
 		},
 		{
-			"name": "Stones",
-			"id": 1,
-			"asset": "Stones",
-			"castShadow": false,
-			"receiveShadow": false,
-			"mesh": "data/assets/physics_demo/stones.json",
-			"material": {
-				"color": 16777215
-			},
-			"position": [
-				0,
-				0,
-				0
-			],
-			"rotation": [
-				0,
-				0,
-				0
-			],
-			"scale": [
-				1,
-				1,
-				1
-			]
-		},
-		{
 			"name": "Cube",
 			"id": 16,
 			"asset": "Cube",
@@ -919,9 +893,10 @@
 			"name": "Steel Ball",
 			"id": 76,
 			"asset": "Steel Ball",
+			"script": "script76",
 			"mesh": "data/assets/physics_demo/sphere_steel.json",
 			"material": {
-				"color": 13421772
+				"color": 11053224
 			},
 			"physics": {
 				"type": "static",
@@ -945,12 +920,42 @@
 				2.945780044335673,
 				2.945780044335673
 			]
+		},
+		{
+			"name": "Stones",
+			"id": 1,
+			"asset": "Stones",
+			"castShadow": false,
+			"receiveShadow": false,
+			"mesh": "data/assets/physics_demo/stones.json",
+			"material": {
+				"color": 16777215
+			},
+			"position": [
+				0,
+				0,
+				0
+			],
+			"rotation": [
+				0,
+				0,
+				0
+			],
+			"scale": [
+				1,
+				1,
+				1
+			]
 		}
 	],
 	"scripts": [
 		{
 			"name": "script13",
 			"contents": "function init() {\n        var self = this;\n    \n    // Create camera attached to aimer\n    var lookAt = new THREE.Vector3(0,10,0);\n    self.camera = new THREE.PerspectiveCamera(70, game.width / game.height, 1, 1000);\n    self.cameraControls = new CameraControls(self.camera);\n    self.cameraControls.setThirdPerson(13, 6, 18, lookAt);\n    self.cameraControls.limitRotation(-Math.PI/2, 0);\n    game.setCamera(self.camera);\n    self.cameraControls.rotate(0, 100);\n\n    self.object.object3js.visible = false;\n\n    // Create shootable ball\n\n    self.ballData = {\n        name: \"ball\",\n        mesh: \"data/assets/shapes/sphere.json\",\n        material : {\n            color: 41983\n        },\n        physics : {\n            type: \"dynamic\",\n            friction: 1.0,\n            restitution: 0.5,\n            shape: \"sphere\",\n            mass: 1\n        },\n        scale : [2,2,2]\n    }\n}\n\nfunction shoot(x, y) {\n    var self = this;\n    var ray = game.getPickingRay(x, y);\n\n    var direction = ray.direction;\n    var origin = ray.origin.add(vector.copy(direction).multiplyScalar(5));\n\n    self.ballData.position = origin.toArray();\n    \n    new ObjectGame(self.ballData, function(object) {\n        var impulse = ray.direction.multiplyScalar(150.0);\n        object.object3js.applyCentralImpulse(impulse);\n\n    });\n}\n\nfunction onClick(x, y) {\n    var self = this;\n    self.shoot(x, y);\n}\n\nfunction onMouseDown(x, y, mouseButton) {\n    var self = this;\n\n    // Right click\n    if(mouseButton == 3) {\n        self.shoot(x, y);\n    }\n}\n\nfunction onMouseDrag(x, y, xmove, ymove) {\n    var self = this;\n    self.cameraControls.rotate(xmove, ymove);\n}\n\nfunction onKeyDown(keyCode) {\n    var self = this;\n    var speed = 1.0;\n\n    if(keyCode == 87) { // w\n        self.cameraControls.zoom(speed/3);\n    }\n\n    if(keyCode == 65) { // a\n        self.cameraControls.rotate(speed*5, 0);\n    }\n\n    if(keyCode == 83) { // s\n        self.cameraControls.zoom(-speed/3);\n    }\n\n    if(keyCode == 68) { // d\n        self.cameraControls.rotate(-speed*5, 0);\n    }\n}\n\nfunction onScroll(scroll) {\n    var self = this;\n    self.cameraControls.zoom(scroll);\n}\n"
+		},
+		{
+			"name": "script76",
+			"contents": "function onCollide(other, v, r, n) {\n    console.log(\"collide\");\n    var color = Math.floor(Math.random() * 0xffffff);\n    this.object.object3js.material.color.setHex(color);\n}"
 		}
 	],
 	"backgroundColor": 9938866,
@@ -961,14 +966,14 @@
 	},
 	"editor": {
 		"cameraPos": [
-			-176.1667262213287,
-			105.56856199693996,
-			88.08685754311882
+			-59.20365059987526,
+			42.784037941162495,
+			60.20476730876344
 		],
 		"cameraRot": [
-			-0.7578901244411422,
-			-0.5855751060706497,
-			-0.48194010150454636,
+			-0.5641342805818169,
+			-0.6766773819815399,
+			-0.37723961016160507,
 			"XYZ"
 		],
 		"gridVisible": false

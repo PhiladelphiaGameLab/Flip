@@ -45,7 +45,7 @@ Game.prototype.start = function(data) {
     }
         
     self.scene = physicsScene;
-    self.scene.onSimulationResume();
+    //self.scene.onSimulationResume();
     self.scene.setGravity(new THREE.Vector3(0, -50, 0));
 
     self.raycaster = new THREE.Raycaster();
@@ -75,7 +75,11 @@ Game.prototype.start = function(data) {
     self.objectsToLoad = data.objects.length;
     if(self.objectsToLoad == 0) self.loadFinished();
     for(var i = 0; i < data.objects.length; i++) {
-        var object = new ObjectGame(data.objects[i]);
+        var object = new ObjectGame(data.objects[i], function(object){
+            if(++self.objectsLoaded == self.objectsToLoad) {
+                self.loadFinished();
+            }
+        });
     }
 
     // Set ambient color
@@ -120,6 +124,7 @@ Game.prototype.start = function(data) {
             self.skyboxScene.add(self.skyboxMesh);
         });
     }
+
 };
 
 Game.prototype.stop = function() {
@@ -163,12 +168,13 @@ Game.prototype.render = function() {
     }
 
     self.renderer.render(self.scene, self.camera);
-    self.scene.simulate();
 };
 
 Game.prototype.update = function() {
     var self = this;
     if(!self.loaded) return;
+
+    self.scene.simulate();
 
     for(var i = 0; i < self.objects.length; i++) {
         self.objects[i].update();
@@ -194,6 +200,7 @@ Game.prototype.onViewResize = function(width, height) {
 Game.prototype.addObject = function(object) {
     var self = this;
 
+    // Physics object is added to the scene in order to load, so don't add it again
     if(object.object3js) {
         self.scene.add(object.object3js);
         if(object.data.light && object.data.light.castShadow) {
@@ -205,11 +212,6 @@ Game.prototype.addObject = function(object) {
 
     if(object.tag == "player") {
         self.player = object;
-    }
-
-    self.objectsLoaded++;
-    if(self.objectsLoaded == self.objectsToLoad) {
-        self.loadFinished();
     }
 };
 

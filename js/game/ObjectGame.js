@@ -3,19 +3,17 @@ function ObjectGame (data, onLoad) {
     var self = this;
     self.object3js = null; // ThreeJS object
     self.script = null;
+    self.physicsObject = null;
+    self.loaded = false;
 
     var data = Utils.unpackData(data);
     self.data = data;
 
     function loaded() {
-
-        // Add a short timer before being loaded.
-        // This allows scripts to be initialized if they are added after the object is created 
-        window.setTimeout(function(){
-            game.addObject(self);
-            self.loaded(); // Handled by subclasses
-            if(onLoad) onLoad(self);
-        }, 10);
+        self.loaded = true;
+        if(self.script) self.script.init();
+        game.addObject(self);
+        if(onLoad) onLoad(self);
     }
 
     if(data == null) {
@@ -35,7 +33,22 @@ function ObjectGame (data, onLoad) {
     if(data.mesh !== null) {
         game.loader.loadMesh(data.mesh, function(geometry, material) {
             
-            var object3js = null;
+            // Set material
+            var meshMaterials = Utils.getMaterials(material);
+            for(var i = 0; i < meshMaterials.length; i++) {
+                var material = meshMaterials[i];
+                material.color.setHex(data.material.color);
+            }
+
+            function initMesh(mesh) {
+                mesh.userData = self;
+                mesh.position.fromArray(data.position);
+                mesh.rotation.fromArray(data.rotation);
+                mesh.scale.fromArray(data.scale);
+                mesh.visible = data.visible;
+                mesh.castShadow = data.castShadow;
+                mesh.receiveShadow = data.receiveShadow;
+            }
 
             if(data.physics) {
 
@@ -49,32 +62,39 @@ function ObjectGame (data, onLoad) {
                     data.physics.restitution
                 );
 
+                var physicsObject = null;
+
                 if(shape == "sphere") {
-                    object3js = new Physijs.SphereMesh(geometry, physicsMat, mass);
+                    physicsObject = new Physijs.SphereMesh(geometry, physicsMat, mass);
                 } else if(shape == "cube") {
-                    object3js = new Physijs.BoxMesh(geometry, physicsMat, mass);
+                    physicsObject = new Physijs.BoxMesh(geometry, physicsMat, mass);
                 } else if(shape == "capsule") {
-                    object3js = new Physijs.CapsuleMesh(geometry, physicsMat, mass);
-                } 
+                    physicsObject = new Physijs.CapsuleMesh(geometry, physicsMat, mass);
+                }
+
+                initMesh(physicsObject);
+                self.object3js = physicsObject;
+                self.physicsObject = physicsObject;
+
+                if(self.script && self.script.hasOnCollide) {
+                    physicsObject.addEventListener('collision', function(other, v, r, n) {
+                        self.script.onCollide(other, v, r, n);
+                    });
+                }
+                
+
+                physicsObject.addEventListener('ready', function() {
+                    //console.log("ready");
+                });
+
+                loaded();
+
             } else {
-                object3js = new THREE.Mesh(geometry, material);
+                var mesh = new THREE.Mesh(geometry, material);
+                initMesh(mesh);
+                self.object3js = mesh;
+                loaded();
             }
-
-            // Set material
-            var meshMaterials = Utils.getMaterials(material);
-            for(var i = 0; i < meshMaterials.length; i++) {
-                var material = meshMaterials[i];
-                material.color.setHex(data.material.color);
-            }
-
-            object3js.position.fromArray(data.position);
-            object3js.rotation.fromArray(data.rotation);
-            object3js.scale.fromArray(data.scale);
-            object3js.visible = data.visible;
-            object3js.castShadow = data.castShadow;
-            object3js.receiveShadow = data.receiveShadow;
-            self.object3js = object3js;
-            loaded();
         });
     }
     else if(data.light !== null) {
@@ -99,12 +119,6 @@ function ObjectGame (data, onLoad) {
     }
     else { loaded(); }
 }
-
-ObjectGame.prototype.loaded = function() {
-    var self = this;
-
-    if(self.script !== null) self.script.init();
-};
 
 ObjectGame.prototype.update = function() {
     var self = this;
