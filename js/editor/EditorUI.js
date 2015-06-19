@@ -190,9 +190,7 @@ EditorUI.prototype.load = function() {
     var self = this;
     self.showCodeEditor();
 
-    //// Collapse code pane initially
-    //var splitter = $("#horizontal").data("kendoSplitter");
-    //splitter.collapse(".k-pane:first");
+    self.collapseCodePane();
 
     self.selectObject(null);
     self.propertiesPane.openSettings();
@@ -323,6 +321,7 @@ EditorUI.prototype.selectObject = function(object) {
     if(object === null) {
         $("#remove-button").addClass("disabled");
         $("#code-editor").hide();
+        //self.collapseCodePane();
     } else {
         $("#remove-button").removeClass("disabled");
         
@@ -333,11 +332,13 @@ EditorUI.prototype.selectObject = function(object) {
         // Show script in code editor pane
         if(object.data.script === null) {
             self.codeEditor.getSession().setValue("");
+            //self.collapseCodePane();
         } else {
             var scriptRef = object.data.script;
             var script = self.editor.getScriptByName(scriptRef);
             var contents = script.contents;
             self.codeEditor.getSession().setValue(contents);
+            self.expandCodePane();
         }
 
         self.disableEdit = false;
@@ -369,6 +370,18 @@ EditorUI.prototype.setUndoRedo = function(hasUndos, hasRedos) {
     } else {
         $("#redo-button").addClass("disabled");
     }
+};
+
+EditorUI.prototype.collapseCodePane = function() {
+    var self = this;
+    var splitter = $("#horizontal").data("kendoSplitter");
+    splitter.collapse(".k-pane:first");
+};
+
+EditorUI.prototype.expandCodePane = function() {
+    var self = this;
+    var splitter = $("#horizontal").data("kendoSplitter");
+    splitter.expand(".k-pane:first");
 };
 
 EditorUI.prototype.showWorkspace = function() {

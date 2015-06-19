@@ -53,6 +53,10 @@ String.prototype.replaceAll = function(a, b) {
     return this.split(a).join(b);
 };
 
+function formatFloat(number) {
+    return parseFloat(number.toFixed(3));
+}
+
 Utils.getMaterials = function(material) {
     if(material.type == "MeshFaceMaterial") {
         return material.materials;
@@ -152,10 +156,10 @@ Utils.packData = function(data) {
 
     if(data.physics) clone.physics = {
         type: data.physics.type,
-        friction: data.physics.friction,
-        restitution: data.physics.restitution,
+        friction: formatFloat(data.physics.friction),
+        restitution: formatFloat(data.physics.restitution),
         shape: data.physics.shape,
-        mass : data.physics.mass
+        mass : formatFloat(data.physics.mass)
     };
 
     if(data.light){
@@ -169,12 +173,12 @@ Utils.packData = function(data) {
     }
 
     if(data.camera) clone.camera = {
-        fov: data.camera.fov
+        fov: formatFloat(data.camera.fov)
     };
 
-    clone.position = [data.position[0], data.position[1], data.position[2]];
-    clone.rotation = [data.rotation[0], data.rotation[1], data.rotation[2]];
-    clone.scale = [data.scale[0], data.scale[1], data.scale[2]];
+    clone.position = [formatFloat(data.position[0]), formatFloat(data.position[1]), formatFloat(data.position[2])];
+    clone.rotation = [formatFloat(data.rotation[0]), formatFloat(data.rotation[1]), formatFloat(data.rotation[2])];
+    clone.scale = [formatFloat(data.scale[0]), formatFloat(data.scale[1]), formatFloat(data.scale[2])];
 
     return clone;
 };
