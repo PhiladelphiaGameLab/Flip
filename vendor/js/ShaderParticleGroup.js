@@ -110,6 +110,10 @@ SPE.Group.prototype = {
         that.attributes.velocity.needsUpdate = true;
         that.attributes.acceleration.needsUpdate = true;
         that.geometry.verticesNeedUpdate = true;
+        that.attributes.size.needsUpdate = true;
+        that.attributes.colorStart.needsUpdate = true;
+        that.attributes.colorMiddle.needsUpdate = true;
+        that.attributes.colorEnd.needsUpdate = true;
 
         return that;
     },
@@ -123,7 +127,6 @@ SPE.Group.prototype = {
      */
     addEmitter: function( emitter ) {
         var that = this;
-
         if( emitter.duration ) {
             emitter.particlesPerSecond = emitter.particleCount / (that.maxAge < emitter.duration ? that.maxAge : emitter.duration) | 0;
         }
@@ -199,7 +202,8 @@ SPE.Group.prototype = {
         emitter.attributes      = a;
         emitter.vertices        = that.geometry.vertices;
         emitter.maxAge          = that.maxAge;
-
+        emitter.sizeStart       = size;
+        //emitter.sizeStart       = size;
         // Assign a unique ID to this emitter
         emitter.__id = that._generateID();
 

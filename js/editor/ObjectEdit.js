@@ -1,7 +1,6 @@
-//changes for particle system
-var clock = new THREE.Clock();
+var clock = new THREE.Clock(); // for particle sytem
 var particleGroupArray = []; // keep track of total particle groups in the scene
-
+var emitter;
 function ObjectEdit (data, callback) {
     var self = this; 
     self.object3js = null; // ThreeJS object
@@ -73,9 +72,11 @@ function ObjectEdit (data, callback) {
     //check if it is a particle system 
     else if (self.data.particle){
 
-            self.data.particlemesh  = self.initParticles();   
-            self.object3js = self.data.particlemesh;
-            self.visual = self.data.particlemesh;
+            var particleMesh = self.initParticles();
+            self.data.particlemesh  = particleMesh;
+            self.data.particlemesh.emitter = emitter;
+            self.object3js = particleMesh;
+            self.visual = particleMesh;
             loaded();
 
 
@@ -89,12 +90,12 @@ function ObjectEdit (data, callback) {
         if(callback) callback(self);
     }
 }
-ObjectEdit.prototype.createExplosion = function(time) {
+ObjectEdit.prototype.createParticleEffect = function(time) {
             var self = this;
         for (var i= 0;i< particleGroupArray.length ;i++) {
             var p =particleGroupArray[i];
             p.tick( time );
-            p.triggerPoolEmitter( 1, (0,0,0) );
+            //p.triggerPoolEmitter( 1, (0,0,0) );
         }
             
 }
@@ -204,6 +205,13 @@ ObjectEdit.prototype.updateObject = function() {
         }
     } 
     if(self.data.particle) {
+            var visible = self.data.visible;
+             self.object3js.particlemesh = self.oldData.particlemesh;
+
+        if(!visible) {
+            self.visual.material.visible = false;
+        }else
+            self.visual.material.visible = true;
 
     }    
 };
@@ -217,40 +225,43 @@ ObjectEdit.prototype.dispose = function() {
 }
 
 ObjectEdit.prototype.update = function() {
-
-            var self = this;
-            var dt = clock.getDelta();   
-            self.createExplosion(dt);
-
- 
+    var self = this;
+    var dt = clock.getDelta();   
+    self.createParticleEffect(dt);
 }
+
 //Initialize particles
 ObjectEdit.prototype.initParticles = function() {
 
-            var self = this;  
-            var emitterSettings = {
-            type: 'sphere',
-            positionSpread: new THREE.Vector3(10, 10, 10),
-            radius: 1,
-            speed: 50,
-            sizeStart: 30,
-            sizeStartSpread: 30,
-            sizeEnd: 0,
-            opacityStart: 1,
-            opacityEnd: 0,
-            colorStart: new THREE.Color('yellow'),
-            colorStartSpread: new THREE.Vector3(0, 10, 0),
-            colorEnd: new THREE.Color('red'),
-            particleCount: 300,
-            alive: 0,
-            duration: 0.05
-            };  
+            var self = this;   
             var particleGroup = new SPE.Group({
             texture: THREE.ImageUtils.loadTexture('img/spark.png'),
             maxAge: 1.0,
-            blending: THREE.AdditiveBlending
+            blending: THREE.AdditiveBlending,
+            colorize:1
             });
-            particleGroup.addPool( 10, emitterSettings, false );
+            
+            emitter = new SPE.Emitter({
+                type: 'sphere',
+                positionSpread: new THREE.Vector3(10, 10, 10),
+                radius: 5,
+                speed: 4,
+                sizeStart: 5,
+                //sizeStartSpread: 20,
+                sizeEnd: 0,
+                //opacityStart: 1,
+                //opacityEnd: 0,
+                colorStart: new THREE.Color('white'),
+                //colorStartSpread: new THREE.Vector3(0, 10, 0),
+                colorEnd: new THREE.Color('white'),
+                particleCount: 500,
+                alive: 1
+                //duration: 0.05
+
+            });
+            particleGroup.addEmitter( emitter );
+            particleGroup.addPool( 10, emitter, false );
+            self.data.particlegroup = particleGroup;
             particleGroupArray.push(particleGroup);
             return particleGroup.mesh;
 }

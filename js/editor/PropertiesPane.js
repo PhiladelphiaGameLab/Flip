@@ -45,6 +45,24 @@ function PropertiesPane(editor) {
         this["Clear Scene"] = function() { editor.clearScene() };
         this["Clear Saved Data"] = function() { editorUI.clearLocalStorage(); };
         this["Save To File"] = function() { editorUI.saveToFile(editor.sceneData, editor.sceneName)};
+
+        //Particle system Folder
+        this["Count"] = 500;
+        this["pvx"] = 0;
+        this["pvy"] = 15;
+        this["pvz"] = 10;
+        this["pax"] = 0;
+        this["pay"] = 0;
+        this["paz"] = 0;
+        this["Shape"] = "sphere";
+        this["Speed"] = 10;
+        this["Blending"] = "Additive Blending";
+        this["Size"] =1;
+        this["PartColor"] ="#ffffff";
+        this["Radius"] = 1;
+        
+
+
     };
 
     var controls = new Controls();
@@ -184,9 +202,133 @@ function PropertiesPane(editor) {
         editor.editObject(self.selectedObject);
     });
 
+      //Partcile Folder
+    var particleFolder = gui.addFolder("Particle System");
+    
+    particleFolder.add(controls, "Count", 0, 1000, 100).onFinishChange(function(value){
+        self.selectedObject.data.particlemesh.emitter.alive = value/1000;
+        self.selectedObject.updateObject();
+        editor.editObject(self.selectedObject);
+    });
+
+    var pvxControl = particleFolder.add(controls, "pvx").min(0).onChange(function(value){
+        self.selectedObject.data.particlemesh.emitter.velocity.x = value;
+        self.selectedObject.updateObject();
+    }).onFinishChange(function(value){
+        editor.editObject(self.selectedObject);
+    });
+
+     var pvyControl = particleFolder.add(controls, "pvy").min(0).onChange(function(value){
+        self.selectedObject.data.particlemesh.emitter.velocity.y = value;
+        self.selectedObject.updateObject();
+    }).onFinishChange(function(value){
+        editor.editObject(self.selectedObject);
+    });
+
+     var pvzControl = particleFolder.add(controls, "pvz").min(0).onChange(function(value){
+        self.selectedObject.data.particlemesh.emitter.velocity.z = value;
+        self.selectedObject.updateObject();
+    }).onFinishChange(function(value){
+        editor.editObject(self.selectedObject);
+    });
+
+     var paxControl = particleFolder.add(controls, "pax").min(0).onChange(function(value){
+        self.selectedObject.data.particlemesh.emitter.acceleration.x = value;
+        self.selectedObject.updateObject();
+    }).onFinishChange(function(value){
+        editor.editObject(self.selectedObject);
+    });
+
+     var payControl = particleFolder.add(controls, "pay").min(0).onChange(function(value){
+        self.selectedObject.data.particlemesh.emitter.acceleration.y = value;
+        self.selectedObject.updateObject();
+    }).onFinishChange(function(value){
+        editor.editObject(self.selectedObject);
+    });
+
+     var pazControl = particleFolder.add(controls, "paz").min(0).onChange(function(value){
+        self.selectedObject.data.particlemesh.emitter.acceleration.z = value;
+        self.selectedObject.updateObject();
+    }).onFinishChange(function(value){
+        editor.editObject(self.selectedObject);
+    });
+
+     // Set  Speed of particle
+    particleFolder.add(controls, "Speed", 0, 100, 10).onFinishChange(function(value){
+        self.selectedObject.data.particlemesh.emitter.speed = value;
+        self.selectedObject.updateObject();
+        editor.editObject(self.selectedObject);
+    });
+
+    // Set  Size of particle
+    particleFolder.add(controls, "Size", 0, 10, 1).onFinishChange(function(value){
+        for (var p = 0; p < self.selectedObject.data.particlemesh.emitter.attributes.size.value.length; p++) {
+        self.selectedObject.data.particlemesh.emitter.attributes.size.value[ p ].set( value, value,value );
+        }self.selectedObject.updateObject();   
+        editor.editObject(self.selectedObject);
+    });
+
+    //Set Radius for Speher and Disk
+    var radiusControl = particleFolder.add(controls, "Radius", 0, 50, 1).onFinishChange(function(value){
+        self.selectedObject.data.particlemesh.emitter.radius = value;
+        self.selectedObject.updateObject();
+        editor.editObject(self.selectedObject);
+    });
+    
+    // Set  Color of particle
+    var particleColorControl = particleFolder.addColor(controls,"PartColor").onChange(function(value){
+        for (var p = 0; p < self.selectedObject.data.particlemesh.emitter.attributes.colorStart.value.length; p++) {
+        self.selectedObject.data.particlemesh.emitter.attributes.colorStart.value[ p ].set(value);
+        self.selectedObject.data.particlemesh.emitter.attributes.colorMiddle.value[ p ].set(value);
+        self.selectedObject.data.particlemesh.emitter.attributes.colorEnd.value[ p ].set(value);
+        }self.selectedObject.updateObject();
+    }).onFinishChange(function(value){
+        editor.editObject(self.selectedObject);
+    });
+
+    setControllerName(particleColorControl, "Color");
+    
+    
+    var velocityVisual = combineNumberControllers([pvxControl, pvyControl, pvzControl], "Velocity");
+    var accelerationVisual =  combineNumberControllers([paxControl, payControl, pazControl], "Acceleration");
+    
+    
+
+    // Set shape of particle
+    particleFolder.add(controls, "Shape", ["sphere", "cube", "disk"]).onFinishChange(function(value){
+        self.selectedObject.data.particlemesh.emitter.type = value;
+        self.selectedObject.updateObject();
+        editor.editObject(self.selectedObject);
+    });
+    
+    // Set the blending style of Particle
+    particleFolder.add(controls, "Blending", [ "Normal Blending", "Additive Blending",
+        "Subtractive Blending","Multiply Blending"]).onFinishChange(function(value){
+
+         switch(value) {
+            case "Normal Blending" :
+                self.selectedObject.visual.material.blending=1;
+                break;
+            case "Additive Blending" :
+                self.selectedObject.visual.material.blending=2;
+                break;
+            case "Subtractive Blending" :
+                self.selectedObject.visual.material.blending=3;
+                break;
+            case "Multiply Blending" :
+                self.selectedObject.visual.material.blending=4;
+                break;
+            default:
+                self.selectedObject.visual.material.blending=2;
+         }
+        self.selectedObject.updateObject();
+        editor.editObject(self.selectedObject);
+    });
+
     var translateVisual = combineNumberControllers([xControl, yControl, zControl], "Position");
     var rotateVisual = combineNumberControllers([rxControl, ryControl, rzControl], "Rotation");
     var scaleVisual = combineNumberControllers([sxControl, syControl, szControl], "Scale");
+    
 
     //Material Folder 
     var materialFolder = gui.addFolder("Material") ;
@@ -234,7 +376,6 @@ function PropertiesPane(editor) {
         self.selectedObject.data.physics.mass = value;
         editor.editObject(self.selectedObject);
     });
-
 
     // Dir Light folder
     var dirLightFolder = gui.addFolder("Directional Light");
@@ -348,6 +489,8 @@ function PropertiesPane(editor) {
     self.scaleVisual = scaleVisual;
     self.settingsFolder = settingsFolder;
     self.settingsFolderVisual = $(settingsFolder.domElement).parent();
+    self.particleFolder = particleFolder;
+    self.particleFolderVisual = $(particleFolder.domElement).parent();
 }
 
 
@@ -369,6 +512,7 @@ PropertiesPane.prototype.showProperties = function(visible) {
     self.physicsFolderVisual.toggle(visible);
     self.dirLightFolderVisual.toggle(visible);
     self.pointLightFolderVisual.toggle(visible);
+    self.particleFolderVisual.toggle(visible);
 
     if(visible) {
         self.basicFolder.open();
@@ -376,6 +520,7 @@ PropertiesPane.prototype.showProperties = function(visible) {
         self.physicsFolder.open();
         self.dirLightFolder.open();
         self.pointLightFolder.open();
+        self.particleFolder.open();
     }
 };
 
@@ -433,12 +578,14 @@ PropertiesPane.prototype.updateSelectedObject = function() {
     var hasLight = object.data.light !== null;
     var hasDirLight = hasLight && object.data.light.type == "dir";
     var hasPointLight = hasLight && object.data.light.type == "point";
+    var hasParticle = object.data.particle !== false;
 
     // Hide folders (but open later if applicable)
     self.physicsFolderVisual.hide();
     self.materialFolderVisual.hide();
     self.dirLightFolderVisual.hide();
     self.pointLightFolderVisual.hide();
+    self.particleFolderVisual.hide();
 
     // Update general properties
     self.controls["Name"] = object.data.name;
@@ -480,6 +627,11 @@ PropertiesPane.prototype.updateSelectedObject = function() {
         // A mesh always has a material
         self.controls["MatColor"] = colorToString(object.data.material.color);
         self.materialFolderVisual.show();
+    }
+
+    if(hasParticle) {
+        
+        self.particleFolderVisual.show();
     }
 
     self.refreshUI();
