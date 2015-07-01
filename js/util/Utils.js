@@ -74,6 +74,17 @@ Utils.unpackData = function(data) {
     
     clone.particle = data.particle || false;
     clone.particlemesh = data.particlemesh || null;
+    clone.emitter = null;
+    if(data.particle) clone.emitter = {
+        type: data.emitter.type,
+        radius: data.emitter.radius,
+        speed: data.emitter.speed,
+        size: data.emitter.size,
+        color: data.emitter.color,
+        alive:data.emitter.alive,
+        acceleration:data.emitter.acceleration,
+        velocity:data.emitter.velocity
+    };
 
     clone.material = null;
     if(data.material) clone.material = {
@@ -101,7 +112,10 @@ Utils.unpackData = function(data) {
     if(data.camera) clone.camera = {
         fov: data.camera.fov
     };
-
+    if(data.partilce) {
+        clone.emitter.acceleration = data.emitter.acceleration ? [data.emitter.acceleration[0], data.emitter.acceleration[1], data.emitter.acceleration[2]] : [0,0,0];
+        clone.emitter.velocity = data.emitter.velocity ? [data.emitter.velocity[0], data.emitter.velocity[1], data.emitter.velocity[2]] : [0,0,0];
+    }
     clone.position = data.position ? [data.position[0], data.position[1], data.position[2]] : [0,0,0];
     clone.rotation = data.rotation ? [data.rotation[0], data.rotation[1], data.rotation[2]] : [0,0,0];
     clone.scale = data.scale ? [data.scale[0], data.scale[1], data.scale[2]] : [1,1,1];
@@ -132,6 +146,17 @@ Utils.packData = function(data) {
     if(data.particle) clone.particle = data.particle;
     if(data.particle) clone.particlemesh = data.particlemesh;
 
+    if(data.particle) clone.emitter = {
+        type: data.emitter.type,
+        radius: data.emitter.radius,
+        speed: data.emitter.speed,
+        size: data.emitter.size,
+        color: data.emitter.color,
+        alive: data.emitter.alive,
+        acceleration:data.emitter.acceleration,
+        velocity:data.emitter.velocity
+    };
+
     if(data.material) clone.material = {
         color: data.material.color
     };
@@ -157,7 +182,10 @@ Utils.packData = function(data) {
     if(data.camera) clone.camera = {
         fov: data.camera.fov
     };
-
+    if(data.partilce) {
+        clone.emitter.acceleration = [data.emitter.acceleration[0], data.emitter.acceleration[1], data.emitter.acceleration[2]];
+        clone.emitter.velocity = [data.emitter.velocity[0], data.emitter.velocity[1], data.emitter.velocity[2]];
+    }
     clone.position = [data.position[0], data.position[1], data.position[2]];
     clone.rotation = [data.rotation[0], data.rotation[1], data.rotation[2]];
     clone.scale = [data.scale[0], data.scale[1], data.scale[2]];

@@ -106,7 +106,7 @@ ObjectGame.prototype.loaded = function() {
 ObjectGame.prototype.update = function() {
     var self = this;
     var dt = clock.getDelta();   
-    self.createExplosion(dt);
+    self.createParticleEffect(dt);
     
 };
 
@@ -154,13 +154,12 @@ ObjectGame.prototype.setRotation = function(rotation) {
     self.object3js.__dirtyRotation = true;
 };
 
-ObjectGame.prototype.createExplosion = function(time) {
+ObjectGame.prototype.createParticleEffect = function(time) {
     var self = this;
     for (var i= 0;i< particleGroupArray.length ;i++)
     {
         var p =particleGroupArray[i];
         p.tick( time );
-        p.triggerPoolEmitter( 1, (0,0,0) );
     }
             
 }

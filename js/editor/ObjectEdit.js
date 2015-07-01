@@ -1,6 +1,5 @@
 var clock = new THREE.Clock(); // for particle sytem
 var particleGroupArray = []; // keep track of total particle groups in the scene
-var emitter;
 function ObjectEdit (data, callback) {
     var self = this; 
     self.object3js = null; // ThreeJS object
@@ -74,7 +73,6 @@ function ObjectEdit (data, callback) {
 
             var particleMesh = self.initParticles();
             self.data.particlemesh  = particleMesh;
-            self.data.particlemesh.emitter = emitter;
             self.object3js = particleMesh;
             self.visual = particleMesh;
             loaded();
@@ -206,13 +204,33 @@ ObjectEdit.prototype.updateObject = function() {
     } 
     if(self.data.particle) {
             var visible = self.data.visible;
-             self.object3js.particlemesh = self.oldData.particlemesh;
 
         if(!visible) {
             self.visual.material.visible = false;
-        }else
+        } else
             self.visual.material.visible = true;
 
+            var emitterData = self.data.emitter;
+            self.emitter.speed = emitterData.speed;
+            self.emitter.radius = emitterData.radius;
+            self.emitter.type = emitterData.type;
+            self.emitter.alive = self.data.emitter.alive;
+        for (var p = 0; p < self.emitter.attributes.size.value.length; p++) {
+            self.emitter.attributes.size.value[ p ].set( emitterData.size, emitterData.size,emitterData.size );
+        }
+        for (var p = 0; p < self.emitter.attributes.colorStart.value.length; p++) {
+            self.emitter.attributes.colorStart.value[ p ].set( emitterData.color, emitterData.color,emitterData.color);
+            self.emitter.attributes.colorMiddle.value[ p ].set( emitterData.color, emitterData.color,emitterData.color);
+            self.emitter.attributes.colorEnd.value[ p ].set( emitterData.color, emitterData.color,emitterData.color);
+        }
+            self.emitter.acceleration.x = self.data.emitter.acceleration[0];
+            self.emitter.acceleration.y = self.data.emitter.acceleration[1];
+            self.emitter.acceleration.z = self.data.emitter.acceleration[2];
+            self.emitter.velocity.x = self.data.emitter.velocity[0];
+            self.emitter.velocity.y = self.data.emitter.velocity[1];
+            self.emitter.velocity.z = self.data.emitter.velocity[2];
+             
+        
     }    
 };
 
@@ -233,35 +251,30 @@ ObjectEdit.prototype.update = function() {
 //Initialize particles
 ObjectEdit.prototype.initParticles = function() {
 
-            var self = this;   
-            var particleGroup = new SPE.Group({
-            texture: THREE.ImageUtils.loadTexture('img/spark.png'),
-            maxAge: 1.0,
-            blending: THREE.AdditiveBlending,
-            colorize:1
-            });
+        var self = this;   
+        var particleGroup = new SPE.Group({
+        texture: THREE.ImageUtils.loadTexture('img/spark.png'),
+        maxAge: 1.0,
+        blending: THREE.AdditiveBlending,
+        colorize:1
+        });
             
-            emitter = new SPE.Emitter({
-                type: 'sphere',
-                positionSpread: new THREE.Vector3(10, 10, 10),
-                radius: 5,
-                speed: 4,
-                sizeStart: 5,
-                //sizeStartSpread: 20,
-                sizeEnd: 0,
-                //opacityStart: 1,
-                //opacityEnd: 0,
-                colorStart: new THREE.Color('white'),
-                //colorStartSpread: new THREE.Vector3(0, 10, 0),
-                colorEnd: new THREE.Color('white'),
-                particleCount: 500,
-                alive: 1
-                //duration: 0.05
+        self.emitter = new SPE.Emitter({
+            type: 'sphere',
+            positionSpread: new THREE.Vector3(10, 10, 10),
+            radius: 5,
+            speed: 4,
+            sizeStart: 5,
+            sizeEnd: 0,
+            colorStart: new THREE.Color('white'),
+            colorEnd: new THREE.Color('white'),
+            particleCount: 500,
+            alive: 1
 
-            });
-            particleGroup.addEmitter( emitter );
-            particleGroup.addPool( 10, emitter, false );
-            self.data.particlegroup = particleGroup;
-            particleGroupArray.push(particleGroup);
-            return particleGroup.mesh;
+        });
+        particleGroup.addEmitter( self.emitter );
+        particleGroup.addPool( 10, self.emitter, false );
+        self.data.particlegroup = particleGroup;
+        particleGroupArray.push(particleGroup);
+        return particleGroup.mesh;
 }

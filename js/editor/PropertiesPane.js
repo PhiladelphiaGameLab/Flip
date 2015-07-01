@@ -49,14 +49,13 @@ function PropertiesPane(editor) {
         //Particle system Folder
         this["Count"] = 500;
         this["pvx"] = 0;
-        this["pvy"] = 15;
-        this["pvz"] = 10;
+        this["pvy"] = 0;
+        this["pvz"] = 0;
         this["pax"] = 0;
         this["pay"] = 0;
         this["paz"] = 0;
         this["Shape"] = "sphere";
-        this["Speed"] = 10;
-        this["Blending"] = "Additive Blending";
+        this["Speed"] = 4;
         this["Size"] =1;
         this["PartColor"] ="#ffffff";
         this["Radius"] = 1;
@@ -206,48 +205,48 @@ function PropertiesPane(editor) {
     var particleFolder = gui.addFolder("Particle System");
     
     particleFolder.add(controls, "Count", 0, 1000, 100).onFinishChange(function(value){
-        self.selectedObject.data.particlemesh.emitter.alive = value/1000;
+        self.selectedObject.data.emitter.alive = value/1000;
         self.selectedObject.updateObject();
         editor.editObject(self.selectedObject);
     });
 
     var pvxControl = particleFolder.add(controls, "pvx").min(0).onChange(function(value){
-        self.selectedObject.data.particlemesh.emitter.velocity.x = value;
+        self.selectedObject.data.emitter.velocity[0] = value;
         self.selectedObject.updateObject();
     }).onFinishChange(function(value){
         editor.editObject(self.selectedObject);
     });
 
      var pvyControl = particleFolder.add(controls, "pvy").min(0).onChange(function(value){
-        self.selectedObject.data.particlemesh.emitter.velocity.y = value;
+        self.selectedObject.data.emitter.velocity[1] = value;
         self.selectedObject.updateObject();
     }).onFinishChange(function(value){
         editor.editObject(self.selectedObject);
     });
 
      var pvzControl = particleFolder.add(controls, "pvz").min(0).onChange(function(value){
-        self.selectedObject.data.particlemesh.emitter.velocity.z = value;
+        self.selectedObject.data.emitter.velocity[2] = value;
         self.selectedObject.updateObject();
     }).onFinishChange(function(value){
         editor.editObject(self.selectedObject);
     });
 
      var paxControl = particleFolder.add(controls, "pax").min(0).onChange(function(value){
-        self.selectedObject.data.particlemesh.emitter.acceleration.x = value;
+        self.selectedObject.data.emitter.acceleration[0] = value;
         self.selectedObject.updateObject();
     }).onFinishChange(function(value){
         editor.editObject(self.selectedObject);
     });
 
      var payControl = particleFolder.add(controls, "pay").min(0).onChange(function(value){
-        self.selectedObject.data.particlemesh.emitter.acceleration.y = value;
+        self.selectedObject.data.emitter.acceleration[1] = value;
         self.selectedObject.updateObject();
     }).onFinishChange(function(value){
         editor.editObject(self.selectedObject);
     });
 
      var pazControl = particleFolder.add(controls, "paz").min(0).onChange(function(value){
-        self.selectedObject.data.particlemesh.emitter.acceleration.z = value;
+        self.selectedObject.data.emitter.acceleration[2] = value;
         self.selectedObject.updateObject();
     }).onFinishChange(function(value){
         editor.editObject(self.selectedObject);
@@ -255,33 +254,29 @@ function PropertiesPane(editor) {
 
      // Set  Speed of particle
     particleFolder.add(controls, "Speed", 0, 100, 10).onFinishChange(function(value){
-        self.selectedObject.data.particlemesh.emitter.speed = value;
+        self.selectedObject.data.emitter.speed = value;
         self.selectedObject.updateObject();
         editor.editObject(self.selectedObject);
     });
 
     // Set  Size of particle
     particleFolder.add(controls, "Size", 0, 10, 1).onFinishChange(function(value){
-        for (var p = 0; p < self.selectedObject.data.particlemesh.emitter.attributes.size.value.length; p++) {
-        self.selectedObject.data.particlemesh.emitter.attributes.size.value[ p ].set( value, value,value );
-        }self.selectedObject.updateObject();   
+        self.selectedObject.data.emitter.size =value;
+        self.selectedObject.updateObject();   
         editor.editObject(self.selectedObject);
     });
 
-    //Set Radius for Speher and Disk
+    //Set Radius for Sphere and Disk
     var radiusControl = particleFolder.add(controls, "Radius", 0, 50, 1).onFinishChange(function(value){
-        self.selectedObject.data.particlemesh.emitter.radius = value;
+        self.selectedObject.data.emitter.radius = value;
         self.selectedObject.updateObject();
         editor.editObject(self.selectedObject);
     });
     
     // Set  Color of particle
     var particleColorControl = particleFolder.addColor(controls,"PartColor").onChange(function(value){
-        for (var p = 0; p < self.selectedObject.data.particlemesh.emitter.attributes.colorStart.value.length; p++) {
-        self.selectedObject.data.particlemesh.emitter.attributes.colorStart.value[ p ].set(value);
-        self.selectedObject.data.particlemesh.emitter.attributes.colorMiddle.value[ p ].set(value);
-        self.selectedObject.data.particlemesh.emitter.attributes.colorEnd.value[ p ].set(value);
-        }self.selectedObject.updateObject();
+       self.selectedObject.data.emitter.color = stringToColor(value);
+       self.selectedObject.updateObject();
     }).onFinishChange(function(value){
         editor.editObject(self.selectedObject);
     });
@@ -296,35 +291,11 @@ function PropertiesPane(editor) {
 
     // Set shape of particle
     particleFolder.add(controls, "Shape", ["sphere", "cube", "disk"]).onFinishChange(function(value){
-        self.selectedObject.data.particlemesh.emitter.type = value;
+        self.selectedObject.data.emitter.type = value;
         self.selectedObject.updateObject();
         editor.editObject(self.selectedObject);
     });
     
-    // Set the blending style of Particle
-    particleFolder.add(controls, "Blending", [ "Normal Blending", "Additive Blending",
-        "Subtractive Blending","Multiply Blending"]).onFinishChange(function(value){
-
-         switch(value) {
-            case "Normal Blending" :
-                self.selectedObject.visual.material.blending=1;
-                break;
-            case "Additive Blending" :
-                self.selectedObject.visual.material.blending=2;
-                break;
-            case "Subtractive Blending" :
-                self.selectedObject.visual.material.blending=3;
-                break;
-            case "Multiply Blending" :
-                self.selectedObject.visual.material.blending=4;
-                break;
-            default:
-                self.selectedObject.visual.material.blending=2;
-         }
-        self.selectedObject.updateObject();
-        editor.editObject(self.selectedObject);
-    });
-
     var translateVisual = combineNumberControllers([xControl, yControl, zControl], "Position");
     var rotateVisual = combineNumberControllers([rxControl, ryControl, rzControl], "Rotation");
     var scaleVisual = combineNumberControllers([sxControl, syControl, szControl], "Scale");
@@ -631,6 +602,18 @@ PropertiesPane.prototype.updateSelectedObject = function() {
 
     if(hasParticle) {
         
+        self.controls["PartColor"] = colorToString(object.data.emitter.color);
+        self.controls["Speed"] = object.data.emitter.speed;
+        self.controls["Shape"] = object.data.emitter.type;
+        self.controls["Radius"] = object.data.emitter.radius;
+        self.controls["Size"] = object.data.emitter.size;
+        self.controls["Count"] = object.data.emitter.alive*1000;
+        self.controls["pax"] = object.data.emitter.acceleration[0];
+        self.controls["pay"] = object.data.emitter.acceleration[1];
+        self.controls["paz"] = object.data.emitter.acceleration[2];
+        self.controls["pvx"] = object.data.emitter.velocity[0];
+        self.controls["pvy"] = object.data.emitter.velocity[1];
+        self.controls["pvz"] = object.data.emitter.velocity[2];
         self.particleFolderVisual.show();
     }
 

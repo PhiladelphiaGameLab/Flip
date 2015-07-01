@@ -34,7 +34,7 @@ function Editor(renderer, width, height, loader) {
         //{name:"Glass Box", icon:"img/cube.png", mesh:"data/assets/physics_demo/cube_glass.json"},
 
         //Particle System
-        {name:"Particle System", icon:"img/cube.png", particle:true, particlemesh:null}
+        {name:"Particle System", icon:"img/cube.png", particle:true, particlemesh:null,emitter:{type:'sphere',radius:5,speed:4,alive:1,size:1,color:0xffffff,acceleration:[0,0,0],velocity:[0,0,0]}}
 
     ];
 
