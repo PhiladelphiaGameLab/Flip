@@ -210,6 +210,35 @@ function PropertiesPane(editor) {
         editor.editObject(self.selectedObject);
     });
 
+    // Set shape of particle
+    particleFolder.add(controls, "Shape", ["sphere", "cube", "disk"]).onFinishChange(function(value){
+        self.selectedObject.data.emitter.type = value;
+        self.selectedObject.updateObject();
+        editor.editObject(self.selectedObject);
+    });
+
+
+     // Set  Speed of particle
+    particleFolder.add(controls, "Speed", 0, 100, 10).onFinishChange(function(value){
+        self.selectedObject.data.emitter.speed = value;
+        self.selectedObject.updateObject();
+        editor.editObject(self.selectedObject);
+    });
+
+    // Set  Size of particle
+    particleFolder.add(controls, "Size", 0, 10, 1).onFinishChange(function(value){
+        self.selectedObject.data.emitter.size =value;
+        self.selectedObject.updateObject();   
+        editor.editObject(self.selectedObject);
+    });
+
+    //Set Radius for Sphere and Disk
+    var radiusControl = particleFolder.add(controls, "Radius", 0, 50, 1).onFinishChange(function(value){
+        self.selectedObject.data.emitter.radius = value;
+        self.selectedObject.updateObject();
+        editor.editObject(self.selectedObject);
+    });
+    
     var pvxControl = particleFolder.add(controls, "pvx").min(0).onChange(function(value){
         self.selectedObject.data.emitter.velocity[0] = value;
         self.selectedObject.updateObject();
@@ -251,27 +280,6 @@ function PropertiesPane(editor) {
     }).onFinishChange(function(value){
         editor.editObject(self.selectedObject);
     });
-
-     // Set  Speed of particle
-    particleFolder.add(controls, "Speed", 0, 100, 10).onFinishChange(function(value){
-        self.selectedObject.data.emitter.speed = value;
-        self.selectedObject.updateObject();
-        editor.editObject(self.selectedObject);
-    });
-
-    // Set  Size of particle
-    particleFolder.add(controls, "Size", 0, 10, 1).onFinishChange(function(value){
-        self.selectedObject.data.emitter.size =value;
-        self.selectedObject.updateObject();   
-        editor.editObject(self.selectedObject);
-    });
-
-    //Set Radius for Sphere and Disk
-    var radiusControl = particleFolder.add(controls, "Radius", 0, 50, 1).onFinishChange(function(value){
-        self.selectedObject.data.emitter.radius = value;
-        self.selectedObject.updateObject();
-        editor.editObject(self.selectedObject);
-    });
     
     // Set  Color of particle
     var particleColorControl = particleFolder.addColor(controls,"PartColor").onChange(function(value){
@@ -286,16 +294,6 @@ function PropertiesPane(editor) {
     
     var velocityVisual = combineNumberControllers([pvxControl, pvyControl, pvzControl], "Velocity");
     var accelerationVisual =  combineNumberControllers([paxControl, payControl, pazControl], "Acceleration");
-    
-    
-
-    // Set shape of particle
-    particleFolder.add(controls, "Shape", ["sphere", "cube", "disk"]).onFinishChange(function(value){
-        self.selectedObject.data.emitter.type = value;
-        self.selectedObject.updateObject();
-        editor.editObject(self.selectedObject);
-    });
-    
     var translateVisual = combineNumberControllers([xControl, yControl, zControl], "Position");
     var rotateVisual = combineNumberControllers([rxControl, ryControl, rzControl], "Rotation");
     var scaleVisual = combineNumberControllers([sxControl, syControl, szControl], "Scale");
